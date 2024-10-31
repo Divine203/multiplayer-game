@@ -1,17 +1,22 @@
 import { Vec2 } from "./interfaces.interface";
-import { ctx } from "./general";
+import { ctx, arena } from "./general";
+import { PlatformElevation } from "./elevation.enum";
 
 export class Tile {
     public pos: Vec2;
     public vel: Vec2;
     public width: number;
     public height: number;
+    public elevation: PlatformElevation;
+    public initYPos: number;
 
-    constructor({ x, y, width, height }: ITile) {
+    constructor({ x, y, width, height, elevation }: ITile) {
         this.pos = { x, y };
         this.vel = { x: 0, y: 0};
         this.width = width;
         this.height = height;
+        this.elevation = elevation;
+        this.initYPos = y;
     }
 
     draw() {
@@ -22,6 +27,10 @@ export class Tile {
     update() {
         this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
+
+        this.pos.x += arena.pos.x;
+        this.pos.y = arena.pos.y + this.initYPos;
+
         this.draw();
     }
 }
@@ -31,6 +40,7 @@ export interface ITile {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    elevation: PlatformElevation
 }
 
