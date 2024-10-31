@@ -1,0 +1,78 @@
+import { Entity, IKeys } from "./interfaces.interface"
+import { Game } from "./main";
+import { Player } from "./player"
+import { Tile } from "./tile";
+
+export class Physics {
+    public game: Game;
+    public gravity: number = 1.5;
+
+    constructor(game: Game) {
+        this.game = game;
+    }
+
+    public topVar(char: any, object: Tile, num: number): boolean {
+        return (char.pos.y + char.height <= object.pos.y - num &&
+            char.pos.y + char.height + char.vel.y >= object.pos.y - num &&
+            char.pos.x + char.width >= object.pos.x &&
+            char.pos.x <= object.pos.x + object.width);
+    }
+
+    public top(char: any, object: Tile): boolean | any {
+        const result =  (
+            this.topVar(char, object, 4) ||
+            this.topVar(char, object, 3) ||
+            this.topVar(char, object, 2) ||
+            this.topVar(char, object, 1) ||
+            this.topVar(char, object, 0)
+        );
+        return result;
+    }
+
+    public left(char: any, object: Tile): boolean {
+        return (char.pos.x + char.width >= object.pos.x &&
+            char.pos.x + char.width + char.vel.x <= object.pos.x + object.width &&
+            char.pos.y + char.height >= object.pos.y &&
+            char.pos.y <= object.pos.y + object.height);
+    }
+
+    public right(char: any, object: Tile): boolean {
+        return (char.pos.x <= object.pos.x + object.width &&
+            char.pos.x + char.vel.x >= object.pos.x &&
+            char.pos.y + char.height >= object.pos.y &&
+            char.pos.y <= object.pos.y + object.height);
+    }
+
+    public bottom(char: any, object: Tile): boolean {
+        return (char.pos.y >= object.pos.y + object.height &&
+            char.pos.y + char.vel.y <= object.pos.y + object.height &&
+            char.pos.x + char.width >= object.pos.x &&
+            char.pos.x <= object.pos.x + object.width);
+    }
+
+    public addPhysics = (char: any, platform: Tile): any => {
+        if (this.top(char, platform)) {
+            char.pos.y = (platform.pos.y - char.height) - 1
+            char.vel.y = 0
+        }
+        if (this.left(char, platform)) {
+            char.vel.x = 0
+            if (!this.bottom(char, platform) == false) char.pos.x = (platform.pos.x - char.width) - 1
+            if (this.game.keys.left.pressed && char == this.game.player) this.game.player.vel.x = -10
+        }
+        if (this.right(char, platform)) {
+            char.vel.x = 0
+            if (!this.bottom(char, platform) == false) char.pos.x = (platform.pos.x + platform.width) + 1
+            if (this.game.keys.right.pressed && char == this.game.player) this.game.player.vel.x = 10
+        }
+        if (this.bottom(char, platform)) {
+            char.vel.y = 0
+        }
+        return {
+            vel: { x: char.vel.x, y: char.vel.y },
+            pos: { x: char.pos.x, y: char.pos.y }
+        };
+    }
+
+
+}
