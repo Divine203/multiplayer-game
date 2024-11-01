@@ -11,6 +11,6 @@ export const arena: any = {
         y: 0
     },
 
-    speed: 8,
+    speed: 10,
     width: 5120
 }

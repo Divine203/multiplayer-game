@@ -1,7 +1,4 @@
-import { arena } from "./general";
-import { Entity, IKeys } from "./interfaces.interface"
 import { Game } from "./main";
-import { Player } from "./player"
 import { Tile } from "./tile";
 
 export class Physics {
@@ -45,23 +42,7 @@ export class Physics {
         );
         return result;
     }
-
-    public almostUnTop(char: any, object: Tile): boolean | any {
-        return (
-        this.topVar(char, object, 300) ||
-        this.topVar(char, object, 290) ||
-        this.topVar(char, object, 280) ||
-        this.topVar(char, object, 270) ||
-        this.topVar(char, object, 260) ||
-        this.topVar(char, object, 250) ||
-        this.topVar(char, object, 240) ||
-        this.topVar(char, object, 230) ||
-        this.topVar(char, object, 220) ||
-        this.topVar(char, object, 210) ||
-        this.topVar(char, object, 200)
-        );
-    }
-
+    
     public left(char: any, object: Tile): boolean {
         return (char.pos.x + char.width >= object.pos.x &&
             char.pos.x + char.width + char.vel.x <= object.pos.x + object.width &&
@@ -84,14 +65,10 @@ export class Physics {
     }
 
     public addPhysics = (char: any, platform: Tile): any => {
-        if(this.almostUnTop(char, platform)) {
-            char.currentElevation = platform.elevation;
-        }
         if (this.top(char, platform)) {
-            char.pos.y = (platform.pos.y - char.height) - 10;
+            char.pos.y = (platform.pos.y - char.height) - 15;
             char.vel.y = 0;
             char.camera.vel.y = 0;
-            char.currentElevation = platform.elevation;
         }
         if (this.left(char, platform)) {
             char.vel.x = 0;
@@ -108,7 +85,6 @@ export class Physics {
         if (this.bottom(char, platform)) {
             char.vel.y = 0;
             char.camera.vel.y = 0;
-            // arena.pos.y = 0;
         }
         return {
             vel: { x: char.vel.x, y: char.vel.y },
