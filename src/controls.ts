@@ -15,7 +15,7 @@ export class Controls {
             switch (e.key) {
                 case 'ArrowUp':
                     this.game.player.isJumping = true;
-                    this.game.player.vel.y -= 42;
+                    this.game.player.vel.y -= 32;
                     break;
                 case 'ArrowLeft':
                     if (this.game.keys.right.pressed === false) {
