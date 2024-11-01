@@ -1,6 +1,6 @@
 import { Map1 } from "./map1";
 import { Player } from "./player";
-import { cvs, ctx } from "./general";
+import { cvs, ctx, arena } from "./general";
 import { Controls } from "./controls";
 import { IKeys } from "./interfaces.interface";
 import { Physics } from "./physics";
@@ -32,11 +32,22 @@ export class Game {
     private moveCameraAndPlayer(): void {
         if (this.keys.right.pressed) {
             this.player.vel.x = this.player.speed
+            if (this.player.isCamLeft()) {
+                this.player.vel.x = 0;
+                if (this.player.camera.pos.x + this.player.camera.width < arena.width) {
+                    this.player.camera.vel.x = -(this.player.speed);
+                }
+            }
 
         } else if (this.keys.left.pressed) {
-            this.player.vel.x = -this.player.speed
+            this.player.vel.x = -this.player.speed;
+            if (this.player.isCamRight()) {
+                this.player.vel.x = 0;
+                this.player.camera.vel.x = (this.player.speed);
+            }
+
         } else {
-            this.player.vel.x = 0
+            this.player.vel.x = 0;
         }
     }
 
@@ -46,13 +57,13 @@ export class Game {
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
         this.map.tiles.forEach((tile: Tile) => {
-            tile.update();
             const ph = this.physics.addPhysics(this.player, tile);
+            tile.update();
             this.player.pos = ph.pos;
             this.player.vel = ph.vel;
-
         });
-        this.moveCameraAndPlayer();
+        this.moveCameraAndPlayer();  
+        this.moveGame();
         this.player.udpate();
 
 
@@ -69,6 +80,12 @@ export class Game {
 
     }
 
+
+    public moveGame = () => { 
+        arena.pos.x = this.player.camera.vel.x;
+        arena.pos.y += arena.vel.y;
+    }
+    
     public update(): void {
         this.render();
     }
