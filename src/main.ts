@@ -10,9 +10,6 @@ import { Gun } from "./gun";
 import { GunType } from "./data.enum";
 import { Item } from "./object";
 
-const Matter = require('matter-js');
-const { Engine, Render, Runner, Bodies, World } = Matter;
-
 export class Game {
     public cvsMinHeight = 840;
     public map: Map1;
@@ -51,32 +48,18 @@ export class Game {
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        // this.map.tiles.forEach((tile: Tile) => {
-        //     this.physics.add(this.player, tile);
-        //     tile.update();
-
-        //     this.map.items.forEach((item: Item) => {
-        //         this.physics.add(item, tile);
-        //         this.physics.add(this.player, item);
-        //     });    
-        // });
-
-        this.map.tiles.forEach((tile: Tile, index: number) => {
+        this.map.tiles.forEach((tile: Tile) => {
+            this.physics.add(this.player, tile);
             tile.update();
+
+            this.map.items.forEach((item: Item) => {
+                this.physics.add(item, tile);
+                this.physics.add(this.player, item);
+            });    
         });
-
-        this.map.items.forEach((item: Item, index: number) => {
-            item.pos.x = this.physics.worldEntities[4].position.x;
-            item.pos.y = this.physics.worldEntities[4].position.y;
-            this.physics.worldEntities[4].position.x;
-            item.update();
-        });
-
-        this.physics.runEngine();
-
         this.controls.moveCameraAndPlayer(this.player, this.keys);
         this.moveGame();
-        // this.player.udpate();
+        this.player.udpate();
 
 
     }
@@ -89,7 +72,6 @@ export class Game {
         cvs.height = boundingBox.height * pixelRatio >= this.cvsMinHeight ? boundingBox.height * pixelRatio : this.cvsMinHeight;
         cvs.style.width = `${boundingBox.width}px`;
         cvs.style.height = `${boundingBox.height >= this.cvsMinHeight / pixelRatio ? boundingBox.height : this.cvsMinHeight / pixelRatio}px`;
-
     }
 
 

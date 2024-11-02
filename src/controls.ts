@@ -64,13 +64,13 @@ export class Controls {
 
         // dead code
 
-        document.addEventListener('mousedown', (e) => {
-            let mouseX = e.clientX - cvs.getBoundingClientRect().left;
-            let mouseY = e.clientY - cvs.getBoundingClientRect().top;
+        // document.addEventListener('mousedown', (e) => {
+        //     let mouseX = e.clientX - cvs.getBoundingClientRect().left;
+        //     let mouseY = e.clientY - cvs.getBoundingClientRect().top;
 
-            this.game.map.tiles.push(new Item({x: mouseX, y: mouseY, width: 100, height: 100, color: 'orange'}));
+        //     this.game.map.tiles.push(new Item({x: mouseX, y: mouseY, width: 100, height: 100, color: 'orange'}));
 
-        })
+        // })
     
     }
 
