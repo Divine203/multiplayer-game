@@ -1,7 +1,9 @@
+import { Item } from "./object";
 import { Tile } from "./tile";
 
 export class Map1 {
-    public tiles: any[] = [];
+    public tiles: Tile[] = [];
+    public items: Item[] = [];
 
     constructor() {
         this.init();
@@ -13,6 +15,10 @@ export class Map1 {
             new Tile({ x: 1440, y: 100, width: 700, height: 60 }),
             new Tile({ x: 940, y: 400, width: 700, height: 60 }),
             new Tile({ x: 40, y: 700, width: 1300, height: 100 }),
+        ];
+        
+        this.items = [
+            new Item({x: 540, y: 10, width: 100, height: 100, color: 'orange'}),
         ];
     }
 }  

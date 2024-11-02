@@ -1,8 +1,11 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
 import { ctx } from "./general";
-import { Physics } from "./physics";
+import { gravity, Physics } from "./physics";
 import { Game } from "./main";
 import { Camera } from "./camera";
+import { Gun } from "./gun";
+import { GunType } from "./data.enum";
+import { Tile } from "./tile";
 
 
 export class Player {
@@ -15,7 +18,18 @@ export class Player {
     public keys: IKeys;
     public physics: Physics;
     public isJumping: boolean = false;
-    public camera: Camera;
+
+    public isPlayer: boolean = true;
+
+    public currentPlatform: Tile | any;
+
+    public camera: any;
+    public primaryGun: any;
+
+    public state: any = {
+        isRight: true,
+        isLeft: false
+    }
     
     constructor(game: Game) {
         this.init();    
@@ -24,12 +38,10 @@ export class Player {
         this.physics = new Physics(game);   
         this.width = 60;
         this.height = 60;
-
-        this.camera = new Camera(game);
     }
 
     public init() {
-        this.pos = { x: 400, y: 30 } as Vec2;
+        this.pos = { x: 400, y: 600 } as Vec2;
         this.vel = { x: 0, y: 0 } as Vec2;
     }
 
@@ -42,12 +54,12 @@ export class Player {
         this.pos.y += this.vel.y;
         this.pos.x += this.vel.x;
 
-        this.vel.y += this.physics.gravity;
+        this.vel.y += gravity;
 
-        if(this.vel.y == 0) this.isJumping = false;
-
+        if(this.vel.y == 1.5 || this.vel.y == 0) this.isJumping = false;
 
         this.camera.followPlayer();
+        this.primaryGun.update();
         this.draw();
     }
 }

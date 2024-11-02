@@ -1,17 +1,19 @@
+import { arena, ctx } from "./general";
 import { Vec2 } from "./interfaces.interface";
-import { ctx, arena } from "./general";
-import { gravity, Physics } from "./physics";
+import { gravity } from "./physics";
 
-export class Tile {
+export class Item {
     public pos: Vec2;
     public vel: Vec2;
     public width: number;
     public height: number;
     public initYPos: number;
 
+    public isPlayer: boolean = false;
+
     public color: string;
 
-    constructor({ x, y, width, height, color = 'blue' }: ITile) {
+    constructor({x, y, width, height, color = 'yellow'}: IItem) {
         this.pos = { x, y };
         this.vel = { x: 0, y: 0 };
         this.width = width;
@@ -25,22 +27,22 @@ export class Tile {
         ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }
 
-    update() {
-        this.pos.y += this.vel.y;
-        this.pos.x += this.vel.x;
+    update(): void {
+        // this.pos.y += this.vel.y;
+        // this.pos.x += this.vel.x;
 
         this.pos.x += arena.pos.x;
-        this.pos.y = arena.pos.y + this.initYPos;
+        // this.pos.y = arena.pos.y + this.initYPos;
+
+        // this.vel.y += gravity;
         this.draw();
     }
 }
 
-
-export interface ITile {
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color?: string
+export interface IItem {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    color?: string;
 }
-

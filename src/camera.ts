@@ -1,5 +1,6 @@
 import { arena, ctx, cvs } from "./general";
 import { Game } from "./main";
+import { Player } from "./player";
 
 export class Camera {
     public pos: any;
@@ -60,17 +61,15 @@ export class Camera {
         this.width = 1000;
         this.height = 750;
 
-        if(this.isCamTop() && !this.isCamBottom()) {
+        if(this.isCamTop() && !this.isCamBottom() && !this.game.player.isJumping) {
             arena.vel.y = arena.speed;
-        } else if(!this.isCamTop() && this.isCamBottom()) {
-            arena.vel.y = -arena.speed;
-            if(this.game.player.pos.y > cvs.height/2) {
-                arena.vel.y -= 5;
+            if(this.game.player.currentPlatform) {
+                this.game.player.pos.y = (this.game.player.currentPlatform.pos.y - this.game.player.height) - 10;
             }
+        } else if(!this.isCamTop() && this.isCamBottom() && !this.game.player.isJumping) {
+            arena.vel.y = -arena.speed;
         } else if(!this.isCamTop() && !this.isCamBottom()) {
             arena.vel.y = 0;
         }
-
-    //    this.showCamera();
     }
 }

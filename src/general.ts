@@ -3,7 +3,7 @@ export const ctx: CanvasRenderingContext2D = cvs.getContext('2d') as CanvasRende
 
 export const arena: any = {
     pos: {
-        x: -600,
+        x: 0,
         y: 0
     },
     vel: {
@@ -11,6 +11,6 @@ export const arena: any = {
         y: 0
     },
 
-    speed: 10,
+    speed: 8,
     width: 5120
 }
