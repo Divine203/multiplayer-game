@@ -8,7 +8,7 @@ import { Tile } from "./tile";
 import { Camera } from "./camera";
 import { Gun } from "./gun";
 import { GunType } from "./data.enum";
-import { Item } from "./object";
+import { Item } from "./item";
 
 export class Game {
     public cvsMinHeight = 840;
@@ -57,6 +57,15 @@ export class Game {
                 this.physics.add(this.player, item);
             });    
         });
+
+        this.map.items.forEach((item: Item) => {
+            item.update();
+
+            this.map.items.forEach((item2: Item) => {
+                this.physics.add(item, item2);
+            })
+        })
+
         this.controls.moveCameraAndPlayer(this.player, this.keys);
         this.moveGame();
         this.player.udpate();

@@ -1,5 +1,5 @@
 import { Game } from "./main";
-import { Item } from "./object";
+import { Item } from "./item";
 import { Tile } from "./tile";
 
 export const gravity: number = 1.5;
@@ -72,7 +72,7 @@ export class Physics {
             char.pos.y = (platform.pos.y - char.height) - 10;
             if(char.isPlayer) char.currentPlatform = platform;
             if(char.isPlayer) char.camera.vel.y = 0;
-        }
+        } 
         if (this.left(char, platform)) {
             char.vel.x = 0;
             if(char.isPlayer) char.camera.vel.x = 0;

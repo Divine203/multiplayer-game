@@ -1,4 +1,4 @@
-import { Item } from "./object";
+import { Item } from "./item";
 import { Tile } from "./tile";
 
 export class Map1 {
@@ -18,7 +18,7 @@ export class Map1 {
         ];
         
         this.items = [
-            new Item({x: 540, y: 10, width: 100, height: 100, color: 'orange'}),
+            new Item({x: 100, y: 100, width: 100, height: 100, color: 'orange'}),
         ];
     }
 }  

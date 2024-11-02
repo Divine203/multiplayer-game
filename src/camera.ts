@@ -1,4 +1,5 @@
-import { arena, ctx, cvs } from "./general";
+import { arena, ctx, cvs, setCameraState } from "./general";
+import { Item } from "./item";
 import { Game } from "./main";
 import { Player } from "./player";
 
@@ -62,13 +63,16 @@ export class Camera {
         this.height = 750;
 
         if(this.isCamTop() && !this.isCamBottom() && !this.game.player.isJumping) {
+            setCameraState('up');
+            this.game.player.pos.y = (this.game.player.currentPlatform.pos.y - this.game.player.height) - 10;
             arena.vel.y = arena.speed;
-            if(this.game.player.currentPlatform) {
-                this.game.player.pos.y = (this.game.player.currentPlatform.pos.y - this.game.player.height) - 10;
-            }
+
         } else if(!this.isCamTop() && this.isCamBottom() && !this.game.player.isJumping) {
+            setCameraState('down');
             arena.vel.y = -arena.speed;
+            
         } else if(!this.isCamTop() && !this.isCamBottom()) {
+            setCameraState('');
             arena.vel.y = 0;
         }
     }

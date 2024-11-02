@@ -14,3 +14,9 @@ export const arena: any = {
     speed: 8,
     width: 5120
 }
+
+export let cameraState: string = ''; // 'up', 'down', '',
+
+export const setCameraState = (state: string): void => {
+    cameraState = state;
+}

@@ -1,4 +1,4 @@
-import { arena, ctx } from "./general";
+import { arena, ctx, cameraState } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { gravity } from "./physics";
 
@@ -10,6 +10,10 @@ export class Item {
     public initYPos: number;
 
     public isPlayer: boolean = false;
+
+    public isRest: boolean = false;
+
+    public noGravity: boolean = false;
 
     public color: string;
 
@@ -28,13 +32,26 @@ export class Item {
     }
 
     update(): void {
-        // this.pos.y += this.vel.y;
-        // this.pos.x += this.vel.x;
+        this.pos.y += this.vel.y;
+        this.pos.x += this.vel.x;
 
         this.pos.x += arena.pos.x;
-        // this.pos.y = arena.pos.y + this.initYPos;
+        if(!this.noGravity) this.vel.y += gravity;
 
-        // this.vel.y += gravity;
+        // fix bouncing effect as platform moves with camera
+        if(cameraState == 'up') {
+            this.pos.y += arena.speed;
+            this.noGravity = true;
+
+        } else if (cameraState == 'down') {
+            this.pos.y -= arena.speed;
+            this.noGravity = true;
+
+        } else if (cameraState == '') {
+            this.noGravity = false;
+        }
+
+
         this.draw();
     }
 }

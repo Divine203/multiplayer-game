@@ -1,7 +1,7 @@
 import { arena, cvs } from "./general";
 import { IKeys } from "./interfaces.interface";
 import { Game } from "./main";
-import { Item } from "./object";
+import { Item } from "./item";
 import { Player } from "./player";
 import { Tile } from "./tile";
 
@@ -64,13 +64,13 @@ export class Controls {
 
         // dead code
 
-        // document.addEventListener('mousedown', (e) => {
-        //     let mouseX = e.clientX - cvs.getBoundingClientRect().left;
-        //     let mouseY = e.clientY - cvs.getBoundingClientRect().top;
+        document.addEventListener('mousedown', (e) => {
+            let mouseX = e.clientX - cvs.getBoundingClientRect().left;
+            let mouseY = e.clientY - cvs.getBoundingClientRect().top;
 
-        //     this.game.map.tiles.push(new Item({x: mouseX, y: mouseY, width: 100, height: 100, color: 'orange'}));
+            this.game.map.items.push(new Item({x: mouseX, y: mouseY, width: 100, height: 100, color: 'orange'}));
 
-        // })
+        });
     
     }
 
