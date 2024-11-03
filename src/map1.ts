@@ -1,11 +1,15 @@
 import { Item } from "./item";
+// import { Game } from "./main";
 import { Tile } from "./tile";
 
 export class Map1 {
     public tiles: Tile[] = [];
     public items: Item[] = [];
 
+    // public game: Game;
+
     constructor() {
+        // this.game = game;
         this.init();
     }
 

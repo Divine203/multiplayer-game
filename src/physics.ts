@@ -76,14 +76,18 @@ export class Physics {
         if (this.left(char, platform)) {
             char.vel.x = 0;
             if(char.isPlayer) char.camera.vel.x = 0;
-            if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x - char.width) - 1;
-            if (this.game.keys.left.pressed && char == this.game.player) this.game.player.vel.x = -10;
+            if(char.isPlayer) {
+                if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x - char.width) - 10;
+                if (this.game.keys.left.pressed && char == this.game.player) this.game.player.vel.x = -10;
+            }
         }
         if (this.right(char, platform)) {
             char.vel.x = 0;
             if(char.isPlayer) char.camera.vel.x = 0;
-            if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x + platform.width) + 1;
-            if (this.game.keys.right.pressed && char == this.game.player) this.game.player.vel.x = 10;
+            if(char.isPlayer) {
+                if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x + platform.width) + 10;
+                if (this.game.keys.right.pressed && char == this.game.player) this.game.player.vel.x = 10;
+            }
         }
         if (this.bottom(char, platform)) {
             char.vel.y = 0;

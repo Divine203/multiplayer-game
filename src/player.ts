@@ -6,6 +6,7 @@ import { Camera } from "./camera";
 import { Gun } from "./gun";
 import { GunType } from "./data.enum";
 import { Tile } from "./tile";
+import { Item } from "./item";
 
 
 export class Player {
@@ -43,6 +44,19 @@ export class Player {
     public init() {
         this.pos = { x: 400, y: 600 } as Vec2;
         this.vel = { x: 0, y: 0 } as Vec2;
+    }
+
+    public throwItem() {
+        const item = new Item({
+            x: this.pos.x,
+            y: this.pos.y,
+            width: 15,
+            height: 15,
+            isThrowable: true,
+            throwRight: this.state.isRight
+        });
+        item.throw();
+        this.game.map.items.push(item);
     }
 
     public draw() {

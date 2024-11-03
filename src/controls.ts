@@ -39,7 +39,13 @@ export class Controls {
 
                 case 'x':
                     this.game.player.primaryGun.shoot();
-            }
+                    break
+
+                case 'z':
+                    this.game.player.throwItem();
+                    break
+                   
+            }   
         });
     
         document.addEventListener('keyup', (e) => {
@@ -57,21 +63,7 @@ export class Controls {
                     }
                     break;
             }
-        });
-
-
-
-
-        // dead code
-
-        document.addEventListener('mousedown', (e) => {
-            let mouseX = e.clientX - cvs.getBoundingClientRect().left;
-            let mouseY = e.clientY - cvs.getBoundingClientRect().top;
-
-            this.game.map.items.push(new Item({x: mouseX, y: mouseY, width: 100, height: 100, color: 'orange'}));
-
-        });
-    
+        });    
     }
 
 

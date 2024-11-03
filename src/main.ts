@@ -48,23 +48,26 @@ export class Game {
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+        // Physics relationship
         this.map.tiles.forEach((tile: Tile) => {
             this.physics.add(this.player, tile);
             tile.update();
 
             this.map.items.forEach((item: Item) => {
                 this.physics.add(item, tile);
-                this.physics.add(this.player, item);
+                if(!item.isThrowable) {
+                    this.physics.add(this.player, item);
+                }
             });    
         });
 
-        this.map.items.forEach((item: Item) => {
-            item.update();
-
+        this.map.items.forEach((item: Item, index: number) => {
             this.map.items.forEach((item2: Item) => {
                 this.physics.add(item, item2);
-            })
+            });
+            item.update();  
         })
+        //
 
         this.controls.moveCameraAndPlayer(this.player, this.keys);
         this.moveGame();
