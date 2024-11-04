@@ -87,7 +87,7 @@ export class Physics {
             if(char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x + platform.width) + 10;
                 if (this.game.keys.right.pressed && char == this.game.player) this.game.player.vel.x = 10;
-            }
+            } 
         }
         if (this.bottom(char, platform)) {
             char.vel.y = 0;

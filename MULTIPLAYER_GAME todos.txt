@@ -1,0 +1,105 @@
+video ideas
+ 
+- I was bored, so i made a Multiplayer game from Scratch.
+
+ ] Game inspiration: Killer bean, mini militia, jetpack joyride, Terraria, Geometry Dash.
+------------------------------------------------------------------
+. Organize desktop. --done
+. Set up code base: Typescript, webpack, npm, git. --done
+. Make canvas responsive. --done
+. Create base mechanics: physics, camera, movement, gameplay. 
+------------------------------------------------------------------
+ . player (square) that falls (physics) and can move around --done
+ . research and implement 2d camera (all axis) --done
+ . gameplay:
+  ] guns --done*
+  ] shooting --done*
+  ] improve world interactions (advanced physics) --done
+  ] angle shooting --done* 
+    @ hold a to tilt up --donee
+    @ hold z to tilt down --done
+    @ release to throw --done
+    @ press x to cancel throw 
+  ] decide the idea, concepts and features of the game.
+  -------------------------------------------------------
+   Features:
+  -------------------------------------------------------
+  + GamePlay
+    ~ Its a battle-royale like game, where players (max 10, min 2) spawn at different locations in the map.
+    ~ The safe area shrinks as the game progresses (happens randomly).
+    ~ Every player starts with a knife, they have to loot weapons placed at random places in the map.
+    ~ The last man standing wins.
+
+  + UI
+    ~ The base map scrolling in the background.
+    ~ A welcome screen, with the game title, description and a PLAY button.
+    ~ An Option to read about the game and how to play. (Should be available at all states of the game).
+    ~ Depending on the Multiplayer Implentation, there might be a sign up and signing [preferred name and password]
+    ~ on play => A lobby is created with, them as the first player, and a link to send to invite others to join.
+    ~ on link click => A UI is shown where it says Welcome to *GAME TITLE* and Join *Invites name* Lobby.
+    ~ on join => A Start Match option shows.
+  
+  + Guns
+    ~ PISTOL: A small short-range weapon, deals minimal damage, slow fire rate
+    ~ AK47: A long-range weapon, deals significant damage, fast fire rate,
+    ~ LMG: Similar to the AK47, different look and sound effects, fast fire rate, 
+    ~ SHOTGUN: Deals MAXIMUM damage, 3 shot kill, slow fire rate, shoots 3 bullets at once.
+    ~ BAZUKA: ONE SHOT KILL, Blast your enemies to oblivion.
+    ~ KNIFE: Deals very little damage, can strike and dash at your enemies.
+    ~ JUMP KILL: Jump on enemies head, Deals very little damage. 
+
+  + Characters
+    ~ Base character (Reference my character)
+    ~ Animations: Run, Jump, Double-jump (rotation will be done by code), stand/shooting, death.
+    ~ (If there's time) create different variations.
+
+  + Items
+    ~ Loots (guns)
+    ~ Boxes at random places, that can be destroyed and get stuff from. 
+    ~ Item Boxes for storing weapons at random places
+    ~ Grenades For throwing, can be one shot, if precise enough
+    ~ Hearths to increase Health.
+    ~ Armor for more protection.
+
+  + Pro tip, Implement everything with shapes and colors, before making sprites.
+ 
+
+  ] implement all listed above
+  ] design a solid map
+  ] add multiplayer
+  ] work on sprites 
+  ] add lights and shadows
+
+
+
+
+
+engine limitations
+ . less flexibilty
+ . click bait 
+ . extra study time
+ . 
+
+no engine limitations --use()
+ . less technicality
+ . more prone to errors
+
+
+
+
+
+. work on effects: camera shake.
+. sound design: sound effects, music.
+. pixel art: gimp and aesprite.
+. singleplayer: zombie survival.
+. multiplayer: Web socket.
+. UI
+. lighting and shadows. (later) #
+
+
+
+
+
+
+
+

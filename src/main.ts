@@ -17,7 +17,9 @@ export class Game {
 
     public keys: IKeys = {
         right: { pressed: false },
-        left: { pressed: false }
+        left: { pressed: false },
+        a: { pressed: false },
+        z: { pressed: false },
     };
     public camera: Camera;
     public primaryGun: Gun;

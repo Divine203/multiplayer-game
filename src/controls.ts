@@ -41,8 +41,20 @@ export class Controls {
                     this.game.player.primaryGun.shoot();
                     break
 
-                case 'z':
+                case 'y':
                     this.game.player.throwItem();
+                    break
+
+                case 'a':
+                    if (!this.game.keys.z.pressed) {
+                        this.game.keys.a.pressed = true;
+                    }
+                    break
+                
+                case 'z':
+                    if (!this.game.keys.a.pressed) {
+                        this.game.keys.z.pressed = true;
+                    }
                     break
                    
             }   
@@ -62,6 +74,20 @@ export class Controls {
                         this.game.keys.right.pressed = false;
                     }
                     break;
+                case 'a':
+                    if(!this.game.keys.z.pressed) {
+                        this.game.keys.a.pressed = false;
+                        this.game.player.throwItem();
+
+                    }
+                    break
+                
+                case 'z':
+                    if(!this.game.keys.a.pressed) {
+                        this.game.keys.z.pressed = false;
+                        this.game.player.throwItem();
+                    }
+                    break
             }
         });    
     }

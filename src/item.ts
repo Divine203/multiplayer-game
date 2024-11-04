@@ -1,6 +1,5 @@
 import { arena, ctx, cameraState } from "./general";
 import { Vec2 } from "./interfaces.interface";
-import { Game } from "./main";
 import { gravity } from "./physics";
 
 export class Item {
@@ -18,7 +17,8 @@ export class Item {
     public noGravity: boolean = false;
 
     public isThrowable: boolean;
-    public xSpeed: number = 10;
+    public xSpeed: number = 25;
+    public ySpeed: number = 30;
     public isThrown: boolean = false;
     public throwRight: boolean = true;
     public friction: number = 0.02;
@@ -53,9 +53,16 @@ export class Item {
 
     }
 
-    throw() {
+    throw(angle: number, speed: number) {
         if (this.isThrowable) {
-            this.vel.y -= 30;
+            const angleInRadians = (angle * Math.PI) / 180;
+            
+            this.xSpeed = speed * Math.cos(angleInRadians);
+            this.ySpeed = speed * Math.sin(angleInRadians);
+
+            this.vel.x = this.throwRight ? this.xSpeed : -this.xSpeed;
+            this.vel.y = -this.ySpeed;
+    
             this.isThrown = true;
         }
     }

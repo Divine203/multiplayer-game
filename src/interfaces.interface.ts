@@ -12,5 +12,7 @@ export interface Entity {
 
 export interface IKeys {
     right: { pressed: boolean },
-    left: { pressed: boolean }
+    left: { pressed: boolean },
+    a: { pressed: boolean },
+    z: { pressed: boolean }
 }
