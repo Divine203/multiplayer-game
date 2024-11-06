@@ -5,18 +5,17 @@ import { Game } from "./main";
 import { Player } from "./player";
 
 export class Gun {
+    public player: Player;
     public pos: any;
     public width: number;
     public height: number;
-    public game: Game;
     public gunType: GunType;
-    public player: Player;
 
     public bulletsShot: any[] = [];
 
-    constructor(game: Game, gunType: GunType) {
-        this.game = game;
-        this.player = this.game.player;
+    constructor(player: Player, gunType: GunType) {
+        this.player = player;
+        console.log('currentPlayer (from guns): ' + this.player);
         this.gunType = gunType;
         this.pos = {
             x: this.player.pos.x,

@@ -1,14 +1,13 @@
 import { Game } from "./main";
 import { Item } from "./item";
 import { Tile } from "./tile";
+import { currentGame, currentPlayer } from "./general";
 
 export const gravity: number = 1.5;
 
 export class Physics {
-    public game: Game;
 
-    constructor(game: Game) {
-        this.game = game;
+    constructor() {
     }
 
     public topVar(char: any, object: Tile, num: number): boolean {
@@ -78,7 +77,7 @@ export class Physics {
             if(char.isPlayer) char.camera.vel.x = 0;
             if(char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x - char.width) - 10;
-                if (this.game.keys.left.pressed && char == this.game.player) this.game.player.vel.x = -10;
+                if (currentGame.keys.left.pressed && char == currentPlayer) currentPlayer.vel.x = -10;
             }
         }
         if (this.right(char, platform)) {
@@ -86,7 +85,7 @@ export class Physics {
             if(char.isPlayer) char.camera.vel.x = 0;
             if(char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x + platform.width) + 10;
-                if (this.game.keys.right.pressed && char == this.game.player) this.game.player.vel.x = 10;
+                if (currentGame.keys.right.pressed && char == currentPlayer) currentPlayer.vel.x = 10;
             } 
         }
         if (this.bottom(char, platform)) {

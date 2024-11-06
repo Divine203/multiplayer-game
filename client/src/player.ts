@@ -1,13 +1,19 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx } from "./general";
+import { ctx, currentGame, keys, currentMap } from "./general";
 import { gravity, Physics } from "./physics";
 import { Game } from "./main";
 import { Tile } from "./tile";
 import { Item } from "./item";
+import { GunType } from "./data.enum";
+import { Gun } from "./gun";
+import { Camera } from "./camera";
 
 
 export class Player {
-    public game: Game;
+    public id: string | any;
+    public isYou: boolean = false;
+    public isEnemy: boolean = false;
+
     public pos: any;
     public vel: any;
     public width: number;
@@ -31,11 +37,16 @@ export class Player {
         isLeft: false
     }
     
-    constructor(game: Game) {
+    constructor(id: string | any) {
+        console.log('game: ' + currentGame);
         this.init();    
-        this.game = game;
-        this.keys = game.keys;
-        this.physics = new Physics(game);   
+        this.id = id;
+        this.keys = keys;
+        this.physics = new Physics();  
+        this.primaryGun = new Gun(this, GunType.PISTOL); 
+
+        console.log('primary gun:' + this.primaryGun);
+        this.camera = new Camera();
         this.width = 60;
         this.height = 60;
     }
@@ -56,19 +67,19 @@ export class Player {
         });
         item.throw(Math.abs(this.throwProjectileAngle), 30);
         this.throwProjectileAngle = 0;
-        this.game.map.items.push(item);
+        currentMap.items.push(item);
     }
 
     updateProjectile(){
         const rotSpeed = 2;
-        if(this.game.keys.a.pressed || this.game.keys.z.pressed) {
+        if(keys.a.pressed || keys.z.pressed) {
             this.drawProjectileLine();
 
-            if(this.game.keys.a.pressed) {
+            if(keys.a.pressed) {
                 if(this.state.isLeft) this.throwProjectileAngle += rotSpeed;
                 else this.throwProjectileAngle -= rotSpeed;
 
-            } else if(this.game.keys.z.pressed) {
+            } else if(currentGame.keys.z.pressed) {
                 if(this.state.isLeft) this.throwProjectileAngle -= rotSpeed;
                 else this.throwProjectileAngle += rotSpeed;
             }

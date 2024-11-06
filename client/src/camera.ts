@@ -1,4 +1,4 @@
-import { arena, ctx, cvs, setCameraState } from "./general";
+import { arena, ctx, currentPlayer, cvs, setCameraState, currentGame } from "./general";
 import { Item } from "./item";
 import { Game } from "./main";
 import { Player } from "./player";
@@ -8,10 +8,8 @@ export class Camera {
     public vel: any;
     public width: number;
     public height: number;
-    public game: Game;
 
-    constructor(game: Game) {
-        this.game = game;
+    constructor() {
         this.width = 1000;
         this.height = 500;
         this.pos = {
@@ -52,8 +50,8 @@ export class Camera {
 
     public followPlayer() {
         this.pos = {
-            x: this.game.player.pos.x - (this.width / 2 - (this.game.player.width / 2)),
-            y: (this.game.player.pos.y - (this.height/2))
+            x: currentPlayer.pos.x - (this.width / 2 - (currentPlayer.width / 2)),
+            y: (currentPlayer.pos.y - (this.height/2))
         };
         this.vel = {
             x: 0,
@@ -62,12 +60,12 @@ export class Camera {
         this.width = 1000;
         this.height = 750;
 
-        if(this.isCamTop() && !this.isCamBottom() && !this.game.player.isJumping) {
+        if(this.isCamTop() && !this.isCamBottom() && !currentPlayer.isJumping) {
             setCameraState('up');
-            this.game.player.pos.y = (this.game.player.currentPlatform.pos.y - this.game.player.height) - 10;
+            currentPlayer.pos.y = (currentPlayer.currentPlatform.pos.y - currentPlayer.height) - 10;
             arena.vel.y = arena.speed;
 
-        } else if(!this.isCamTop() && this.isCamBottom() && !this.game.player.isJumping) {
+        } else if(!this.isCamTop() && this.isCamBottom() && !currentPlayer.isJumping) {
             setCameraState('down');
             arena.vel.y = -arena.speed;
             

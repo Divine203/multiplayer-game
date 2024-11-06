@@ -1,4 +1,4 @@
-import { arena, cvs } from "./general";
+import { arena, cvs, currentGame, currentPlayer, currentMap } from "./general";
 import { IKeys } from "./interfaces.interface";
 import { Game } from "./main";
 import { Item } from "./item";
@@ -6,10 +6,7 @@ import { Player } from "./player";
 import { Tile } from "./tile";
 
 export class Controls {
-    public game: any;
-
-    constructor(Game: Game) {
-        this.game = Game;
+    constructor() {
         this.controls();
     }
 
@@ -17,43 +14,43 @@ export class Controls {
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'ArrowUp':
-                    this.game.player.isJumping = true;
-                    this.game.player.vel.y -= 35;
+                    currentPlayer.isJumping = true;
+                    currentPlayer.vel.y -= 35;
                     break;
                 case 'ArrowLeft':
-                    if (!this.game.keys.right.pressed) {
-                        this.game.keys.left.pressed = true;
+                    if (!currentGame.keys.right.pressed) {
+                        currentGame.keys.left.pressed = true;
 
-                        this.game.player.state.isRight = false;
-                        this.game.player.state.isLeft = true;
+                        currentPlayer.state.isRight = false;
+                        currentPlayer.state.isLeft = true;
                     }
                     break;
                 case 'ArrowRight':
-                    if (!this.game.keys.left.pressed) {
-                        this.game.keys.right.pressed = true;
+                    if (!currentGame.keys.left.pressed) {
+                        currentGame.keys.right.pressed = true;
 
-                        this.game.player.state.isRight = true;
-                        this.game.player.state.isLeft = false;
+                        currentPlayer.state.isRight = true;
+                        currentPlayer.state.isLeft = false;
                     }
                     break;
 
                 case 'x':
-                    this.game.player.primaryGun.shoot();
+                    currentPlayer.primaryGun.shoot();
                     break
 
                 case 'y':
-                    this.game.player.throwItem();
+                    currentPlayer.throwItem();
                     break
 
                 case 'a':
-                    if (!this.game.keys.z.pressed) {
-                        this.game.keys.a.pressed = true;
+                    if (!currentGame.keys.z.pressed) {
+                        currentGame.keys.a.pressed = true;
                     }
                     break
                 
                 case 'z':
-                    if (!this.game.keys.a.pressed) {
-                        this.game.keys.z.pressed = true;
+                    if (!currentGame.keys.a.pressed) {
+                        currentGame.keys.z.pressed = true;
                     }
                     break
                    
@@ -65,27 +62,27 @@ export class Controls {
                 case 'ArrowUp':
                     break;
                 case 'ArrowLeft':
-                    if (!this.game.keys.right.pressed) {
-                        this.game.keys.left.pressed = false;
+                    if (!currentGame.keys.right.pressed) {
+                        currentGame.keys.left.pressed = false;
                     }
                     break;
                 case 'ArrowRight':
-                    if (!this.game.keys.left.pressed) {
-                        this.game.keys.right.pressed = false;
+                    if (!currentGame.keys.left.pressed) {
+                        currentGame.keys.right.pressed = false;
                     }
                     break;
                 case 'a':
-                    if(!this.game.keys.z.pressed) {
-                        this.game.keys.a.pressed = false;
-                        this.game.player.throwItem();
+                    if(!currentGame.keys.z.pressed) {
+                        currentGame.keys.a.pressed = false;
+                        currentPlayer.throwItem();
 
                     }
                     break
                 
                 case 'z':
-                    if(!this.game.keys.a.pressed) {
-                        this.game.keys.z.pressed = false;
-                        this.game.player.throwItem();
+                    if(!currentGame.keys.a.pressed) {
+                        currentGame.keys.z.pressed = false;
+                        currentPlayer.throwItem();
                     }
                     break
             }

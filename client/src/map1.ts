@@ -1,15 +1,14 @@
 import { Item } from "./item";
+import { Player } from "./player";
 // import { Game } from "./main";
 import { Tile } from "./tile";
 
 export class Map1 {
     public tiles: Tile[] = [];
     public items: Item[] = [];
-
-    // public game: Game;
+    public players: Player[] = [];
 
     constructor() {
-        // this.game = game;
         this.init();
     }
 
@@ -24,5 +23,7 @@ export class Map1 {
         this.items = [
             new Item({x: 100, y: 100, width: 100, height: 100, color: 'orange'}),
         ];
+
+        this.players = [];
     }
 }  

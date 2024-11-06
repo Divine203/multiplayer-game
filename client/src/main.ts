@@ -1,6 +1,6 @@
 import { Map1 } from "./map1";
 import { Player } from "./player";
-import { cvs, ctx, arena } from "./general";
+import { cvs, ctx, arena, currentMap, currentPlayer } from "./general";
 import { Controls } from "./controls";
 import { IKeys } from "./interfaces.interface";
 import { Physics } from "./physics";
@@ -9,11 +9,10 @@ import { Camera } from "./camera";
 import { Gun } from "./gun";
 import { GunType } from "./data.enum";
 import { Item } from "./item";
+import Socket from "./socket";
 
 export class Game {
     public cvsMinHeight = 840;
-    public map: Map1;
-    public player: Player;
 
     public keys: IKeys = {
         right: { pressed: false },
@@ -21,22 +20,13 @@ export class Game {
         a: { pressed: false },
         z: { pressed: false },
     };
-    public camera: Camera;
-    public primaryGun: Gun;
     public controls: Controls;
     public physics: Physics;
 
     constructor() {
-        this.map = new Map1();
-        this.player = new Player(this);
 
-        this.camera = new Camera(this);
-        this.primaryGun = new Gun(this, GunType.PISTOL);
-        this.player.camera = this.camera;
-        this.player.primaryGun = this.primaryGun;
-
-        this.controls = new Controls(this);
-        this.physics = new Physics(this);
+        this.controls = new Controls();
+        this.physics = new Physics();
 
         this.resize();
         window.addEventListener("resize", () => {
@@ -51,31 +41,29 @@ export class Game {
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
         // Physics relationship
-        this.map.tiles.forEach((tile: Tile) => {
-            this.physics.add(this.player, tile);
+        currentMap.tiles.forEach((tile: Tile) => {
+            this.physics.add(currentPlayer, tile);
             tile.update();
 
-            this.map.items.forEach((item: Item) => {
+            currentMap.items.forEach((item: Item) => {
                 this.physics.add(item, tile);
-                if(!item.isThrowable) {
-                    this.physics.add(this.player, item);
+                if (!item.isThrowable) {
+                    this.physics.add(currentPlayer, item);
                 }
-            });    
+            });
         });
 
-        this.map.items.forEach((item: Item, index: number) => {
-            this.map.items.forEach((item2: Item) => {
+        currentMap.items.forEach((item: Item, index: number) => {
+            currentMap.items.forEach((item2: Item) => {
                 this.physics.add(item, item2);
             });
-            item.update();  
+            item.update();
         })
         //
 
-        this.controls.moveCameraAndPlayer(this.player, this.keys);
+        this.controls.moveCameraAndPlayer(currentPlayer, this.keys);
         this.moveGame();
-        this.player.udpate();
-
-
+        currentPlayer.udpate();
     }
 
     private resize(): void {
@@ -90,20 +78,24 @@ export class Game {
 
 
     public moveGame = () => {
-        arena.pos.x = this.player.camera.vel.x;
+        arena.pos.x = currentPlayer.camera.vel.x;
         arena.pos.y += arena.vel.y;
     }
 
     public update(): void {
         this.render();
     }
+
+
+
+   
 }
 
-const game: Game = new Game();
+const server = new Socket();
 
 
 const animate = () => {
-    game.update();
+    server.update();
     requestAnimationFrame(animate);
 }
 
