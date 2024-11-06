@@ -1,7 +1,5 @@
 import { arena, cvs, currentGame, currentPlayer, currentMap } from "./general";
 import { IKeys } from "./interfaces.interface";
-import { Game } from "./main";
-import { Item } from "./item";
 import { Player } from "./player";
 import { Tile } from "./tile";
 

@@ -8,8 +8,10 @@ export class Camera {
     public vel: any;
     public width: number;
     public height: number;
+    public player: Player;
 
-    constructor() {
+    constructor(player: Player) {
+        this.player = player;
         this.width = 1000;
         this.height = 500;
         this.pos = {
@@ -47,11 +49,10 @@ export class Camera {
         ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }
 
-
     public followPlayer() {
         this.pos = {
-            x: currentPlayer.pos.x - (this.width / 2 - (currentPlayer.width / 2)),
-            y: (currentPlayer.pos.y - (this.height/2))
+            x: this.player.pos.x - (this.width / 2 - (this.player.width / 2)),
+            y: (this.player.pos.y - (this.height / 2))
         };
         this.vel = {
             x: 0,
@@ -60,16 +61,18 @@ export class Camera {
         this.width = 1000;
         this.height = 750;
 
-        if(this.isCamTop() && !this.isCamBottom() && !currentPlayer.isJumping) {
+        if (this.isCamTop() && !this.isCamBottom() && !this.player.isJumping) {
             setCameraState('up');
-            currentPlayer.pos.y = (currentPlayer.currentPlatform.pos.y - currentPlayer.height) - 10;
+            if (this.player.currentPlatform) {
+                this.player.pos.y = (this.player.currentPlatform.pos.y - this.player.height) - 10;
+            }
             arena.vel.y = arena.speed;
 
-        } else if(!this.isCamTop() && this.isCamBottom() && !currentPlayer.isJumping) {
+        } else if (!this.isCamTop() && this.isCamBottom() && !this.player.isJumping) {
             setCameraState('down');
             arena.vel.y = -arena.speed;
-            
-        } else if(!this.isCamTop() && !this.isCamBottom()) {
+
+        } else if (!this.isCamTop() && !this.isCamBottom()) {
             setCameraState('');
             arena.vel.y = 0;
         }

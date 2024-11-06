@@ -38,21 +38,19 @@ export class Player {
     }
     
     constructor(id: string | any) {
-        console.log('game: ' + currentGame);
         this.init();    
         this.id = id;
         this.keys = keys;
         this.physics = new Physics();  
         this.primaryGun = new Gun(this, GunType.PISTOL); 
 
-        console.log('primary gun:' + this.primaryGun);
-        this.camera = new Camera();
+        this.camera = new Camera(this);
         this.width = 60;
         this.height = 60;
     }
 
     public init() {
-        this.pos = { x: 400, y: 600 } as Vec2;
+        this.pos = { x: 100, y: 0 } as Vec2;
         this.vel = { x: 0, y: 0 } as Vec2;
     }
 

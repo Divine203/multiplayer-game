@@ -12,21 +12,24 @@ const io = new Server(server, {
     }
 });
 const port = 3000;
+const players = {}; // Object to store players by socket ID
 
 app.use(express.static(path.join(__dirname, '../client/public')));
-// app.use(express.static('public'));
 
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
     // When a player joins, broadcast their join event to other players
-    socket.on('player-join', (data) => {
-        socket.broadcast.emit('player-join', data); // Sends to everyone except the sender
+    socket.on('player-join', (data) => { 
+        players[socket.id] = data.position;
+        socket.emit('initialize-players', players);
+        socket.broadcast.emit('player-join', { playerId: socket.id, position: data.position }); // Sends to everyone except the sender
     });
 
     // Listen for player movement data
     socket.on('player-move', (data) => {
-        socket.broadcast.emit('player-move', data); // Broadcast to other players
+        players[socket.id] = data.position;
+        socket.broadcast.emit('player-move', { playerId: socket.id, position: data.position }); // Broadcast to other players
     });
 
     // Handle disconnects
