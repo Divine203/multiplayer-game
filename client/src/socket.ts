@@ -74,6 +74,8 @@ class Socket {
         this.host.on('player-leave', (data: any) => {
             console.log('Player left:', data);
             // Remove the player from the game
+            const updatedPlayers = currentMap.players.filter((p: Player) => p.id !== data.id);
+            currentMap.players = updatedPlayers;
         });
     }
 
