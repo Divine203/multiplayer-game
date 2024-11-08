@@ -11,7 +11,7 @@ class Socket {
         this.initializeSocket();
     }
 
-    public getPlayers(player:Player) {
+    public getPlayers(player: Player) {
         return { id: player.id, isYou: player.isYou };
     }
 
@@ -28,7 +28,8 @@ class Socket {
             setPlayer(newPlayer);
             currentPlayer.isYou = true;
             currentPlayer.isEnemy = false;
-            currentPlayer.pos =  { x: 0, y: 0 };
+            currentPlayer.pos = { x: 100, y: 0 };
+            currentPlayer.absolutePos = { x: 100, y: 0 };
 
             const newMap = new Map1();
             setMap(newMap);
@@ -38,19 +39,20 @@ class Socket {
         });
 
 
-    // Initialize all existing players when the player joins
-    this.host.on('initialize-players', (playersData: any) => {
-        for (const [playerId, position] of Object.entries(playersData)) {
-            if (playerId !== this.host.id) { // Avoid duplicating self
-                const player = new Player(playerId);
-                player.isYou = false;
-                player.isEnemy = true;
-                player.pos = position; // Initialize with correct position
-                currentMap.players.push(player);
+        // Initialize all existing players when the player joins
+        this.host.on('initialize-players', (playersData: any) => {
+            for (const [playerId, position] of Object.entries(playersData)) {
+                if (playerId !== this.host.id) { // Avoid duplicating self
+                    const player = new Player(playerId);
+                    player.isYou = false;
+                    player.isEnemy = true;
+                    player.pos = position; // Initialize with correct position
+                    player.absolutePos = position;
+                    currentMap.players.push(player);
+                }
             }
-        }
-        console.log('Initialized players:', currentMap.players.map(this.getPlayers));
-    });
+            console.log('Initialized players:', currentMap.players.map(this.getPlayers));
+        });
 
         // Listen for other players joining
         this.host.on('player-join', (data: any) => {
@@ -66,7 +68,13 @@ class Socket {
 
         // Listen for player movement updates
         this.host.on('player-move', (data: any) => {
-            console.log('Player moved:', data);
+            console.log('Player moved:');
+            
+            const player = currentMap.players.find((p: Player) => p.id === data.playerId);
+            if (player) {
+                player.pos.x = data.position.x;
+                player.pos.y = data.position.y;
+            }
             // Update player position in the game
         });
 
@@ -79,12 +87,8 @@ class Socket {
         });
     }
 
-    public sendMovementUpdate(position: { x: number; y: number }) {
-        this.host.emit('player-move', { playerId: this.host.id, position });
-    }
-
     public update() {
-        if(!currentGame) {
+        if (!currentGame) {
             return;
         }
         currentGame.update();

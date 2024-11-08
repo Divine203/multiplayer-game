@@ -65,7 +65,7 @@ export class Physics {
             char.pos.x <= object.pos.x + object.width);
     }
 
-    public add = (char: any, platform: Tile): any => {
+    public add = (char: any, platform: Tile | any): any => {
         if (this.top(char, platform)) { 
             char.vel.y = 0;
             char.pos.y = (platform.pos.y - char.height) - 10;

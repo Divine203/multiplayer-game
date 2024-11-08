@@ -3,6 +3,13 @@ export interface Vec2 {
     y: number
 }
 
+export interface Vec4 {
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+}
+
 export interface Entity {
     pos: Vec2,
     vel: Vec2,

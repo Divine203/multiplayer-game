@@ -1,7 +1,10 @@
-import { arena, ctx, currentPlayer, cvs, setCameraState, currentGame } from "./general";
+import { arena, ctx, currentPlayer, cvs, setCameraState, currentGame, currentMap, MAP_BASE } from "./general";
+import { IKeys } from "./interfaces.interface";
 import { Item } from "./item";
 import { Game } from "./main";
 import { Player } from "./player";
+import { Tile } from "./tile";
+import { utils } from "./utils";
 
 export class Camera {
     public pos: any;
@@ -10,10 +13,12 @@ export class Camera {
     public height: number;
     public player: Player;
 
+    public mapBase: number = MAP_BASE;
+
     constructor(player: Player) {
         this.player = player;
         this.width = 1000;
-        this.height = 500;
+        this.height = 100;
         this.pos = {
             x: 0,
             y: 0
@@ -59,8 +64,9 @@ export class Camera {
             y: 0
         };
         this.width = 1000;
-        this.height = 750;
+        this.height = 500;
 
+        // up down movement
         if (this.isCamTop() && !this.isCamBottom() && !this.player.isJumping) {
             setCameraState('up');
             if (this.player.currentPlatform) {
@@ -76,5 +82,36 @@ export class Camera {
             setCameraState('');
             arena.vel.y = 0;
         }
+
+        // left right movement
+        if (currentGame.keys.right.pressed) {
+            this.player.vel.x = this.player.speed
+            if (this.player.camera.isCamLeft()) {
+                this.player.vel.x = 0;
+                if (this.player.camera.pos.x + this.player.camera.width < arena.width) {
+                    this.player.camera.vel.x = -(this.player.speed);
+                }
+            
+            }
+        } else if (currentGame.keys.left.pressed) {
+            this.player.vel.x = -this.player.speed;
+            if (this.player.camera.isCamRight()) {
+                this.player.vel.x = 0;
+                this.player.camera.vel.x = (this.player.speed);
+            }
+
+        } else {
+            this.player.vel.x = 0;
+        }
+
+        // calculate player's absolute position
+        // i.e he/she's ACTUAL position in the game (at real time).
+        currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
+            const yd = tile.pos.y - this.player.pos.y;
+            this.player.absolutePos.y = this.mapBase - yd;
+            this.player.absolutePos.x = this.player.pos.x - tile.pos.x;
+        })
+
+        this.showCamera();
     }
 }

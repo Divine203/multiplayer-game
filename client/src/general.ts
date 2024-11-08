@@ -1,4 +1,5 @@
 import { IKeys } from "./interfaces.interface";
+import { Line } from "./lines";
 import { Game } from "./main";
 import { Map1 } from "./map1";
 import { Player } from "./player";
@@ -46,3 +47,5 @@ export const setPlayer = (player: Player): void => {
 export const setMap = (map: Map1): void => {
     currentMap = map;
 }
+
+export const MAP_BASE: number = 700;

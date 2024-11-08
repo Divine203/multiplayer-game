@@ -1,6 +1,7 @@
+import { cvs, MAP_BASE } from "./general";
 import { Item } from "./item";
+import { Line } from "./lines";
 import { Player } from "./player";
-// import { Game } from "./main";
 import { Tile } from "./tile";
 
 export class Map1 {
@@ -17,11 +18,12 @@ export class Map1 {
             new Tile({ x: 1940, y: -200, width: 700, height: 60 }),
             new Tile({ x: 1440, y: 100, width: 700, height: 60 }),
             new Tile({ x: 940, y: 400, width: 700, height: 60 }),
-            new Tile({ x: 40, y: 700, width: 1300, height: 100 }),
+            new Tile({ x: 40, y: MAP_BASE, width: 1300, height: 100 }),
+            new Tile({ x: 40, y: MAP_BASE, width: 10, height: 10, color: 'green', isIndicatorTile: true }) // a dummy tile used for calculations
         ];
         
         this.items = [
-            new Item({x: 100, y: 100, width: 100, height: 100, color: 'orange'}),
+            new Item({x: 100, y: 100, width: 100, height: 100, color: 'orange'})
         ];
 
         this.players = [];

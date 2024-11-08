@@ -11,13 +11,16 @@ export class Tile {
 
     public color: string;
 
-    constructor({ x, y, width, height, color = 'blue' }: ITile) {
+    public isIndicatorTile: boolean = false;
+
+    constructor({ x, y, width, height, color = 'blue', isIndicatorTile = false }: ITile) {
         this.pos = { x, y };
         this.vel = { x: 0, y: 0 };
         this.width = width;
         this.height = height;
         this.initYPos = y;
         this.color = color;
+        this.isIndicatorTile = isIndicatorTile;
     }
 
     draw() {
@@ -41,6 +44,7 @@ export interface ITile {
     y: number,
     width: number,
     height: number,
-    color?: string
+    color?: string,
+    isIndicatorTile?: boolean
 }
 

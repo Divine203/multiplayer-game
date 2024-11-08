@@ -10,6 +10,7 @@ import { Gun } from "./gun";
 import { GunType } from "./data.enum";
 import { Item } from "./item";
 import Socket from "./socket";
+import { Line } from "./lines";
 
 export class Game {
     public cvsMinHeight = 840;
@@ -20,18 +21,15 @@ export class Game {
         a: { pressed: false },
         z: { pressed: false },
     };
-    public controls: Controls;
     public physics: Physics;
 
     constructor() {
-
-        this.controls = new Controls();
         this.physics = new Physics();
 
         this.resize();
-        window.addEventListener("resize", () => {
-            this.resize();
-        });
+        // window.addEventListener("resize", () => {
+        //     this.resize();
+        // });
     }
 
 
@@ -58,22 +56,29 @@ export class Game {
                 this.physics.add(item, item2);
             });
             item.update();
-        })
-        //
+        });
 
-        this.controls.moveCameraAndPlayer(currentPlayer, this.keys);
+        currentMap.players.forEach((player: Player) => {
+            if (!player.isYou) {
+                player.udpate();
+                currentMap.tiles.forEach((tile: Tile) => {
+                    this.physics.add(player, tile);
+                });
+            }
+        });
+        //
         this.moveGame();
         currentPlayer.udpate();
     }
 
     private resize(): void {
-        const boundingBox = cvs.parentElement!.getBoundingClientRect();
-        const pixelRatio = window.devicePixelRatio;
+        // const boundingBox = cvs.parentElement!.getBoundingClientRect();
+        // const pixelRatio = window.devicePixelRatio;
 
-        cvs.width = boundingBox.width * pixelRatio;
-        cvs.height = boundingBox.height * pixelRatio >= this.cvsMinHeight ? boundingBox.height * pixelRatio : this.cvsMinHeight;
-        cvs.style.width = `${boundingBox.width}px`;
-        cvs.style.height = `${boundingBox.height >= this.cvsMinHeight / pixelRatio ? boundingBox.height : this.cvsMinHeight / pixelRatio}px`;
+        // cvs.width = boundingBox.width * pixelRatio;
+        // cvs.height = boundingBox.height * pixelRatio >= this.cvsMinHeight ? boundingBox.height * pixelRatio : this.cvsMinHeight;
+        // cvs.style.width = `${boundingBox.width}px`;
+        // cvs.style.height = `${boundingBox.height >= this.cvsMinHeight / pixelRatio ? boundingBox.height : this.cvsMinHeight / pixelRatio}px`;
     }
 
 
@@ -85,13 +90,9 @@ export class Game {
     public update(): void {
         this.render();
     }
-
-
-
-   
 }
 
-const server = new Socket();
+export const server = new Socket();
 
 
 const animate = () => {
