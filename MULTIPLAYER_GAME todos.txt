@@ -21,9 +21,9 @@ video ideas
     @ release to throw --done
     @ press x to cancel throw 
   ] decide the idea, concepts and features of the game.
-  -------------------------------------------------------
+  ---------------------------------------------------------------
    Features:
-  -------------------------------------------------------
+  ---------------------------------------------------------------
   + GamePlay
     ~ Its a battle-royale like game, where players (max 10, min 2) spawn at different locations in the map.
     ~ The safe area shrinks as the game progresses (happens randomly).

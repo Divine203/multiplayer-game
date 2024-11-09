@@ -3,6 +3,7 @@ import { Line } from "./lines";
 import { Game } from "./main";
 import { Map1 } from "./map1";
 import { Player } from "./player";
+import { UI } from "./ui";
 
 export const cvs: HTMLCanvasElement = document.getElementById('c') as HTMLCanvasElement;
 export const ctx: CanvasRenderingContext2D = cvs.getContext('2d') as CanvasRenderingContext2D;
@@ -25,6 +26,7 @@ export let cameraState: string = ''; // 'up', 'down', '',
 export let currentGame: any;
 export let currentPlayer: any;
 export let currentMap: any;
+export let _ui: any;
 export let keys: IKeys = {
     right: { pressed: false },
     left: { pressed: false },
@@ -46,6 +48,10 @@ export const setPlayer = (player: Player): void => {
 
 export const setMap = (map: Map1): void => {
     currentMap = map;
+}
+
+export const setUI = (ui: UI): void => {
+    _ui = ui;
 }
 
 export const MAP_BASE: number = 700;

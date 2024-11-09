@@ -1,6 +1,6 @@
 import { Map1 } from "./map1";
 import { Player } from "./player";
-import { cvs, ctx, arena, currentMap, currentPlayer } from "./general";
+import { cvs, ctx, arena, currentMap, currentPlayer, _ui } from "./general";
 import { Controls } from "./controls";
 import { IKeys } from "./interfaces.interface";
 import { Physics } from "./physics";
@@ -34,38 +34,42 @@ export class Game {
 
 
     private render(): void {
-        ctx.clearRect(0, 0, cvs.width, cvs.height);
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        if (!_ui.isMainMenuActive) {
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        // Physics relationship
-        currentMap.tiles.forEach((tile: Tile) => {
-            this.physics.add(currentPlayer, tile);
-            tile.update();
+            // Physics relationship
+            currentMap.tiles.forEach((tile: Tile) => {
+                this.physics.add(currentPlayer, tile);
+                tile.update();
 
-            currentMap.items.forEach((item: Item) => {
-                this.physics.add(item, tile);
-                if (!item.isThrowable) {
-                    this.physics.add(currentPlayer, item);
+                currentMap.items.forEach((item: Item) => {
+                    this.physics.add(item, tile);
+                    if (!item.isThrowable) {
+                        this.physics.add(currentPlayer, item);
+                    }
+                });
+            });
+
+            currentMap.items.forEach((item: Item, index: number) => {
+                currentMap.items.forEach((item2: Item) => {
+                    this.physics.add(item, item2);
+                });
+                item.update();
+            });
+
+            currentMap.players.forEach((player: Player) => {
+                if (!player.isYou) {
+                    player.udpate();
                 }
             });
-        });
+            //
+            this.moveGame();
+            currentPlayer.udpate();
+        }
 
-        currentMap.items.forEach((item: Item, index: number) => {
-            currentMap.items.forEach((item2: Item) => {
-                this.physics.add(item, item2);
-            });
-            item.update();
-        });
-
-        currentMap.players.forEach((player: Player) => {
-            if (!player.isYou) {
-                player.udpate();
-            }
-        });
-        //
-        this.moveGame();
-        currentPlayer.udpate();
+        _ui.update();
     }
 
     private resize(): void {
@@ -75,8 +79,9 @@ export class Game {
         cvs.width = boundingBox.width * pixelRatio;
         cvs.height = boundingBox.height * pixelRatio >= this.cvsMinHeight ? boundingBox.height * pixelRatio : this.cvsMinHeight;
         cvs.style.width = `${boundingBox.width}px`;
-        cvs.style.height = `${boundingBox.height >= this.cvsMinHeight / pixelRatio ? boundingBox.height : this.cvsMinHeight / pixelRatio}px`;
+        cvs.style.height = `${boundingBox.height >= this.cvsMinHeight / pixelRatio ? boundingBox.height : this.cvsMinHeight / pixelRatio}px`;    
     }
+
 
 
     public moveGame = () => {

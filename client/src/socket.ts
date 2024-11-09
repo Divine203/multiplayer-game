@@ -1,9 +1,10 @@
 import { io } from "../node_modules/socket.io-client/build/esm/index";
 import { Game } from "./main";
 import { Player } from "./player";
-import { currentGame, setGame, currentMap, setPlayer, currentPlayer, setMap } from "./general";
+import { currentGame, setGame, currentMap, setPlayer, currentPlayer, setMap, setUI, _ui } from "./general";
 import { Map1 } from "./map1";
 import { Tile } from "./tile";
+import { UI } from "./ui";
 
 class Socket {
     public host: any = io('http://localhost:3000');
@@ -19,24 +20,32 @@ class Socket {
     public initializeSocket() {
         // unique to each player.
         this.host.on('connect', () => {
-            this.host.emit('player-join', { playerId: this.host.id, position: { x: 0, y: 0 } });
-            console.log('Connected to server with ID:', this.host.id);
+
+
+            const ui = new UI();
+            setUI(ui);
 
             const newGame = new Game();
             setGame(newGame);
 
-            const newPlayer = new Player(this.host.id);
-            setPlayer(newPlayer);
-            currentPlayer.isYou = true;
-            currentPlayer.isEnemy = false;
-            currentPlayer.pos = { x: 100, y: 630 };
-            currentPlayer.absolutePos = { x: 100, y: 630 };
+            if (!_ui.isMainMenuActive) {
+                this.host.emit('player-join', { playerId: this.host.id, position: { x: 0, y: 0 } });
+                console.log('Connected to server with ID:', this.host.id);
+                
 
-            const newMap = new Map1();
-            setMap(newMap);
-            currentMap.players.push(currentPlayer);
+                const newPlayer = new Player(this.host.id);
+                setPlayer(newPlayer);
+                currentPlayer.isYou = true;
+                currentPlayer.isEnemy = false;
+                currentPlayer.pos = { x: 100, y: 630 };
+                currentPlayer.absolutePos = { x: 100, y: 630 };
 
-            console.log(currentMap.players.map(this.getPlayers));
+                const newMap = new Map1();
+                setMap(newMap);
+                currentMap.players.push(currentPlayer);
+
+                console.log(currentMap.players.map(this.getPlayers));
+            }
         });
 
 
@@ -63,23 +72,21 @@ class Socket {
             player.isYou = false;
             player.isEnemy = true;
             currentMap.players.push(player);
-
-            console.log(currentMap.players.map(this.getPlayers));
         });
 
         // Listen for player movement updates
         this.host.on('player-move', (data: any) => {
-            console.log('Player moved:');
-            
+            // console.log('Player moved:');
+
             const player = currentMap.players.find((p: Player) => p.id === data.playerId);
             if (player && !player.isYou) {
 
-                // we could just slap the data.position to player.pos and call it a day.
+                // we could have just slapped the data.position to player.pos and call it a day.
                 // Turns out dat doesn't F-ing work for reasons i still don't understand.
                 // so were going to be using our magic indicator tile as a form of 'relativity'
                 // to correctly position other players in our instance of the map.
                 currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
-                    player.pos = { y: tile.pos.y - (tile.initYPos - data.position.y), x: (tile.pos.x + (data.position.x - tile.initXPos) + 40)}; // +40 is simply correcting a slight displacement for more accuracy
+                    player.pos = { y: tile.pos.y - (tile.initYPos - data.position.y), x: (tile.pos.x + (data.position.x - tile.initXPos) + 40) }; // +40 is simply correcting a slight displacement for more accuracy
                 });
             }
         });

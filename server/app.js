@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const { Server } = require('socket.io');
+// const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const server = http.createServer(app);
@@ -19,8 +20,10 @@ app.use(express.static(path.join(__dirname, '../client/public')));
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
+    // let newRoomId = uuidv4();
     // When a player joins, broadcast their join event to other players
     socket.on('player-join', (data) => { 
+        console.log('joined');
         players[socket.id] = data.position;
         socket.emit('initialize-players', players);
         socket.broadcast.emit('player-join', { playerId: socket.id, position: data.position }); // Sends to everyone except the sender
