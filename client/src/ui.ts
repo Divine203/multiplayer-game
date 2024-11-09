@@ -9,6 +9,7 @@ export class UI {
 
     constructor() { 
         this.setData();
+        this.listeners();
     }
 
     public setData() {
@@ -71,6 +72,15 @@ export class UI {
             const rect = cvs.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
             const clickY = event.clientY - rect.top;
+
+
+            this.setData();
+
+            this.availableButtons.forEach((b: IAvailableButton) => {
+                if(this.isInsideRect(clickX, clickY, b.x, b.y, b.width, b.height)) {
+                    console.log(b.type);
+                }
+            })
         });
     }
 
