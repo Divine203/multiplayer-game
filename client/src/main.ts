@@ -61,9 +61,9 @@ export class Game {
         currentMap.players.forEach((player: Player) => {
             if (!player.isYou) {
                 player.udpate();
-                currentMap.tiles.forEach((tile: Tile) => {
-                    this.physics.add(player, tile);
-                });
+                // currentMap.tiles.forEach((tile: Tile) => {
+                //     this.physics.add(player, tile);
+                // });
             }
         });
         //

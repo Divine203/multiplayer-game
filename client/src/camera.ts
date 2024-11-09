@@ -110,7 +110,13 @@ export class Camera {
             const yd = tile.pos.y - this.player.pos.y;
             this.player.absolutePos.y = this.mapBase - yd;
             this.player.absolutePos.x = this.player.pos.x - tile.pos.x;
-        })
+        });
+
+        currentMap.players.forEach((p: Player) => {
+            if(!p.isYou) {
+                // console.log(p.pos);
+            }
+        });
 
         this.showCamera();
     }

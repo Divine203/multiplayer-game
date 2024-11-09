@@ -23,7 +23,7 @@ export class Map1 {
         ];
         
         this.items = [
-            new Item({x: 100, y: 100, width: 100, height: 100, color: 'orange'})
+            new Item({x: 400, y: 600, width: 100, height: 100, color: 'orange'})
         ];
 
         this.players = [];

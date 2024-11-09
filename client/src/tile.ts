@@ -8,6 +8,7 @@ export class Tile {
     public width: number;
     public height: number;
     public initYPos: number;
+    public initXPos: number;
 
     public color: string;
 
@@ -19,6 +20,7 @@ export class Tile {
         this.width = width;
         this.height = height;
         this.initYPos = y;
+        this.initXPos = x;
         this.color = color;
         this.isIndicatorTile = isIndicatorTile;
     }

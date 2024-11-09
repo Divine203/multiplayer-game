@@ -58,12 +58,12 @@ export class Player {
         this.camera = new Camera(this);
         this.width = 60;
         this.height = 60;
-        this.lastPos = { x: 100, y: 0 };
+        this.lastPos = { x: 100, y: 630 };
     }
 
     public init() {
-        this.pos = { x: 100, y: 0 } as Vec2;
-        this.absolutePos = { x: 100, y: 0 } as Vec2;
+        this.pos = { x: 100, y: 630 } as Vec2;
+        this.absolutePos = { x: 100, y: 630 } as Vec2;
         this.vel = { x: 0, y: 0 } as Vec2;
     }
 
@@ -151,6 +151,7 @@ export class Player {
         } else if(!this.isYou && this.isEnemy) {
             this.pos.x += arena.pos.x;
             this.pos.y += arena.vel.y;
+            
             this.draw();
         }
     }
