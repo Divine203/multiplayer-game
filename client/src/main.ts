@@ -27,9 +27,9 @@ export class Game {
         this.physics = new Physics();
 
         this.resize();
-        // window.addEventListener("resize", () => {
-        //     this.resize();
-        // });
+        window.addEventListener("resize", () => {
+            this.resize();
+        });
     }
 
 
@@ -61,9 +61,6 @@ export class Game {
         currentMap.players.forEach((player: Player) => {
             if (!player.isYou) {
                 player.udpate();
-                // currentMap.tiles.forEach((tile: Tile) => {
-                //     this.physics.add(player, tile);
-                // });
             }
         });
         //
@@ -72,13 +69,13 @@ export class Game {
     }
 
     private resize(): void {
-        // const boundingBox = cvs.parentElement!.getBoundingClientRect();
-        // const pixelRatio = window.devicePixelRatio;
+        const boundingBox = cvs.parentElement!.getBoundingClientRect();
+        const pixelRatio = window.devicePixelRatio;
 
-        // cvs.width = boundingBox.width * pixelRatio;
-        // cvs.height = boundingBox.height * pixelRatio >= this.cvsMinHeight ? boundingBox.height * pixelRatio : this.cvsMinHeight;
-        // cvs.style.width = `${boundingBox.width}px`;
-        // cvs.style.height = `${boundingBox.height >= this.cvsMinHeight / pixelRatio ? boundingBox.height : this.cvsMinHeight / pixelRatio}px`;
+        cvs.width = boundingBox.width * pixelRatio;
+        cvs.height = boundingBox.height * pixelRatio >= this.cvsMinHeight ? boundingBox.height * pixelRatio : this.cvsMinHeight;
+        cvs.style.width = `${boundingBox.width}px`;
+        cvs.style.height = `${boundingBox.height >= this.cvsMinHeight / pixelRatio ? boundingBox.height : this.cvsMinHeight / pixelRatio}px`;
     }
 
 

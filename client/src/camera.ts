@@ -64,7 +64,7 @@ export class Camera {
             y: 0
         };
         this.width = 1000;
-        this.height = 500;
+        this.height = 700;
 
         // up down movement
         if (this.isCamTop() && !this.isCamBottom() && !this.player.isJumping) {
