@@ -132,6 +132,7 @@ class Socket {
             // Remove the player from the game
             const updatedPlayers = currentMap.players.filter((p: Player) => p.id !== data.id);
             currentMap.players = updatedPlayers;
+            _ui.displayPlayersInRoom();
         });
     }
 

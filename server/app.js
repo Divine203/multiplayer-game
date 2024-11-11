@@ -72,26 +72,56 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('player-move', { playerId: socket.id, position: data.position }); // Broadcast to other players
     });
 
+    // socket.on('disconnect', () => {
+    //     console.log('A user disconnected:', socket.id);
+    //     // delete players[socket.id];
+
+
+    //     // Find the room that contains this player
+    //     for (const room of rooms) {
+    //         const playerIndex = room.players.findIndex(player => player.id === socket.id);
+    //         if (playerIndex !== -1) {
+    //             room.players.splice(playerIndex, 1); // Remove the player from the room's players list
+    //             io.in(data.roomId).emit('player-leave', { id: socket.id, roomId: room.roomId, name: room.players[playerIndex].name });
+
+    //             // Remove the room if it's empty
+    //             if (room.players.length === 0) {
+    //                 const roomIndex = rooms.findIndex(r => r.roomId === room.roomId);
+    //                 rooms.splice(roomIndex, 1);
+    //             }
+    //             break;
+    //         }
+    //     }
+    // });
+
     socket.on('disconnect', () => {
         console.log('A user disconnected:', socket.id);
-        // delete players[socket.id];
-
+    
         // Find the room that contains this player
-        // for (const room of rooms) {
-        //     const playerIndex = room.players.findIndex(player => player.id === socket.id);
-        //     if (playerIndex !== -1) {
-        //         room.players.splice(playerIndex, 1); // Remove the player from the room's players list
-        //         socket.to(room.roomId).emit('player-leave', { id: socket.id, roomId: room.roomId });
-
-        //         // Remove the room if it's empty
-        //         if (room.players.length === 0) {
-        //             const roomIndex = rooms.findIndex(r => r.roomId === room.roomId);
-        //             rooms.splice(roomIndex, 1);
-        //         }
-        //         break;
-        //     }
-        // }
+        for (const roomId in rooms) {
+            const room = rooms[roomId];
+            const playerIndex = room.players.findIndex(player => player.id === socket.id);
+            
+            if (playerIndex !== -1) {
+                const disconnectedPlayer = room.players[playerIndex];
+                room.players.splice(playerIndex, 1); // Remove the player from the room's players list
+    
+                // Notify everyone in the room that this player has left
+                io.to(roomId).emit('player-leave', { 
+                    id: disconnectedPlayer.id, 
+                    roomId: roomId, 
+                    name: disconnectedPlayer.name 
+                });
+    
+                // If the room is now empty, delete it from the `rooms` object
+                if (room.players.length === 0) {
+                    delete rooms[roomId];
+                }
+                break; // Stop searching since we've found the room
+            }
+        }
     });
+    
 });
 
 
