@@ -52,7 +52,7 @@ export class Game {
                 });
             });
 
-            currentMap.items.forEach((item: Item, index: number) => {
+            currentMap.items.forEach((item: Item) => {
                 currentMap.items.forEach((item2: Item) => {
                     this.physics.add(item, item2);
                 });

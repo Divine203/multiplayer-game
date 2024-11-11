@@ -57,6 +57,9 @@ class Socket {
         });
 
 
+        this.host.on('start-game', () => {
+            _ui.listenUIEvent(UIEvent.START_GAME);
+        }); 
 
         this.host.on('player-move', ({ playerId, position }: { playerId: string | any, position: Vec2 }) => {
             const player = currentMap.players.find((p: Player) => p.id === playerId);

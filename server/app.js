@@ -18,6 +18,7 @@ const rooms = {};
 /**
  * roomId: {
  *   roomId: string,
+ *   isGameStarted: boolean,
  *   players: { id: string, name: string, isHost: boolean },
  * }
  */
@@ -31,6 +32,7 @@ io.on('connection', (socket) => {
         let newRoomId = uuidv4();
         rooms[newRoomId] = {
             roomId: newRoomId,
+            isGameStarted: false,
             players: [{
                 id: socket.id,
                 name: playerName,
@@ -57,7 +59,14 @@ io.on('connection', (socket) => {
             io.in(roomId).emit('initialize-players', rooms[roomId]);
         }
     });
+ 
+    socket.on('start-game', ({ roomId }) => {
+        rooms[roomId].isGameStarted = true;
 
+        socket.emit('start-game', {});
+        io.in(roomId).emit('start-game', {});
+
+    }); 
 
     socket.on('player-move', ({ position, roomId }) => {
         io.in(roomId).emit('player-move', { playerId: socket.id, position: position });

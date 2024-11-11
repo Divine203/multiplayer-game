@@ -122,6 +122,10 @@ export class Player {
     }
 
     public draw() {
+        ctx.fillStyle = '#fff';
+        ctx.font = `20px consolas`
+        ctx.fillText(this.name, this.pos.x, this.pos.y - 22);
+
         ctx.fillStyle = this.isYou ? 'red' : 'pink';
         ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }

@@ -46,7 +46,14 @@ export class UI {
         this.listeners();
     }
 
+    private closeMainUI() {
+        this.pageKeys.forEach((pageKey: string) => {
+            this.pages[pageKey].style.display = 'none';
+        });
+    }
+
     private enterPage(pageKey: string): void {
+
         this.prevPage = this.currentPage;
         this.pages[pageKey].style.display = 'flex';
         this.currentPage = pageKey;
@@ -120,6 +127,14 @@ export class UI {
                 }
             }
         });
+
+        this.buttons.startGame.addEventListener('click', () => {
+            if(this.currentPage == this.pageKeys[3] && currentPlayer.isHost) {
+                server.host.emit('start-game', {
+                    roomId: roomId
+                });  
+            } 
+        }); 
     };
 
     public listenUIEvent(event: UIEvent) {
@@ -136,6 +151,12 @@ export class UI {
             if (!currentPlayer.isHost) {
                 this.buttons.startGame.disabled = true;
             }
+        }
+
+        if (event === UIEvent.START_GAME) {
+            this.closeMainUI();
+            this.isMainMenuActive = false;
+            this.inRoom = false;
         }
     }
 

@@ -25,6 +25,9 @@ video ideas
     @ release to throw --done
     @ press x to cancel throw 
   ] decide the idea, concepts and features of the game.
+  ] server:
+    @ Implement socket and rooms concept --done
+    @ Start Game 
   ---------------------------------------------------------------
    Features:
   ---------------------------------------------------------------
@@ -99,6 +102,10 @@ no engine limitations --use()
 . multiplayer: Web socket.
 . UI
 . lighting and shadows. (later) #
+
+
+
+
 
 
 
