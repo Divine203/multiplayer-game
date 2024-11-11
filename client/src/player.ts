@@ -12,8 +12,11 @@ import { Controls } from "./controls";
 
 export class Player {
     public id: string | any;
+    public name: string = '';
     public isYou: boolean = false;
     public isEnemy: boolean = false;
+    public isHost: boolean = false;
+    public currentRoom: string = '';
 
     public pos: any;
     public absolutePos: any;
@@ -47,9 +50,10 @@ export class Player {
 
     public controls;
 
-    constructor(id: string | any) {
+    constructor(id: string | any, name: string) {
         this.init();
         this.id = id;
+        this.name = name;
         this.controls = new Controls(this);
         this.keys = keys;
         this.physics = new Physics();

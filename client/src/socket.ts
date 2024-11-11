@@ -1,7 +1,7 @@
 import { io } from "../node_modules/socket.io-client/build/esm/index";
 import { Game } from "./main";
 import { Player } from "./player";
-import { currentGame, setGame, currentMap, setPlayer, currentPlayer, setMap, setUI, _ui } from "./general";
+import { currentGame, setGame, currentMap, setPlayer, currentPlayer, setMap, setUI, _ui, setRoomId, roomId } from "./general";
 import { Map1 } from "./map1";
 import { Tile } from "./tile";
 import { UI } from "./ui";
@@ -11,10 +11,6 @@ class Socket {
 
     constructor() {
         this.initializeSocket();
-    }
-
-    public getPlayers(player: Player) {
-        return { id: player.id, isYou: player.isYou };
     }
 
     public initializeSocket() {
@@ -28,56 +24,95 @@ class Socket {
             const newGame = new Game();
             setGame(newGame);
 
-            if (!_ui.isMainMenuActive) {
-                this.host.emit('player-join', { playerId: this.host.id, position: { x: 0, y: 0 } });
+            // this.host.on('can-join-room', (playerData: any) => {
+            //     console.log('joining room...');
+            //     console.log(playerData);
+            //     const joiningPlayerData = { playerId: this.host.id, playerName: playerData.playerName, roomId: playerData.roomId };
+            //     console.log(joiningPlayerData);
+            //     this.host.emit('joined-room', joiningPlayerData);
+            //     setRoomId(playerData.roomId);
+
+            //     console.log('Connected to server with ID:', this.host.id);
+
+            //     // const newPlayer = new Player(this.host.id, playerData.playerName);
+            //     // setPlayer(newPlayer);
+            //     // currentPlayer.isYou = true;
+            //     // currentPlayer.isHost = false;
+            //     // currentPlayer.isEnemy = false;
+
+            //     // const newMap = new Map1();
+            //     // setMap(newMap);
+            //     // currentMap.players.push(currentPlayer);
+            // });
+
+            this.host.on('created-room', (data: any) => {
+                console.log('Room has been created: ' + data.roomId);
+                setRoomId(data.roomId);
+
                 console.log('Connected to server with ID:', this.host.id);
-                
 
-                const newPlayer = new Player(this.host.id);
-                setPlayer(newPlayer);
-                currentPlayer.isYou = true;
-                currentPlayer.isEnemy = false;
-                currentPlayer.pos = { x: 100, y: 630 };
-                currentPlayer.absolutePos = { x: 100, y: 630 };
+                // const newPlayer = new Player(this.host.id, data.playerName);
+                // setPlayer(newPlayer);
+                // currentPlayer.isYou = true;
+                // currentPlayer.isHost = true;
+                // currentPlayer.isEnemy = false;
 
-                const newMap = new Map1();
-                setMap(newMap);
-                currentMap.players.push(currentPlayer);
+                // const newMap = new Map1();
+                // setMap(newMap);
 
-                console.log(currentMap.players.map(this.getPlayers));
-            }
+                // currentMap.players[0] = newPlayer;
+
+                // _ui.displayPlayersInRoom();
+
+                // console.log(currentMap.players);
+            });
         });
 
 
         // Initialize all existing players when the player joins
-        this.host.on('initialize-players', (playersData: any) => {
-            for (const [playerId, position] of Object.entries(playersData)) {
-                if (playerId !== this.host.id) { // Avoid duplicating self
-                    const player = new Player(playerId);
+        this.host.on('initialize-players', (room: any) => {
+            const newMap = new Map1();
+            setMap(newMap);
+            room.players.forEach(({ id, name, isHost, roomId }: { id: string | any, name: string, isHost: boolean, roomId: string | any }) => {
+                if (id !== this.host.id) {
+                    const player = new Player(id, name);
                     player.isYou = false;
                     player.isEnemy = true;
-                    player.pos = position; // Initialize with correct position
-                    player.absolutePos = position;
+                    player.isHost = isHost;
+                    player.currentRoom = roomId;
+                    setPlayer(player);
+                    currentMap.players.push(player);
+                } else {
+                    const player = new Player(id, name);
+                    player.isYou = true;
+                    player.isEnemy = false;
+                    player.isHost = isHost;
+                    player.currentRoom = roomId;
                     currentMap.players.push(player);
                 }
-            }
-            console.log('Initialized players:', currentMap.players.map(this.getPlayers));
+            });
+            _ui.displayPlayersInRoom();
+            console.log(currentMap.players);
         });
 
         // Listen for other players joining
         this.host.on('player-join', (data: any) => {
-            console.log('Another player joined:', data);
 
-            const player = new Player(data.playerId);
-            player.isYou = false;
-            player.isEnemy = true;
-            currentMap.players.push(player);
+            if (data.roomId == roomId) {
+                console.log('Another player joined:', data);
+
+                // const player = new Player(data.playerId, data.playerName);
+                // player.isYou = false;
+                // player.isEnemy = true;
+                // player.isHost = false;
+                // currentMap.players.push(player);
+
+                // console.log(currentMap.players);
+            }
         });
 
         // Listen for player movement updates
         this.host.on('player-move', (data: any) => {
-            // console.log('Player moved:');
-
             const player = currentMap.players.find((p: Player) => p.id === data.playerId);
             if (player && !player.isYou) {
 

@@ -1,0 +1,68 @@
+body{
+    background-color: rgb(26, 26, 26);
+    color: #fff;
+    height: 100vh;
+    position: relative;
+    font-family: consolas !important;
+}
+
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+#wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#canvas--cont {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    align-self: center;
+}
+
+.page--cont {
+    width: 100%;
+    height: 100vh;
+    background: rgb(32, 32, 32);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.helper--cont {
+    background: #0000007e;
+    color: #fff;
+    width: 35vw;
+    height: fit-content;
+    position: absolute;
+    right: 0;
+    padding: 1em;
+    font-size: .8rem;
+
+    display: block;
+}
+
+.room--cont {
+
+}
+.room--cont .player {
+    margin: 1em;
+}
+.room--cont .player span.profile {
+    background: red;
+    width: 50px;
+    height: 50px;
+}
+
+button {
+    cursor: pointer !important;
+}

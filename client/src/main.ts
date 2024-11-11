@@ -34,7 +34,7 @@ export class Game {
 
 
     private render(): void {
-        if (!_ui.isMainMenuActive) {
+        if (!_ui.isMainMenuActive && !_ui.inRoom) {
             ctx.clearRect(0, 0, cvs.width, cvs.height);
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);

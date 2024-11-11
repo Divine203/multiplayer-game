@@ -22,6 +22,8 @@ export const arena: any = {
     width: 5120
 }
 
+export let roomId: string = '';
+
 export let cameraState: string = ''; // 'up', 'down', '',
 export let currentGame: any;
 export let currentPlayer: any;
@@ -33,6 +35,10 @@ export let keys: IKeys = {
     a: { pressed: false },
     z: { pressed: false },
 };
+
+export const setRoomId = (id: string): void => {
+    roomId = id;
+}
 
 export const setCameraState = (state: string): void => {
     cameraState = state;

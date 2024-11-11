@@ -1,98 +1,155 @@
-import { ctx, cvs } from "./general";
+import { ctx, currentMap, cvs, roomId } from "./general";
+import { server } from "./main";
+import Socket from "./socket";
 
 export class UI {
     public isMainMenuActive: boolean = true;
+    public inRoom: boolean = false;
 
-    public primaryBtnDim: number[] = [250, 70];
+    public isShowingHelp: boolean = true;
 
-    public availableButtons: IAvailableButton[] = [];
+    public currentPage: string = "";
+    public prevPage: string = "";
 
-    constructor() { 
-        this.setData();
+    public pageKeys: any = ['home', 'joinRoom', 'createRoom', 'room'];
+    public pages: any = {
+        home: this.getEl('home'),
+        joinRoom: this.getEl('joinRoom'),
+        createRoom: this.getEl('createRoom'),
+        room: this.getEl('room')
+    };
+
+    public views: any = {
+        helper: this.getEl('helper'),
+        player_list: this.getEl('player_list')
+    }
+
+    public inputs: any = {
+        input_playerName_join: this.getEl('input_playerName_join'),
+        input_roomId: this.getEl('input_roomId'),
+        input_playerName_create: this.getEl('input_playerName_create'),
+        input_displayRoomId: this.getEl('input_displayRoomId')
+    }
+
+    public buttons: any = {
+        btn_createRoom: this.getEl('btn_createRoom'),
+        btn_joinRoom: this.getEl('btn_joinRoom'),
+        btn_joinWithRoomId: this.getEl('btn_joinWithRoomId'),
+        btn_enter_createdRoom: this.getEl('btn_enter_createdRoom'),
+        startGame: this.getEl('startGame')
+    }
+
+
+    constructor() {
+        this.enterPage(this.pageKeys[0]);
+        this.prevPage = this.pageKeys[0];
         this.listeners();
     }
 
-    public setData() {
-        this.availableButtons = [
-            {
-                x: cvs.width / 2 - 250 / 2,
-                y: cvs.height / 2 - 70,
-                width: this.primaryBtnDim[0],
-                height: this.primaryBtnDim[1],
-                type: ButtonTypes.CREATE_ROOM
-            },
-            {
-                x: cvs.width / 2 - 250 / 2,
-                y: cvs.height / 2 + 30,
-                width: this.primaryBtnDim[0],
-                height: this.primaryBtnDim[1],
-                type: ButtonTypes.ENTER_ROOM
-            }
-        ];
+    private enterPage(pageKey: string): void {
+        this.prevPage = this.currentPage;
+        this.pages[pageKey].style.display = 'flex';
+        this.currentPage = pageKey;
+
+        // hide other pages.
+        this.pageKeys.filter((pk: string) => (pk !== pageKey)).forEach((pageKey: string, i: number) => {
+            this.pages[pageKey].style.display = 'none';
+        });
     }
 
-    drawBackground() {
-        ctx.fillStyle = 'green';
-        ctx.fillRect(0, 0, cvs.width, cvs.height);
+    private backToPrevPage(): void {
+        this.enterPage(this.prevPage);
     }
 
+    private toggleHelper() {
+        this.isShowingHelp = !this.isShowingHelp;
 
-    drawButton(x: number, y: number, text: string) {
-        const [w, h] = this.primaryBtnDim;
-
-        ctx.fillStyle = 'orange';
-        ctx.fillRect(x, y, w, h);
-
-        ctx.fillStyle = 'white';
-        ctx.font = '16px "Press Start 2P"';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        ctx.fillText(text, x + w / 2, y + h / 2); // Centering text within the button
-    }
-
-    private isInsideRect(
-        clickX: number,
-        clickY: number,
-        rectX: number,
-        rectY: number,
-        rectWidth: number,
-        rectHeight: number): boolean {
-
-        return (
-            clickX >= rectX &&
-            clickX <= rectX + rectWidth &&
-            clickY >= rectY &&
-            clickY <= rectY + rectHeight
-        );
+        if (this.isShowingHelp) this.views.helper.style.display = 'block';
+        else this.views.helper.style.display = 'none';
     }
 
     listeners() {
-        cvs.addEventListener('click', (event) => {
-            const rect = cvs.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const clickY = event.clientY - rect.top;
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'h':
+                    this.toggleHelper();
+                    break;
 
+                case 'z':
+                    this.backToPrevPage();
+                    break;
+            }
+        });
 
-            this.setData();
+        this.buttons.btn_createRoom.addEventListener('click', () => {
+            this.enterPage(this.pageKeys[2]);
+        });
 
-            this.availableButtons.forEach((b: IAvailableButton) => {
-                if(this.isInsideRect(clickX, clickY, b.x, b.y, b.width, b.height)) {
-                    console.log(b.type);
+        this.buttons.btn_enter_createdRoom.addEventListener('click', () => {
+            if (this.currentPage == this.pageKeys[2]) {
+                const nickName: string = this.inputs.input_playerName_create.value;
+                if (nickName.trim().length <= 0) {
+                    alert('pls enter a valid name');
+                } else {
+                    this.enterPage(this.pageKeys[3]);
+                    server.host.emit('player-create-room', {
+                        playerName: nickName,
+                        playerId: server.host.id,
+                    });
+                    setTimeout(() => {
+                        this.inputs.input_displayRoomId.value = roomId;
+                    }, 1000);
+
                 }
-            })
+            }
+        });
+
+        this.buttons.btn_joinRoom.addEventListener('click', () => {
+            this.enterPage(this.pageKeys[1]);
+            this.toggleHelper();
+        })
+
+        this.buttons.btn_joinWithRoomId.addEventListener('click', () => {
+            if (this.currentPage == this.pageKeys[1]) {
+                const nickName: string = this.inputs.input_playerName_join.value;
+                const roomId: string = this.inputs.input_roomId.value;
+
+                if (nickName.trim().length <= 0) {
+                    alert('pls enter a valid name');
+                } else if (roomId.trim().length <= 0) {
+                    alert('pls enter a valid room ID');
+                } else {
+                    // join room with that roomId;
+                    server.host.emit('check-and-join-room', {
+                        playerName: nickName.trim(),
+                        playerId: server.host.id.trim(),
+                        roomId: roomId
+                    });
+                    this.enterPage(this.pageKeys[3]);
+                }
+            }
         });
     }
 
     update() {
-        if (this.isMainMenuActive) {
-            this.setData();
-            this.drawBackground();
-            
-            this.availableButtons.forEach((btn: IAvailableButton) => {
-                this.drawButton(btn.x, btn.y, readableTextByButtonTypes[btn.type]);
-            });
-        }
+
+    }
+
+    public displayPlayersInRoom(): void {
+        this.views.player_list.innerHTML = '';
+        for (let player of currentMap.players) {
+            const markup = `
+                <div class="player">
+                    <p style=${player.isHost ? "color: red;" : "color: yellow;"}>${player.name}</p>
+                    <span class="profile"></span>
+                </div>      
+            `;
+            this.views.player_list.insertAdjacentHTML('afterbegin', markup);
+        };
+    }
+
+    private getEl(id: string | any): HTMLElement | any {
+        return document.getElementById(id);
     }
 }
 
