@@ -12,10 +12,16 @@ class Socket {
     public host: any = io('http://localhost:3000');
 
     constructor() {
-        this.initializeSocket();
+        this.initializeSocket();   
     }
 
     public initializeSocket() {
+
+        const measurePing = () => {
+            const startTime = Date.now();
+            this.host.emit('ping', startTime);
+        }
+
         this.host.on('connect', () => {
             console.log('Connected to server with ID:', this.host.id);
             const ui = new UI();
@@ -23,6 +29,11 @@ class Socket {
 
             const newGame = new Game();
             setGame(newGame);
+        });
+
+        this.host.on('pong', (startTime: Date | any) => {
+            const ping = Date.now() - startTime;
+            _ui.displayPing(ping);
         });
 
         this.host.on('created-room', ({ roomId }: { roomId: string | any }) => {
@@ -37,6 +48,7 @@ class Socket {
 
 
         this.host.on('initialize-players', (room: any) => {
+            setInterval(measurePing, 3000);
             const newMap = new Map1();
             setMap(newMap);
             room.players.forEach(({ id, name, isHost, roomId }: { id: string | any, name: string, isHost: boolean, roomId: string | any }) => {

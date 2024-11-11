@@ -28,6 +28,10 @@ app.use(express.static(path.join(__dirname, '../client/public')));
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
+    socket.on('ping', (startTime) => {
+        socket.emit('pong', startTime);
+    });    
+
     socket.on('player-create-room', ({ playerName }) => {
         let newRoomId = uuidv4();
         rooms[newRoomId] = {

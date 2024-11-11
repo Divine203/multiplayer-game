@@ -20,14 +20,22 @@ video ideas
   ] shooting --done*
   ] improve world interactions (advanced physics) --done
   ] angle shooting --done* 
-    @ hold a to tilt up --donee
+    @ hold a to tilt up --done
     @ hold z to tilt down --done
     @ release to throw --done
     @ press x to cancel throw 
   ] decide the idea, concepts and features of the game.
   ] server:
     @ Implement socket and rooms concept --done
-    @ Start Game 
+    @ Start Game --done
+    @ Measure ping and display it to players
+    @ Share item movement data amongst players (bullets, gunshots, grenades...etc)
+    @ Implement damage, hp and health bar.
+    @ Implement death and wins.
+    @ Limit Players in room to 10.
+    @ Implement waiting in room for game to finish when players are in game
+    @ Check all possible errors and inform/prompt players accordingly.
+    
   ---------------------------------------------------------------
    Features:
   ---------------------------------------------------------------

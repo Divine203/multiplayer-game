@@ -21,7 +21,9 @@ export class UI {
 
     public views: any = {
         helper: this.getEl('helper'),
-        player_list: this.getEl('player_list')
+        player_list: this.getEl('player_list'),
+        ping: this.getEl('ping'),
+        ping_val: this.getEl('ping_val')
     }
 
     public inputs: any = {
@@ -43,7 +45,9 @@ export class UI {
     constructor() {
         this.enterPage(this.pageKeys[0]);
         this.prevPage = this.pageKeys[0];
-        this.listeners();
+        if (this.isMainMenuActive || this.inRoom) {
+            this.listeners();
+        }
     }
 
     private closeMainUI() {
@@ -75,7 +79,7 @@ export class UI {
         else this.views.helper.style.display = 'none';
     }
 
-    listeners() {
+    public listeners() {
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'h':
@@ -129,13 +133,25 @@ export class UI {
         });
 
         this.buttons.startGame.addEventListener('click', () => {
-            if(this.currentPage == this.pageKeys[3] && currentPlayer.isHost) {
+            if (this.currentPage == this.pageKeys[3] && currentPlayer.isHost) {
                 server.host.emit('start-game', {
                     roomId: roomId
-                });  
-            } 
-        }); 
+                });
+            }
+        });
     };
+
+    public displayPing(ping: number) {
+        let color = 'lime';
+        if (ping >= 100 && ping < 150) {
+            color = 'yellow';
+        } else if (ping >= 150) {
+            color = 'red';
+        }
+        this.views.ping.style.display = 'block';
+        this.views.ping_val.innerHTML = ping;
+        this.views.ping_val.style.color = color;
+    }
 
     public listenUIEvent(event: UIEvent) {
         if (event === UIEvent.CREATED_ROOM) {

@@ -38,22 +38,29 @@ body{
     top: 0;
 }
 
-.helper--cont {
+.helper--cont, .ping--cont {
     background: #0000007e;
     color: #fff;
-    width: 35vw;
-    height: fit-content;
     position: absolute;
-    right: 0;
     padding: 1em;
     font-size: .8rem;
-
     display: block;
 }
 
-.room--cont {
-
+.helper--cont {
+    width: 35vw;
+    height: fit-content;
+    right: 0;
 }
+
+.ping--cont {
+    width: fit-content;
+    height: auto;
+    left: 0;
+    top: 0;
+    display: none;
+}
+
 .room--cont .player {
     margin: 1em;
 }
