@@ -145,8 +145,8 @@ export class Player {
             if (this.absolutePos.x !== this.lastPos.x || this.absolutePos.y !== this.lastPos.y) {
                 // Emit the movement update to the server
                 server.host.emit('player-move', {
-                    playerId: server.host.id,
-                    position: { x: this.absolutePos.x, y: this.absolutePos.y }
+                    position: { x: this.absolutePos.x, y: this.absolutePos.y },
+                    roomId: this.currentRoom
                 });
 
                 // Update last known position

@@ -1,7 +1,10 @@
 video ideas
  
-- I was bored, so i made a Multiplayer game from Scratch.
+- I was bored, so i made a MULTIPLAYER GAME from Scratch.
 - Let's Code a MULTIPLAYER GAME.
+- Coding a MULTIPLAYER GAME from Scratch in 12 minutes.
+- Programming a MULTIPLAYER GAME from scratch.
+- I Programmed a MULTIPLAYER GAME from scratch.
 
  ] Game inspiration: Killer bean, mini militia, jetpack joyride, Terraria, Geometry Dash.
 ------------------------------------------------------------------

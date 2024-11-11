@@ -13,13 +13,12 @@ const io = new Server(server, {
     }
 });
 const port = 3000;
-const players = {}; // Object to store players by socket ID
 
 const rooms = {};
 /**
- * {
- * roomId: string,
- * players: { id: string, name: string, isHost: boolean },
+ * roomId: {
+ *   roomId: string,
+ *   players: { id: string, name: string, isHost: boolean },
  * }
  */
 
@@ -28,100 +27,66 @@ app.use(express.static(path.join(__dirname, '../client/public')));
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
-    socket.on('player-create-room', (data) => {
+    socket.on('player-create-room', ({ playerName }) => {
         let newRoomId = uuidv4();
-        console.log(data.playerName + ': ' + newRoomId);
-        rooms[newRoomId] = { 
+        rooms[newRoomId] = {
             roomId: newRoomId,
-            players: [ { 
-                id: data.playerId, 
-                name: data.playerName, 
-                isHost: true, 
+            players: [{
+                id: socket.id,
+                name: playerName,
+                isHost: true,
                 roomId: newRoomId
-            } ], 
+            }],
         };
         socket.join(newRoomId);
         socket.emit('created-room', { roomId: newRoomId });
-        io.in(newRoomId).emit('initialize-players', rooms[newRoomId]);
+        socket.emit('initialize-players', rooms[newRoomId]);
     });
 
-    // socket.on('joined-room', (data) => { 
-      
-    // });
-
-    socket.on('check-and-join-room', (data) => {
-        console.log('checking and joining room...');
-        if(data.roomId in rooms) {
-            console.log('yay the room exists!!');
-            console.log(data);
-            rooms[data.roomId].players.push({
-                id: data.playerId,
-                name: data.playerName,
-                isHost: false, 
-                roomId: data.roomId
+    socket.on('check-and-join-room', ({ playerName, roomId }) => {
+        if (roomId in rooms) {
+            rooms[roomId].players.push({
+                id: socket.id,
+                name: playerName,
+                isHost: false,
+                roomId: roomId
             });
-            socket.join(data.roomId);
-            socket.emit('initialize-players', rooms[data.roomId]);
-            io.in(data.roomId).emit('initialize-players', rooms[data.roomId]);
+            socket.join(roomId);
+            socket.emit('initialize-players', rooms[roomId]);
+            io.in(roomId).emit('player-joined', { roomId: roomId });
+            io.in(roomId).emit('initialize-players', rooms[roomId]);
         }
     });
 
 
-    socket.on('player-move', (data) => {
-        players[socket.id] = data.position;
-        socket.broadcast.emit('player-move', { playerId: socket.id, position: data.position }); // Broadcast to other players
+    socket.on('player-move', ({ position, roomId }) => {
+        io.in(roomId).emit('player-move', { playerId: socket.id, position: position });
     });
-
-    // socket.on('disconnect', () => {
-    //     console.log('A user disconnected:', socket.id);
-    //     // delete players[socket.id];
-
-
-    //     // Find the room that contains this player
-    //     for (const room of rooms) {
-    //         const playerIndex = room.players.findIndex(player => player.id === socket.id);
-    //         if (playerIndex !== -1) {
-    //             room.players.splice(playerIndex, 1); // Remove the player from the room's players list
-    //             io.in(data.roomId).emit('player-leave', { id: socket.id, roomId: room.roomId, name: room.players[playerIndex].name });
-
-    //             // Remove the room if it's empty
-    //             if (room.players.length === 0) {
-    //                 const roomIndex = rooms.findIndex(r => r.roomId === room.roomId);
-    //                 rooms.splice(roomIndex, 1);
-    //             }
-    //             break;
-    //         }
-    //     }
-    // });
 
     socket.on('disconnect', () => {
         console.log('A user disconnected:', socket.id);
-    
-        // Find the room that contains this player
+
         for (const roomId in rooms) {
             const room = rooms[roomId];
             const playerIndex = room.players.findIndex(player => player.id === socket.id);
-            
+
             if (playerIndex !== -1) {
                 const disconnectedPlayer = room.players[playerIndex];
-                room.players.splice(playerIndex, 1); // Remove the player from the room's players list
-    
-                // Notify everyone in the room that this player has left
-                io.to(roomId).emit('player-leave', { 
-                    id: disconnectedPlayer.id, 
-                    roomId: roomId, 
-                    name: disconnectedPlayer.name 
+                room.players.splice(playerIndex, 1);
+
+                io.to(roomId).emit('player-leave', {
+                    playerId: disconnectedPlayer.id,
+                    name: disconnectedPlayer.name
                 });
-    
-                // If the room is now empty, delete it from the `rooms` object
+
                 if (room.players.length === 0) {
                     delete rooms[roomId];
                 }
-                break; // Stop searching since we've found the room
+                break;
             }
         }
     });
-    
+
 });
 
 

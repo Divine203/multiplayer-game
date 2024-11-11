@@ -1,6 +1,6 @@
-import { ctx, currentMap, cvs, roomId } from "./general";
+import { currentMap, currentPlayer, roomId } from "./general";
 import { server } from "./main";
-import Socket from "./socket";
+import { UIEvent } from "./data.enum";
 
 export class UI {
     public isMainMenuActive: boolean = true;
@@ -91,15 +91,9 @@ export class UI {
                 if (nickName.trim().length <= 0) {
                     alert('pls enter a valid name');
                 } else {
-                    this.enterPage(this.pageKeys[3]);
                     server.host.emit('player-create-room', {
-                        playerName: nickName,
-                        playerId: server.host.id,
+                        playerName: nickName
                     });
-                    setTimeout(() => {
-                        this.inputs.input_displayRoomId.value = roomId;
-                    }, 1000);
-
                 }
             }
         });
@@ -119,16 +113,30 @@ export class UI {
                 } else if (roomId.trim().length <= 0) {
                     alert('pls enter a valid room ID');
                 } else {
-                    // join room with that roomId;
                     server.host.emit('check-and-join-room', {
                         playerName: nickName.trim(),
-                        playerId: server.host.id.trim(),
                         roomId: roomId
                     });
-                    this.enterPage(this.pageKeys[3]);
                 }
             }
         });
+    };
+
+    public listenUIEvent(event: UIEvent) {
+        if (event === UIEvent.CREATED_ROOM) {
+            this.enterPage(this.pageKeys[3]);
+            this.inputs.input_displayRoomId.value = roomId;
+
+        } else if (event === UIEvent.JOINED_ROOM) {
+            this.enterPage(this.pageKeys[3]);
+            this.inputs.input_displayRoomId.value = roomId;
+        }
+
+        if (event === UIEvent.INITIALIZED_PLAYERS) {
+            if (!currentPlayer.isHost) {
+                this.buttons.startGame.disabled = true;
+            }
+        }
     }
 
     update() {
@@ -138,12 +146,16 @@ export class UI {
     public displayPlayersInRoom(): void {
         this.views.player_list.innerHTML = '';
         for (let player of currentMap.players) {
+            let color = '#fff';
+            if (player.isYou && !player.isHost) color = 'yellow';
+            else if (player.isHost) color = 'red';
+
             const markup = `
-                <div class="player">
-                    <p style=${player.isHost ? "color: red;" : "color: yellow;"}>${player.name}</p>
-                    <span class="profile"></span>
-                </div>      
-            `;
+            <div class="player">
+                <p style="color: ${color}">${player.name}</p>
+                <span class="profile"></span>
+            </div>      
+        `;
             this.views.player_list.insertAdjacentHTML('afterbegin', markup);
         };
     }
