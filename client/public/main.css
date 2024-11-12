@@ -51,6 +51,7 @@ body{
     width: 35vw;
     height: fit-content;
     right: 0;
+    display: none;
 }
 
 .ping--cont {

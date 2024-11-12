@@ -1,5 +1,5 @@
 import { IKeys, Vec2, Vec4 } from "./interfaces.interface";
-import { ctx, currentGame, keys, currentMap, arena } from "./general";
+import { ctx, currentGame, currentMap, arena } from "./general";
 import { gravity, Physics } from "./physics";
 import { Game, server } from "./main";
 import { Tile } from "./tile";
@@ -24,7 +24,6 @@ export class Player {
     public width: number;
     public height: number;
     public speed: number = 8;
-    public keys: IKeys;
     public physics: Physics;
     public isJumping: boolean = false;
 
@@ -54,7 +53,6 @@ export class Player {
         this.init();
         this.id = id;
         this.name = name;
-        this.keys = keys;
         this.physics = new Physics();
         this.primaryGun = new Gun(this, GunType.PISTOL);
 
@@ -79,17 +77,17 @@ export class Player {
             isThrowable: true,
             throwRight: this.state.isRight
         });
-        item.throw(Math.abs(this.throwProjectileAngle), 30);
+        item.throw(this.state.isRight ? this.throwProjectileAngle * -1 : this.throwProjectileAngle, 30);
         this.throwProjectileAngle = 0;
         currentMap.items.push(item);
     }
 
     updateProjectile() {
         const rotSpeed = 2;
-        if (keys.a.pressed || keys.z.pressed) {
+        if (currentGame.keys.a.pressed || currentGame.keys.z.pressed) {
             this.drawProjectileLine();
 
-            if (keys.a.pressed) {
+            if (currentGame.keys.a.pressed) {
                 if (this.state.isLeft) this.throwProjectileAngle += rotSpeed;
                 else this.throwProjectileAngle -= rotSpeed;
 

@@ -43,12 +43,14 @@ export class Controls {
                     break
 
                 case 'a':
+                    console.log('a');
                     if (!currentGame.keys.z.pressed) {
                         currentGame.keys.a.pressed = true;
                     }
                     break
 
                 case 'z':
+                    console.log('z');
                     if (!currentGame.keys.a.pressed) {
                         currentGame.keys.z.pressed = true;
                     }

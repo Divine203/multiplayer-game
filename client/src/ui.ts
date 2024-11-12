@@ -81,14 +81,16 @@ export class UI {
 
     public listeners() {
         document.addEventListener('keydown', (e) => {
-            switch (e.key) {
-                case 'h':
-                    this.toggleHelper();
-                    break;
+            if (this.isMainMenuActive || this.inRoom) {
+                switch (e.key) {
+                    case 'h':
+                        this.toggleHelper();
+                        break;
 
-                case 'z':
-                    this.backToPrevPage();
-                    break;
+                    case 'z':
+                        this.backToPrevPage();
+                        break;
+                }
             }
         });
 
@@ -111,7 +113,6 @@ export class UI {
 
         this.buttons.btn_joinRoom.addEventListener('click', () => {
             this.enterPage(this.pageKeys[1]);
-            this.toggleHelper();
         })
 
         this.buttons.btn_joinWithRoomId.addEventListener('click', () => {
