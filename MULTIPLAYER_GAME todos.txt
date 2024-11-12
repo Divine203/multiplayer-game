@@ -28,14 +28,24 @@ video ideas
   ] server:
     @ Implement socket and rooms concept --done
     @ Start Game --done
-    @ Measure ping and display it to players
-    @ Share item movement data amongst players (bullets, gunshots, grenades...etc)
+    @ Measure ping and display it to players --done
+    @ Share item/actions movement data amongst players  
+      - gun shots
+      - grenades
+      - global items
+      
     @ Implement damage, hp and health bar.
     @ Implement death and wins.
     @ Limit Players in room to 10.
     @ Implement waiting in room for game to finish when players are in game
     @ Check all possible errors and inform/prompt players accordingly.
-    
+    @ Implement Loot system
+      - classify guns
+      - implement primary and secondary guns
+      - spawn guns at random locations
+      - spawn grenade at random locations
+      - implement loot pick up 
+      
   ---------------------------------------------------------------
    Features:
   ---------------------------------------------------------------

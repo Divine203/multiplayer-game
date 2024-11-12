@@ -15,13 +15,7 @@ const io = new Server(server, {
 const port = 3000;
 
 const rooms = {};
-/**
- * roomId: {
- *   roomId: string,
- *   isGameStarted: boolean,
- *   players: { id: string, name: string, isHost: boolean },
- * }
- */
+
 
 app.use(express.static(path.join(__dirname, '../client/public')));
 
@@ -49,6 +43,10 @@ io.on('connection', (socket) => {
         socket.emit('initialize-players', rooms[newRoomId]);
     });
 
+    socket.on('player-shoot', ({ roomId }) => {
+        io.in(roomId).emit('player-shoot', { playerId: socket.id });
+    });
+
     socket.on('check-and-join-room', ({ playerName, roomId }) => {
         if (roomId in rooms) {
             rooms[roomId].players.push({
@@ -72,8 +70,12 @@ io.on('connection', (socket) => {
 
     }); 
 
-    socket.on('player-move', ({ position, roomId }) => {
-        io.in(roomId).emit('player-move', { playerId: socket.id, position: position });
+    socket.on('item-move', ({ position, roomId }) => {
+        io.in(roomId).emit('item-move', {  });
+    });
+
+    socket.on('player-move', ({ position, roomId, playerIsRight }) => {
+        io.in(roomId).emit('player-move', { playerId: socket.id, position: position, playerIsRight: playerIsRight });
     });
 
     socket.on('disconnect', () => {
@@ -101,7 +103,6 @@ io.on('connection', (socket) => {
     });
 
 });
-
 
 server.listen(port, () => {
     console.log(`server listening at port ${port}`);

@@ -1,7 +1,7 @@
 import { Bullet } from "./bullet";
 import { GunType } from "./data.enum";
 import { ctx } from "./general";
-import { Game } from "./main";
+import { Game, server } from "./main";
 import { Player } from "./player";
 
 export class Gun {
@@ -50,6 +50,12 @@ export class Gun {
         });
         bullet.vel.x = this.player.state.isRight ? bullet.speed : -bullet.speed;
         this.bulletsShot.push(bullet);
+
+        if (this.player.isYou) {
+            server.host.emit('player-shoot', {
+                roomId: this.player.currentRoom
+            });
+        }
     }
 
     updateBullets() {

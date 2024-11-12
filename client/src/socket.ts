@@ -7,12 +7,13 @@ import { Tile } from "./tile";
 import { UI } from "./ui";
 import { Vec2 } from "./interfaces.interface";
 import { UIEvent } from "./data.enum";
+import { Controls } from "./controls";
 
 class Socket {
     public host: any = io('http://localhost:3000');
 
     constructor() {
-        this.initializeSocket();   
+        this.initializeSocket();
     }
 
     public initializeSocket() {
@@ -60,7 +61,10 @@ class Socket {
                 player.isHost = isHost;
                 player.currentRoom = roomId;
 
-                if (!notYou) setPlayer(player);
+                if (!notYou) {
+                    setPlayer(player)
+                    player.controls = new Controls(player);
+                };
                 currentMap.players.push(player);
             });
             _ui.displayPlayersInRoom();
@@ -71,9 +75,9 @@ class Socket {
 
         this.host.on('start-game', () => {
             _ui.listenUIEvent(UIEvent.START_GAME);
-        }); 
+        });
 
-        this.host.on('player-move', ({ playerId, position }: { playerId: string | any, position: Vec2 }) => {
+        this.host.on('player-move', ({ playerId, position, playerIsRight }: { playerId: string | any, position: Vec2, playerIsRight: boolean }) => {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
             if (player && !player.isYou) {
 
@@ -82,10 +86,19 @@ class Socket {
                 // so were going to be using our magic indicator tile as a form of 'relativity'
                 // to correctly position other players in our instance of the map.
                 currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
+                    player.state.isRight = playerIsRight;
                     player.pos = { y: tile.pos.y - (tile.initYPos - position.y), x: (tile.pos.x + (position.x - tile.initXPos) + 40) }; // +40 is simply correcting a slight displacement for more accuracy
                 });
             }
         });
+
+        this.host.on('player-shoot', ({ playerId }: { playerId: string | any }) => {
+            const player = currentMap.players.find((p: Player) => p.id === playerId);
+            if (player && !player.isYou) {
+                console.log(`${player.name} just shot`);
+                player.primaryGun.shoot();
+            }
+        })
 
         this.host.on('player-leave', ({ playerId, name }: { playerId: string | any, name: string }) => {
             console.log(`Player ${name} left`);

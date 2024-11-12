@@ -1,8 +1,10 @@
 import { arena, ctx, cameraState } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { gravity } from "./physics";
+import { v4 as uuidv4 } from 'uuid';
 
 export class Item {
+    public _id: string | any = uuidv4();
     public pos: Vec2;
     public vel: Vec2;
     public width: number;
@@ -35,7 +37,8 @@ export class Item {
         this.isThrowable = isThrowable;
         if (this.isThrowable) {
             this.throwRight = throwRight;
-        }
+        };
+
     }
 
     draw() {
@@ -50,7 +53,6 @@ export class Item {
         } else if(!this.throwRight) {
             this.vel.x = -this.xSpeed;
         }
-
     }
 
     throw(angle: number, speed: number) {

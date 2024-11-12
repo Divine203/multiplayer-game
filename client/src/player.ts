@@ -48,13 +48,12 @@ export class Player {
     public horRay: any;
     public verRay: any;
 
-    public controls;
+    public controls: any;
 
     constructor(id: string | any, name: string) {
         this.init();
         this.id = id;
         this.name = name;
-        this.controls = new Controls(this);
         this.keys = keys;
         this.physics = new Physics();
         this.primaryGun = new Gun(this, GunType.PISTOL);
@@ -139,28 +138,25 @@ export class Player {
 
             if (this.vel.y == 1.5 || this.vel.y == 0) this.isJumping = false;
 
-            this.updateProjectile();
             this.camera.followPlayer(currentGame.keys as IKeys);
-
-            this.primaryGun.update();
-            this.draw();
 
             // Check if the position has changed from the last position
             if (this.absolutePos.x !== this.lastPos.x || this.absolutePos.y !== this.lastPos.y) {
-                // Emit the movement update to the server
                 server.host.emit('player-move', {
                     position: { x: this.absolutePos.x, y: this.absolutePos.y },
-                    roomId: this.currentRoom
+                    roomId: this.currentRoom,
+                    playerIsRight: this.state.isRight 
                 });
-
-                // Update last known position
                 this.lastPos = { ...this.absolutePos };
             }
+            
         } else if(!this.isYou && this.isEnemy) {
             this.pos.x += arena.pos.x;
             this.pos.y += arena.vel.y;
-            
-            this.draw();
         }
+
+        this.primaryGun.update();
+        this.updateProjectile();
+        this.draw();
     }
 }

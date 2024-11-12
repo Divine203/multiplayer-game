@@ -13,6 +13,7 @@
   "description": "",
   "devDependencies": {
     "@types/matter-js": "^0.19.7",
+    "@types/uuid": "^10.0.0",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
@@ -23,6 +24,7 @@
   "dependencies": {
     "matter-js": "^0.20.0",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "uuid": "^11.0.3"
   }
 }
