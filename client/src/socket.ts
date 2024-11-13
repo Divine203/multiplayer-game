@@ -102,13 +102,6 @@ class Socket {
             });
         }
 
-        if (!this.host.hasListeners('player-bullet-hit')) {
-            this.host.off('player-bullet-hit').on('player-bullet-hit', ({ playerId }: { playerId: string | any }) => {                
-                const player = currentMap.players.find((p: Player) => p.id === playerId);
-                player.hp = player.hp - 4;
-            });
-        }
-
         if (!this.host.hasListeners('player-threw')) {
             this.host.off('player-threw').on('player-threw', ({ playerId, throwAngle }: { playerId: string | any, throwAngle: number }) => {
                 const player = currentMap.players.find((p: Player) => p.id === playerId);

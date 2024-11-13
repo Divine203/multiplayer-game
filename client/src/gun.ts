@@ -41,6 +41,7 @@ export class Gun {
     }
 
     shoot() {
+        console.log('shooting');
         const bullet = new Bullet({
             x: this.pos.x,
             y: this.pos.y,
@@ -58,8 +59,12 @@ export class Gun {
     }
 
     updateBullets() {
-        this.bulletsShot.forEach((bullet: Bullet) => {
+        this.bulletsShot.forEach((bullet: Bullet, index: number) => {
             bullet.update();
+
+            if(bullet.hasHitObject) {
+                this.bulletsShot.splice(index, 1);
+            }
         });
     }
 

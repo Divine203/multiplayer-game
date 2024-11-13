@@ -18,6 +18,8 @@ export class Player {
     public isHost: boolean = false;
     public currentRoom: string = '';
 
+    public jumpCount: number = 0;
+
     public pos: any;
     public absolutePos: any;
     public vel: any;
@@ -141,25 +143,23 @@ export class Player {
         ctx.restore(); // Restore the canvas state so the rotation only affects this line
     }
 
-    public draw() {
+    public drawName() {
         ctx.fillStyle = '#fff';
         ctx.font = `20px consolas`
         ctx.fillText(this.name, this.pos.x, this.pos.y - 22);
+    }
 
+    public draw() {
         ctx.fillStyle = this.isYou ? 'red' : 'pink';
         ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }
 
     public udpate() {
-        this.drawHealthBar();
-
         if (this.isYou) {
             this.pos.y += this.vel.y;
             this.pos.x += this.vel.x;
 
             this.vel.y += gravity;
-
-            if (this.vel.y == 1.5 || this.vel.y == 0) this.isJumping = false;
 
             this.camera.followPlayer(currentGame.keys as IKeys);
             this.updateProjectile();
@@ -173,13 +173,22 @@ export class Player {
                 });
                 this.lastPos = { ...this.absolutePos };
             }
+
+            if (this.vel.y == 1.5 || this.vel.y == 0){
+                this.isJumping = false;
+                this.jumpCount = 0;
+            }
             
         } else if(!this.isYou && this.isEnemy) {
             this.pos.x += arena.pos.x;
             this.pos.y += arena.vel.y;
         }
 
+      
+
+        this.drawHealthBar();
         this.primaryGun.update();
+        this.drawName();
         this.draw();
     }
 }

@@ -39,8 +39,10 @@
       - global items (immobile, their either in the game or not)
       
     @ Implement damage, hp and health bar. --done
-    @ Correct double jump
-    @ Correct grenade throwing
+      - Correct double jump
+      - Correct grenade throwing
+      - add crouch and slide movement
+
     @ Implement explosion with particles
     @ Implement death and wins.
     @ Limit Players in room to 10.

@@ -5,8 +5,19 @@ export class Controls {
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'ArrowUp':
-                    currentPlayer.isJumping = true;
-                    currentPlayer.vel.y -= 35;
+                    if (currentPlayer.jumpCount < 2) {
+                        if (currentPlayer.jumpCount == 1) {
+                            setTimeout(() => {
+                                currentPlayer.isJumping = true;
+                                currentPlayer.jumpCount++;
+                                currentPlayer.vel.y -= 32;
+                            }, 100);
+                        } else {
+                            currentPlayer.isJumping = true;
+                            currentPlayer.jumpCount++;
+                            currentPlayer.vel.y -= 32;
+                        }
+                    }
                     break;
                 case 'ArrowLeft':
                     if (!currentGame.keys.right.pressed) {
@@ -52,7 +63,7 @@ export class Controls {
             }
         });
 
-        document.addEventListener('keyup', (e) => { 
+        document.addEventListener('keyup', (e) => {
             switch (e.key) {
                 case 'ArrowUp':
                     break;

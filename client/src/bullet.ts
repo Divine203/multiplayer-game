@@ -12,6 +12,8 @@ export class Bullet {
     public speed: number;
     public initYPos: number;
 
+    public hasHitObject: boolean = false
+
     constructor({x, y, width, height}: IBullet) {
         this.pos = {
             x,
@@ -36,14 +38,11 @@ export class Bullet {
     }
 
     detectHits() {
-        currentMap.players.filter((p: Player) => !p.isYou).forEach((player: Player) => {
+        currentMap.players.forEach((player: Player) => {
             if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](player, this))) {
+                console.log('player hit');
                 player.hp = player.hp - 4;
-
-                server.host.emit('player-bullet-hit', {
-                    playerId: player.id,
-                    roomId: roomId
-                });
+                this.hasHitObject = true;
             }
         });
     }
