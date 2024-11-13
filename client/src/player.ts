@@ -1,5 +1,5 @@
 import { IKeys, Vec2, Vec4 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena } from "./general";
+import { ctx, currentGame, currentMap, arena, roomId } from "./general";
 import { gravity, Physics } from "./physics";
 import { Game, server } from "./main";
 import { Tile } from "./tile";
@@ -47,8 +47,6 @@ export class Player {
     public horRay: any;
     public verRay: any;
 
-    public controls: any;
-
     constructor(id: string | any, name: string) {
         this.init();
         this.id = id;
@@ -69,6 +67,8 @@ export class Player {
     }
 
     public throwItem() {
+        console.log('threw Item');
+        const currentThrowAngle =  this.throwProjectileAngle;
         const item = new Item({
             x: this.state.isLeft ? this.pos.x : this.pos.x + this.width,
             y: this.pos.y,
@@ -80,6 +80,13 @@ export class Player {
         item.throw(this.state.isRight ? this.throwProjectileAngle * -1 : this.throwProjectileAngle, 30);
         this.throwProjectileAngle = 0;
         currentMap.items.push(item);
+
+        if(this.isYou) {
+            server.host.emit('player-throw', {
+                roomId: this.currentRoom,
+                throwAngle: currentThrowAngle,
+            });
+        } 
     }
 
     updateProjectile() {
@@ -137,6 +144,7 @@ export class Player {
             if (this.vel.y == 1.5 || this.vel.y == 0) this.isJumping = false;
 
             this.camera.followPlayer(currentGame.keys as IKeys);
+            this.updateProjectile();
 
             // Check if the position has changed from the last position
             if (this.absolutePos.x !== this.lastPos.x || this.absolutePos.y !== this.lastPos.y) {
@@ -154,7 +162,6 @@ export class Player {
         }
 
         this.primaryGun.update();
-        this.updateProjectile();
         this.draw();
     }
 }

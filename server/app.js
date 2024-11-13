@@ -44,7 +44,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('player-shoot', ({ roomId }) => {
-        io.in(roomId).emit('player-shoot', { playerId: socket.id });
+        socket.to(roomId).emit('player-shot', { playerId: socket.id });
+    });
+
+    socket.on('player-throw', ({ roomId, throwAngle }) => {
+        socket.to(roomId).emit('player-threw', { playerId: socket.id, throwAngle: throwAngle });
     });
 
     socket.on('check-and-join-room', ({ playerName, roomId }) => {
@@ -56,7 +60,6 @@ io.on('connection', (socket) => {
                 roomId: roomId
             });
             socket.join(roomId);
-            socket.emit('initialize-players', rooms[roomId]);
             io.in(roomId).emit('player-joined', { roomId: roomId });
             io.in(roomId).emit('initialize-players', rooms[roomId]);
         }
@@ -64,15 +67,8 @@ io.on('connection', (socket) => {
  
     socket.on('start-game', ({ roomId }) => {
         rooms[roomId].isGameStarted = true;
-
-        socket.emit('start-game', {});
         io.in(roomId).emit('start-game', {});
-
     }); 
-
-    socket.on('item-move', ({ position, roomId }) => {
-        io.in(roomId).emit('item-move', {  });
-    });
 
     socket.on('player-move', ({ position, roomId, playerIsRight }) => {
         io.in(roomId).emit('player-move', { playerId: socket.id, position: position, playerIsRight: playerIsRight });

@@ -7,7 +7,6 @@ import { Tile } from "./tile";
 import { UI } from "./ui";
 import { Vec2 } from "./interfaces.interface";
 import { UIEvent } from "./data.enum";
-import { Controls } from "./controls";
 
 class Socket {
     public host: any = io('http://localhost:3000');
@@ -54,16 +53,15 @@ class Socket {
             setMap(newMap);
             room.players.forEach(({ id, name, isHost, roomId }: { id: string | any, name: string, isHost: boolean, roomId: string | any }) => {
                 const notYou = (id !== this.host.id);
-
                 const player = new Player(id, name);
+
                 player.isYou = !notYou;
                 player.isEnemy = notYou;
                 player.isHost = isHost;
                 player.currentRoom = roomId;
 
-                if (!notYou) {
-                    setPlayer(player)
-                    player.controls = new Controls(player);
+                if (player.isYou) {
+                    setPlayer(player);
                 };
                 currentMap.players.push(player);
             });
@@ -77,28 +75,45 @@ class Socket {
             _ui.listenUIEvent(UIEvent.START_GAME);
         });
 
-        this.host.on('player-move', ({ playerId, position, playerIsRight }: { playerId: string | any, position: Vec2, playerIsRight: boolean }) => {
-            const player = currentMap.players.find((p: Player) => p.id === playerId);
-            if (player && !player.isYou) {
+        if (!this.host.hasListeners('player-move')) {
+            this.host.off('player-move').on('player-move', ({ playerId, position, playerIsRight }: { playerId: string | any, position: Vec2, playerIsRight: boolean }) => {
+                const player = currentMap.players.find((p: Player) => p.id === playerId);
+                if (player && !player.isYou) {
 
-                // we could have just slapped the data.position to player.pos and call it a day.
-                // Turns out dat doesn't F-ing work for reasons i still don't understand.
-                // so were going to be using our magic indicator tile as a form of 'relativity'
-                // to correctly position other players in our instance of the map.
-                currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
-                    player.state.isRight = playerIsRight;
-                    player.pos = { y: tile.pos.y - (tile.initYPos - position.y), x: (tile.pos.x + (position.x - tile.initXPos) + 40) }; // +40 is simply correcting a slight displacement for more accuracy
-                });
-            }
-        });
+                    // we could have just slapped the data.position to player.pos and call it a day.
+                    // Turns out dat doesn't F-ing work for reasons i still don't understand.
+                    // so were going to be using our magic indicator tile as a form of 'relativity'
+                    // to correctly position other players in our instance of the map.
+                    currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
+                        player.state.isRight = playerIsRight;
+                        player.pos = { y: tile.pos.y - (tile.initYPos - position.y), x: (tile.pos.x + (position.x - tile.initXPos) + 40) }; // +40 is simply correcting a slight displacement for more accuracy
+                    });
+                }
+            });
+        }
 
-        this.host.on('player-shoot', ({ playerId }: { playerId: string | any }) => {
-            const player = currentMap.players.find((p: Player) => p.id === playerId);
-            if (player && !player.isYou) {
-                console.log(`${player.name} just shot`);
-                player.primaryGun.shoot();
-            }
-        })
+        if (!this.host.hasListeners('player-shot')) {
+            this.host.off('player-shot').on('player-shot', ({ playerId }: { playerId: string | any }) => {
+                const player = currentMap.players.find((p: Player) => p.id === playerId);
+
+                if (player && !player.isYou) {
+                    console.log(`${player.name} just shot`);
+                    player.primaryGun.shoot();
+                }
+            });
+        }
+
+        if (!this.host.hasListeners('player-threw')) {
+            this.host.off('player-threw').on('player-threw', ({ playerId, throwAngle }: { playerId: string | any, throwAngle: number }) => {
+                const player = currentMap.players.find((p: Player) => p.id === playerId);
+
+                if (player && !player.isYou) {
+                    console.log(`${player.name} just threw at ${throwAngle}`);
+                    player.throwProjectileAngle = throwAngle;
+                    player.throwItem();
+                }
+            });
+        }
 
         this.host.on('player-leave', ({ playerId, name }: { playerId: string | any, name: string }) => {
             console.log(`Player ${name} left`);

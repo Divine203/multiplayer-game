@@ -1,5 +1,6 @@
-video ideas
+
  
+=== Possible Titles ======
 - I was bored, so i made a MULTIPLAYER GAME from Scratch.
 - Let's Code a MULTIPLAYER GAME.
 - Coding a MULTIPLAYER GAME from Scratch in 12 minutes.
@@ -7,6 +8,7 @@ video ideas
 - I Programmed a MULTIPLAYER GAME from scratch.
 
  ] Game inspiration: Killer bean, mini militia, jetpack joyride, Terraria, Geometry Dash.
+
 ------------------------------------------------------------------
 . Organize desktop. --done
 . Set up code base: Typescript, webpack, npm, git. --done
@@ -25,13 +27,15 @@ video ideas
     @ release to throw --done
     @ press x to cancel throw 
   ] decide the idea, concepts and features of the game.
+-----------------------------------------------------------
   ] server:
+-----------------------------------------------------------
     @ Implement socket and rooms concept --done
     @ Start Game --done
     @ Measure ping and display it to players --done
     @ Share item/actions movement data amongst players  
-      - gun shots
-      - grenades
+      - gun shots --done
+      - grenades 
       - global items
       
     @ Implement damage, hp and health bar.

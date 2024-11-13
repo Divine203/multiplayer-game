@@ -1,7 +1,8 @@
+import { Controls } from "./controls";
 import { IKeys } from "./interfaces.interface";
-import { Line } from "./lines";
 import { Game } from "./main";
 import { Map1 } from "./map1";
+import { Physics } from "./physics";
 import { Player } from "./player";
 import { UI } from "./ui";
 
@@ -23,7 +24,8 @@ export const arena: any = {
 }
 
 export let roomId: string = '';
-
+export let currentPhysics: any;
+export let currentControls: any;
 export let cameraState: string = ''; // 'up', 'down', '',
 export let currentGame: any;
 export let currentPlayer: any;
@@ -35,6 +37,14 @@ export let keys: IKeys = {
     a: { pressed: false },
     z: { pressed: false },
 };
+
+export const setPhysics = (physics: Physics): void => {
+    currentPhysics = physics;
+}
+
+export const setControls = (controls: Controls): void => {
+    currentControls = controls;
+}
 
 export const setRoomId = (id: string): void => {
     roomId = id;

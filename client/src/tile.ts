@@ -1,6 +1,5 @@
 import { Vec2 } from "./interfaces.interface";
 import { ctx, arena } from "./general";
-import { gravity, Physics } from "./physics";
 
 export class Tile {
     public pos: Vec2;

@@ -1,6 +1,5 @@
-import { cvs, MAP_BASE } from "./general";
+import { MAP_BASE } from "./general";
 import { Item } from "./item";
-import { Line } from "./lines";
 import { Player } from "./player";
 import { Tile } from "./tile";
 

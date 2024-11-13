@@ -1,6 +1,8 @@
-import { currentMap, currentPlayer, roomId } from "./general";
+import { currentControls, currentMap, currentPlayer, roomId, setControls, setPhysics } from "./general";
 import { server } from "./main";
 import { UIEvent } from "./data.enum";
+import { Controls } from "./controls";
+import { Physics } from "./physics";
 
 export class UI {
     public isMainMenuActive: boolean = true;
@@ -84,10 +86,12 @@ export class UI {
             if (this.isMainMenuActive || this.inRoom) {
                 switch (e.key) {
                     case 'h':
+                        console.log('h');
                         this.toggleHelper();
                         break;
 
                     case 'z':
+                        console.log('z');
                         this.backToPrevPage();
                         break;
                 }
@@ -174,6 +178,13 @@ export class UI {
             this.closeMainUI();
             this.isMainMenuActive = false;
             this.inRoom = false;
+            
+            const controls = new Controls();
+            setControls(controls);
+            currentControls.initializeControls();
+
+            const physics = new Physics();
+            setPhysics(physics);
         }
     }
 

@@ -1,7 +1,7 @@
 import { Bullet } from "./bullet";
 import { GunType } from "./data.enum";
 import { ctx } from "./general";
-import { Game, server } from "./main";
+import { server } from "./main";
 import { Player } from "./player";
 
 export class Gun {
@@ -15,7 +15,6 @@ export class Gun {
 
     constructor(player: Player, gunType: GunType) {
         this.player = player;
-        console.log('currentPlayer (from guns): ' + this.player);
         this.gunType = gunType;
         this.pos = {
             x: this.player.pos.x,
