@@ -19,6 +19,7 @@ export class Player {
     public currentRoom: string = '';
 
     public jumpCount: number = 0;
+    public canShoot: boolean = true;
 
     public pos: any;
     public absolutePos: any;

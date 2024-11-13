@@ -37,7 +37,10 @@ export class Controls {
                     break;
 
                 case 'x':
-                    currentPlayer.primaryGun.shoot();
+                    if (currentPlayer.canShoot) {
+                        currentPlayer.primaryGun.shoot();
+                        currentPlayer.canShoot = false;
+                    }
                     break
 
                 case 'y':
@@ -45,18 +48,14 @@ export class Controls {
                     break
 
                 case 'a':
-                    if (currentPlayer.isYou) {
-                        if (!currentGame.keys.z.pressed) {
-                            currentGame.keys.a.pressed = true;
-                        }
-                        break
+                    if (!currentGame.keys.z.pressed) {
+                        currentGame.keys.a.pressed = true;
                     }
+                    break
 
                 case 'z':
-                    if (currentPlayer.isYou) {
-                        if (!currentGame.keys.a.pressed) {
-                            currentGame.keys.z.pressed = true;
-                        }
+                    if (!currentGame.keys.a.pressed) {
+                        currentGame.keys.z.pressed = true;
                     }
                     break
 
@@ -77,6 +76,11 @@ export class Controls {
                         currentGame.keys.right.pressed = false;
                     }
                     break;
+
+                case 'x':
+                    currentPlayer.canShoot = true;
+                    break
+
                 case 'a':
                     if (!currentGame.keys.z.pressed) {
                         currentGame.keys.a.pressed = false;
