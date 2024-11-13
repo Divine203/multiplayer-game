@@ -118,6 +118,6 @@ export class Camera {
             }
         });
 
-        this.showCamera();
+        // this.showCamera();
     }
 }

@@ -35,10 +35,13 @@
     @ Measure ping and display it to players --done
     @ Share item/actions movement data amongst players  
       - gun shots --done
-      - grenades 
-      - global items
+      - grenades --done
+      - global items (immobile, their either in the game or not)
       
-    @ Implement damage, hp and health bar.
+    @ Implement damage, hp and health bar. --done
+    @ Correct double jump
+    @ Correct grenade throwing
+    @ Implement explosion with particles
     @ Implement death and wins.
     @ Limit Players in room to 10.
     @ Implement waiting in room for game to finish when players are in game
@@ -49,6 +52,8 @@
       - spawn guns at random locations
       - spawn grenade at random locations
       - implement loot pick up 
+    @ Define final components.
+    @ Radom spawning
       
   ---------------------------------------------------------------
    Features:
@@ -124,6 +129,15 @@ no engine limitations --use()
 . multiplayer: Web socket.
 . UI
 . lighting and shadows. (later) #
+
+60/100 = x/50;
+
+100/50 = 60/x;
+
+
+100x = 300;
+
+x = 3;
 
 
 

@@ -47,6 +47,10 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('player-shot', { playerId: socket.id });
     });
 
+    socket.on('player-bullet-hit', ({ playerId, roomId }) => {
+        socket.to(roomId).emit('player-bullet-hit', { playerId: playerId });
+    });
+
     socket.on('player-throw', ({ roomId, throwAngle }) => {
         socket.to(roomId).emit('player-threw', { playerId: socket.id, throwAngle: throwAngle });
     });

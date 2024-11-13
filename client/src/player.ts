@@ -27,6 +27,9 @@ export class Player {
     public physics: Physics;
     public isJumping: boolean = false;
 
+    public hp: number = 100;
+    public healthBarWidth: number = 60;
+
     public isPlayer: boolean = true;
 
     public currentPlatform: Tile | any;
@@ -67,7 +70,6 @@ export class Player {
     }
 
     public throwItem() {
-        console.log('threw Item');
         const currentThrowAngle =  this.throwProjectileAngle;
         const item = new Item({
             x: this.state.isLeft ? this.pos.x : this.pos.x + this.width,
@@ -105,6 +107,20 @@ export class Player {
         }
     }
 
+    drawHealthBar() {
+        const barWidth = Math.abs(this.healthBarWidth * (this.hp/100));
+        let color = 'lime';
+
+        if(barWidth <= this.healthBarWidth/2 && barWidth > 20) { color = 'yellow' }
+        else if(barWidth <= 20) { color = 'red' } 
+    
+        ctx.fillStyle = 'grey';
+        ctx.fillRect(this.pos.x, this.pos.y - 60, this.healthBarWidth, 8);
+
+        ctx.fillStyle = color;
+        ctx.fillRect(this.pos.x, this.pos.y - 60, barWidth, 8);
+    }
+
     drawProjectileLine() {
         const angleInRadians = (this.state.isRight ? this.throwProjectileAngle : this.throwProjectileAngle + 180) * (Math.PI / 180);
 
@@ -135,6 +151,8 @@ export class Player {
     }
 
     public udpate() {
+        this.drawHealthBar();
+
         if (this.isYou) {
             this.pos.y += this.vel.y;
             this.pos.x += this.vel.x;

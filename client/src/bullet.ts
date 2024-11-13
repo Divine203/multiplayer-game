@@ -1,5 +1,7 @@
-import { arena, ctx } from "./general";
+import { arena, ctx, currentMap, currentPhysics, roomId } from "./general";
 import { Vec2 } from "./interfaces.interface";
+import { server } from "./main";
+import { Player } from "./player";
 
 export class Bullet {
 
@@ -33,6 +35,19 @@ export class Bullet {
         ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }
 
+    detectHits() {
+        currentMap.players.filter((p: Player) => !p.isYou).forEach((player: Player) => {
+            if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](player, this))) {
+                player.hp = player.hp - 4;
+
+                server.host.emit('player-bullet-hit', {
+                    playerId: player.id,
+                    roomId: roomId
+                });
+            }
+        });
+    }
+
     update() {
         this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
@@ -40,6 +55,7 @@ export class Bullet {
         this.pos.x += arena.pos.x;
 
         this.draw();
+        this.detectHits();
     }
 }
 

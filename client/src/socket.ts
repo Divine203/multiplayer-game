@@ -46,7 +46,6 @@ class Socket {
             _ui.listenUIEvent(UIEvent.JOINED_ROOM);
         });
 
-
         this.host.on('initialize-players', (room: any) => {
             setInterval(measurePing, 3000);
             const newMap = new Map1();
@@ -100,6 +99,13 @@ class Socket {
                     console.log(`${player.name} just shot`);
                     player.primaryGun.shoot();
                 }
+            });
+        }
+
+        if (!this.host.hasListeners('player-bullet-hit')) {
+            this.host.off('player-bullet-hit').on('player-bullet-hit', ({ playerId }: { playerId: string | any }) => {                
+                const player = currentMap.players.find((p: Player) => p.id === playerId);
+                player.hp = player.hp - 4;
             });
         }
 
