@@ -1,9 +1,11 @@
 import { Controls } from "./controls";
 import { IKeys } from "./interfaces.interface";
+import { Item } from "./item";
 import { Game } from "./main";
 import { Map1 } from "./map1";
 import { Physics } from "./physics";
 import { Player } from "./player";
+import { Tile } from "./tile";
 import { UI } from "./ui";
 
 export const cvs: HTMLCanvasElement = document.getElementById('c') as HTMLCanvasElement;
@@ -21,6 +23,12 @@ export const arena: any = {
 
     speed: 8,
     width: 5120
+}
+
+export const spawn = (xLoc: number): void => {
+    currentMap.tiles.forEach((t: Tile) => t.pos.x += xLoc);
+    currentMap.items.forEach((i: Item) => i.pos.x += xLoc);
+    currentMap.players.forEach((p: Player) => p.pos.x += xLoc);
 }
 
 export let roomId: string = '';

@@ -39,8 +39,9 @@
       - global items (immobile, their either in the game or not)
       
     @ Implement damage, hp and health bar. --done
-      - Correct double jump
-      - Correct grenade throwing
+      - Correct double jump --done* (front flip)
+      - Correct grenade throwing --done
+      - Correct shooting --done
       - add crouch and slide movement
 
     @ Implement explosion with particles
@@ -132,18 +133,28 @@ no engine limitations --use()
 . UI
 . lighting and shadows. (later) #
 
-60/100 = x/50;
-
-100/50 = 60/x;
-
-
-100x = 300;
-
-x = 3;
 
 
 
+Map Plans
+. Ghost town
+  - tall buildings
+  - small buildings
+  - houses
+  - shops
+  - 1 watch tower (the main attention draw)
+  
+  + Auxilary stuff
+   - parked cars
+   - dead bodies
+   - withered trees
+   - a few weeds
+   - tripping street lights
 
+
+. Forest
+  -  Trees and grass and floating platforms
+  - 
 
 
 

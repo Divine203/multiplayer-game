@@ -17,7 +17,7 @@ export class Camera {
 
     constructor(player: Player) {
         this.player = player;
-        this.width = 1000;
+        this.width = cvs.width - (cvs.width/5);
         this.height = 100;
         this.pos = {
             x: 0,
@@ -63,7 +63,7 @@ export class Camera {
             x: 0,
             y: 0
         };
-        this.width = 1000;
+        this.width = cvs.width - (cvs.width/5);
         this.height = 700;
 
         // up down movement
@@ -118,6 +118,6 @@ export class Camera {
             }
         });
 
-        // this.showCamera();
+        this.showCamera();
     }
 }

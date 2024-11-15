@@ -20,13 +20,15 @@ export class Player {
 
     public jumpCount: number = 0;
     public canShoot: boolean = true;
+    public canJump: boolean = true;
 
     public pos: any;
     public absolutePos: any;
     public vel: any;
     public width: number;
     public height: number;
-    public speed: number = 8;
+    public speed: number = 10;
+    // public speed: number = 22;
     public physics: Physics;
     public isJumping: boolean = false;
 
@@ -63,12 +65,12 @@ export class Player {
         this.camera = new Camera(this);
         this.width = 60;
         this.height = 60;
-        this.lastPos = { x: 100, y: 630 };
+        this.lastPos = { x: 100, y: 0 };
     }
 
     public init() {
-        this.pos = { x: 100, y: 630 } as Vec2;
-        this.absolutePos = { x: 100, y: 630 } as Vec2;
+        this.pos = { x: 100, y: 0 } as Vec2;
+        this.absolutePos = { x: 100, y: 0 } as Vec2;
         this.vel = { x: 0, y: 0 } as Vec2;
     }
 
@@ -111,7 +113,7 @@ export class Player {
     }
 
     drawHealthBar() {
-        const barWidth = Math.abs(this.healthBarWidth * (this.hp/100));
+        const barWidth = this.healthBarWidth * (this.hp/100);
         let color = 'lime';
 
         if(barWidth <= this.healthBarWidth/2 && barWidth > 20) { color = 'yellow' }

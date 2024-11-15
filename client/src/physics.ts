@@ -89,7 +89,7 @@ export class Physics {
             } 
         }
         if (this.bottom(char, platform)) {
-            char.vel.y = 0;
+            char.vel.y += 45;
             if(char.isPlayer) char.camera.vel.y = 0;
         }
     }

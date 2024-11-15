@@ -1,4 +1,4 @@
-import { arena, ctx, currentMap, currentPhysics, roomId } from "./general";
+import { arena, cameraState, ctx, currentMap, currentPhysics, currentPlayer, roomId } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { server } from "./main";
 import { Player } from "./player";
@@ -40,8 +40,9 @@ export class Bullet {
     detectHits() {
         currentMap.players.forEach((player: Player) => {
             if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](player, this))) {
-                console.log('player hit');
-                player.hp = player.hp - 4;
+                if(player.hp > 0) {
+                    player.hp = player.hp - 4;
+                }
                 this.hasHitObject = true;
             }
         });
@@ -50,6 +51,9 @@ export class Bullet {
     update() {
         this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
+
+        // fix falling/rising effect when camera moves up/down
+        if(cameraState == 'up' || cameraState == 'down') this.pos.y = currentPlayer.pos.y;
 
         this.pos.x += arena.pos.x;
 
