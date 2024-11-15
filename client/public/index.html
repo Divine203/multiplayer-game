@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Multiplayer game</title>
+    <link rel="stylesheet" href="main.css" />
+</head>
+
+<body>
+    <section class="ui--cont">
+        <div id="home" class="page--cont home--cont">
+            <div>
+                <h2>Welcome</h2>
+
+                <button id="btn_createRoom">Create Room</button>
+                <button id="btn_joinRoom">Join Room</button>
+            </div>
+        </div>
+
+        <div id="joinRoom" class="page--cont join-room--cont">
+            <div>
+                <input id="input_playerName_join" type="text" placeholder="Nickname" />
+                <input id="input_roomId" type="text" placeholder="Room Id" />
+
+                <button id="btn_joinWithRoomId">Join</button>
+            </div>
+        </div>
+
+        <div id="createRoom" class="page--cont create-room--cont">
+            <div>
+                <input id="input_playerName_create" type="text" placeholder="Nickname" />
+
+                <button id="btn_enter_createdRoom">Enter</button>
+            </div>
+        </div>
+
+        <div id="room" class="page--cont room--cont">
+            <div>
+                <input id="input_displayRoomId" type="text" placeholder="roomId" disabled />
+                
+                <div id="player_list">
+
+                </div>
+
+                <button id="startGame">Start Game</button>
+            </div>
+        </div>
+
+        <div id="ping" class="ping--cont">
+            <p>Ping: <span id="ping_val">0</span> ms</p>
+        </div>
+
+        <div id="helper" class="helper--cont">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Placeat dolorem voluptatem obcaecati,
+                exercitationem dolorum repellendus necessitatibus earum, totam optio facilis soluta fugiat possimus
+                debitis eligendi nobis consectetur! Excepturi, aspernatur corporis?</p>
+
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Placeat dolorem voluptatem obcaecati,
+                exercitationem dolorum repellendus necessitatibus earum, totam optio facilis soluta fugiat possimus
+                debitis eligendi nobis consectetur! Excepturi, aspernatur corporis?</p>
+
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Placeat dolorem voluptatem obcaecati,
+                exercitationem dolorum repellendus necessitatibus earum, totam optio facilis soluta fugiat possimus
+                debitis eligendi nobis consectetur! Excepturi, aspernatur corporis?</p>
+        </div>
+    </section>
+
+    <div id="wrapper">
+        <div id="canvas--cont">
+            <canvas id="c"></canvas>
+        </div>
+    </div>
+
+    <script src="bundle.js"></script>
+</body>
+
+</html>

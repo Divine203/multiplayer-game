@@ -3,6 +3,13 @@ export interface Vec2 {
     y: number
 }
 
+export interface Vec4 {
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+}
+
 export interface Entity {
     pos: Vec2,
     vel: Vec2,
@@ -12,5 +19,7 @@ export interface Entity {
 
 export interface IKeys {
     right: { pressed: boolean },
-    left: { pressed: boolean }
+    left: { pressed: boolean },
+    a: { pressed: boolean },
+    z: { pressed: boolean }
 }

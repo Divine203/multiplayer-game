@@ -1,12 +1,13 @@
 import { Game } from "./main";
+import { Item } from "./item";
 import { Tile } from "./tile";
+import { currentGame, currentPlayer } from "./general";
+
+export const gravity: number = 1.5;
 
 export class Physics {
-    public game: Game;
-    public gravity: number = 1.5;
 
-    constructor(game: Game) {
-        this.game = game;
+    constructor() {
     }
 
     public topVar(char: any, object: Tile, num: number): boolean {
@@ -64,32 +65,33 @@ export class Physics {
             char.pos.x <= object.pos.x + object.width);
     }
 
-    public addPhysics = (char: any, platform: Tile): any => {
-        if (this.top(char, platform)) {
-            char.pos.y = (platform.pos.y - char.height) - 15;
+    public add = (char: any, platform: Tile | any): any => {
+        if (this.top(char, platform)) { 
             char.vel.y = 0;
-            char.camera.vel.y = 0;
-        }
+            char.pos.y = (platform.pos.y - char.height) - 10;
+            if(char.isPlayer) char.currentPlatform = platform;
+            if(char.isPlayer) char.camera.vel.y = 0;
+        } 
         if (this.left(char, platform)) {
             char.vel.x = 0;
-            char.camera.vel.x = 0;
-            if (!this.bottom(char, platform) == false) char.pos.x = (platform.pos.x - char.width) - 1;
-            if (this.game.keys.left.pressed && char == this.game.player) this.game.player.vel.x = -10;
+            if(char.isPlayer) char.camera.vel.x = 0;
+            if(char.isPlayer) {
+                if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x - char.width) - 10;
+                if (currentGame.keys.left.pressed && char == currentPlayer) currentPlayer.vel.x = -10;
+            }
         }
         if (this.right(char, platform)) {
             char.vel.x = 0;
-            char.camera.vel.x = 0;
-            if (!this.bottom(char, platform) == false) char.pos.x = (platform.pos.x + platform.width) + 1;
-            if (this.game.keys.right.pressed && char == this.game.player) this.game.player.vel.x = 10;
+            if(char.isPlayer) char.camera.vel.x = 0;
+            if(char.isPlayer) {
+                if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x + platform.width) + 10;
+                if (currentGame.keys.right.pressed && char == currentPlayer) currentPlayer.vel.x = 10;
+            } 
         }
         if (this.bottom(char, platform)) {
             char.vel.y = 0;
-            char.camera.vel.y = 0;
+            if(char.isPlayer) char.camera.vel.y = 0;
         }
-        return {
-            vel: { x: char.vel.x, y: char.vel.y },
-            pos: { x: char.pos.x, y: char.pos.y }
-        };
     }
 
 

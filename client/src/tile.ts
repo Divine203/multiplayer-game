@@ -7,27 +7,34 @@ export class Tile {
     public width: number;
     public height: number;
     public initYPos: number;
+    public initXPos: number;
 
-    constructor({ x, y, width, height }: ITile) {
+    public color: string;
+
+    public isIndicatorTile: boolean = false;
+
+    constructor({ x, y, width, height, color = 'blue', isIndicatorTile = false }: ITile) {
         this.pos = { x, y };
-        this.vel = { x: 0, y: 0};
+        this.vel = { x: 0, y: 0 };
         this.width = width;
         this.height = height;
         this.initYPos = y;
+        this.initXPos = x;
+        this.color = color;
+        this.isIndicatorTile = isIndicatorTile;
     }
 
     draw() {
-        ctx.fillStyle = 'blue';
+        ctx.fillStyle = this.color;
         ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }
 
     update() {
-        this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
+        this.pos.x += this.vel.x;
 
         this.pos.x += arena.pos.x;
         this.pos.y = arena.pos.y + this.initYPos;
-
         this.draw();
     }
 }
@@ -38,5 +45,7 @@ export interface ITile {
     y: number,
     width: number,
     height: number,
+    color?: string,
+    isIndicatorTile?: boolean
 }
 
