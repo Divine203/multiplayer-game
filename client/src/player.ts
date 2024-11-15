@@ -1,13 +1,12 @@
-import { IKeys, Vec2, Vec4 } from "./interfaces.interface";
+import { IKeys, Vec2 } from "./interfaces.interface";
 import { ctx, currentGame, currentMap, arena, roomId } from "./general";
 import { gravity, Physics } from "./physics";
-import { Game, server } from "./main";
+import { server } from "./main";
 import { Tile } from "./tile";
 import { Item } from "./item";
 import { GunType } from "./data.enum";
 import { Gun } from "./gun";
 import { Camera } from "./camera";
-import { Controls } from "./controls";
 
 
 export class Player {
@@ -21,14 +20,20 @@ export class Player {
     public jumpCount: number = 0;
     public canShoot: boolean = true;
     public canJump: boolean = true;
+    public canSlide: boolean = true;
 
     public pos: any;
     public absolutePos: any;
     public vel: any;
     public width: number;
     public height: number;
+    public defHeight: number;
     public speed: number = 10;
-    // public speed: number = 22;
+    public slideSpeed: number = 20;
+    public shouldSlide: boolean = false;
+    public friction: number = 0.05;
+    
+
     public physics: Physics;
     public isJumping: boolean = false;
 
@@ -65,6 +70,7 @@ export class Player {
         this.camera = new Camera(this);
         this.width = 60;
         this.height = 60;
+        this.defHeight = 60;
         this.lastPos = { x: 100, y: 0 };
     }
 
@@ -94,6 +100,25 @@ export class Player {
                 throwAngle: currentThrowAngle,
             });
         } 
+    }
+
+    public slide(): void {
+        this.canSlide = false;
+        this.height = this.defHeight/2;
+        this.slideSpeed *= 1 - this.friction;
+        if(this.state.isRight) {
+            this.vel.x = this.slideSpeed;
+        } else {
+            this.vel.x = -this.slideSpeed;
+        }
+
+        if(this.slideSpeed < 1) {
+            this.canSlide = true;
+            this.shouldSlide = false;
+            this.slideSpeed = 20;
+            this.pos.y = this.pos.y - this.defHeight/2;
+            this.height = this.defHeight;
+        };
     }
 
     updateProjectile() {
@@ -181,11 +206,16 @@ export class Player {
                 this.isJumping = false;
                 this.jumpCount = 0;
             }
-            
+
         } else if(!this.isYou && this.isEnemy) {
             this.pos.x += arena.pos.x;
             this.pos.y += arena.vel.y;
         }
+
+        if(this.shouldSlide) {
+            this.slide();
+        }
+        
 
       
 

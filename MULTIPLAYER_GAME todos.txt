@@ -42,7 +42,7 @@
       - Correct double jump --done* (front flip)
       - Correct grenade throwing --done
       - Correct shooting --done
-      - add crouch and slide movement
+      - add slide movement --done
 
     @ Implement explosion with particles
     @ Implement death and wins.

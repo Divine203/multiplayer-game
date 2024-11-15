@@ -1,17 +1,9 @@
-import { Map1 } from "./map1";
 import { Player } from "./player";
 import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics } from "./general";
-import { Controls } from "./controls";
 import { IKeys } from "./interfaces.interface";
-import { Physics } from "./physics";
 import { Tile } from "./tile";
-import { Camera } from "./camera";
-import { Gun } from "./gun";
-import { GunType } from "./data.enum";
 import { Item } from "./item";
 import Socket from "./socket";
-import { Line } from "./lines";
-
 export class Game {
     public cvsMinHeight = 840;
 

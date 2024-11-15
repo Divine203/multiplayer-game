@@ -23,6 +23,10 @@ export class Controls {
                         currentPlayer.canJump = false;
                     }
                     break;
+                case 'ArrowDown':
+                    currentPlayer.shouldSlide = true;
+                    
+                    break;                
                 case 'ArrowLeft':
                     if (!currentGame.keys.right.pressed) {
                         currentGame.keys.left.pressed = true;
