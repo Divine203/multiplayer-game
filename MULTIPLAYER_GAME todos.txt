@@ -43,6 +43,14 @@
       - Correct grenade throwing --done
       - Correct shooting --done
       - add slide movement --done
+	
+    @ Sprite design
+      - character movements. 
+        ¬ running animation
+        ¬ idle animation  
+	¬ jump sprites (jumping and landing)
+        ¬ flip animation (double jump)
+        ¬ sliding sprite
 
     @ Implement explosion with particles
     @ Implement death and wins.
