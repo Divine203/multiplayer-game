@@ -13,7 +13,7 @@ export class Tile {
 
     public isIndicatorTile: boolean = false;
 
-    constructor({ x, y, width, height, color = 'blue', isIndicatorTile = false }: ITile) {
+    constructor({ x, y, width, height, color = '#252e2c', isIndicatorTile = false }: ITile) {
         this.pos = { x, y };
         this.vel = { x: 0, y: 0 };
         this.width = width;

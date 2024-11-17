@@ -1,10 +1,6 @@
-import { arena, ctx, currentPlayer, cvs, setCameraState, currentGame, currentMap, MAP_BASE } from "./general";
-import { IKeys } from "./interfaces.interface";
-import { Item } from "./item";
-import { Game } from "./main";
+import { arena, ctx, cvs, setCameraState, currentGame, currentMap, MAP_BASE } from "./general";
 import { Player } from "./player";
 import { Tile } from "./tile";
-import { utils } from "./utils";
 
 export class Camera {
     public pos: any;
@@ -122,6 +118,6 @@ export class Camera {
             this.player.absolutePos.x = this.player.pos.x - tile.pos.x;
         });
 
-        this.showCamera();
+        // this.showCamera();
     }
 }

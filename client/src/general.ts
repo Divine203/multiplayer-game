@@ -5,6 +5,7 @@ import { Game } from "./main";
 import { Map1 } from "./map1";
 import { Physics } from "./physics";
 import { Player } from "./player";
+import { Sprites } from "./sprite";
 import { Tile } from "./tile";
 import { UI } from "./ui";
 
@@ -31,6 +32,7 @@ export const spawn = (xLoc: number): void => {
     currentMap.players.forEach((p: Player) => p.pos.x += xLoc);
 }
 
+export let sprites: Sprites;
 export let roomId: string = '';
 export let currentPhysics: any;
 export let currentControls: any;
@@ -45,6 +47,10 @@ export let keys: IKeys = {
     a: { pressed: false },
     z: { pressed: false },
 };
+
+export const setSprites = (sp: Sprites): void => {
+    sprites = sp;
+}
 
 export const setPhysics = (physics: Physics): void => {
     currentPhysics = physics;

@@ -1,6 +1,6 @@
 import { Bullet } from "./bullet";
 import { GunType } from "./data.enum";
-import { ctx } from "./general";
+import { ctx, currentPlayer } from "./general";
 import { server } from "./main";
 import { Player } from "./player";
 
@@ -12,6 +12,9 @@ export class Gun {
     public gunType: GunType;
 
     public bulletsShot: any[] = [];
+
+    public idleCount: number = 10;
+
 
     constructor(player: Player, gunType: GunType) {
         this.player = player;
@@ -41,7 +44,8 @@ export class Gun {
     }
 
     shoot() {
-        console.log('shooting');
+        this.idleCount = 10;
+        this.player.state.isShooting = true;
         const bullet = new Bullet({
             x: this.pos.x,
             y: this.pos.y,
@@ -59,6 +63,10 @@ export class Gun {
     }
 
     updateBullets() {
+        if(this.idleCount > 0) this.idleCount -= 0.05;
+
+        this.player.state.isShooting = !(this.idleCount <= 0);
+   
         this.bulletsShot.forEach((bullet: Bullet, index: number) => {
             bullet.update();
 

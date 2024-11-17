@@ -51,9 +51,9 @@ export class UI {
             this.listeners();
         }
 
-        setTimeout(() => {
-            this.startAutomatically();
-        });
+        // setTimeout(() => {
+        //     this.startAutomatically();
+        // });
     }
 
     private closeMainUI() {

@@ -1,5 +1,5 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, roomId } from "./general";
+import { ctx, currentGame, currentMap, arena, roomId, sprites } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
@@ -7,6 +7,7 @@ import { Item } from "./item";
 import { GunType } from "./data.enum";
 import { Gun } from "./gun";
 import { Camera } from "./camera";
+import { ISpriteData } from "./sprite";
 
 
 export class Player {
@@ -32,29 +33,94 @@ export class Player {
     public slideSpeed: number = 20;
     public shouldSlide: boolean = false;
     public friction: number = 0.05;
-    
-
     public physics: Physics;
     public isJumping: boolean = false;
-
     public hp: number = 100;
     public healthBarWidth: number = 60;
-
     public isPlayer: boolean = true;
-
     public currentPlatform: Tile | any;
-
     public camera: any;
     public primaryGun: any;
-
     public throwProjectileAngle: number = 0;
+    public initYPos: number = 0;
+    public sprites: any = {
+        idleRight: {
+            ...sprites.createSprite(1970, 0, 50, 160),
+            recommendedWidth: 37.5,
+            recommendedHeight: 120
+        },
+        idleLeft: {
+            ...sprites.createSprite(850, 380, 50, 160),
+            recommendedWidth: 37.5,
+            recommendedHeight: 120
+        },
+        runRight: {
+            ...sprites.createSpriteAnimation(0, 0, 190, 160, true, 9, 5, 190),
+            recommendedWidth: 140,
+            recommendedHeight: 120
+        },
+        runLeft: {
+            ...sprites.createSpriteAnimation(980, 380, 190, 160, true, 9, 5, 190),
+            recommendedWidth: 140,
+            recommendedHeight: 120
+        },
+        shootRight: {
+            ...sprites.createSprite(2130, 20, 90, 140),
+            recommendedWidth: 60,
+            recommendedHeight: 100
+        },
+        shootLeft: {
+            ...sprites.createSprite(650, 400, 90, 140),
+            recommendedWidth: 60,
+            recommendedHeight: 100
+        },
+        jumpRight: {
+            ...sprites.createSprite(2310, 0, 100, 160),
+            recommendedWidth: 75,
+            recommendedHeight: 120,
+        },
+        jumpLeft: {
+            ...sprites.createSprite(460, 380, 100, 160),
+            recommendedWidth: 75,
+            recommendedHeight: 120
+        }, 
+        doubleJumpRight: {
+            ...sprites.createSpriteAnimation(0, 190, 190, 160, true, 4, 8, 190),
+            recommendedWidth: 100,
+            recommendedHeight: 120
+        },
+        doubleJumpLeft: {
+            ...sprites.createSpriteAnimation(1960, 550, 190, 160, true, 4, 8, 190, true),
+            recommendedWidth: 100,
+            recommendedHeight: 120
+        },
+        slideLeft: {
+            ...sprites.createSprite(250, 420, 110, 120),
+            recommendedWidth: 75,
+            recommendedHeight: 65
+        },
+        slideRight: {
+            ...sprites.createSprite(2510, 40, 110, 120),
+            recommendedWidth: 75,
+            recommendedHeight: 65
+        }
+    }
 
-    public initYPos:number = 0;
+    public reverseAnimation: boolean = false;
+    public loopAnimation: boolean = true;
 
     public state: any = {
         isRight: true,
-        isLeft: false
+        isLeft: false,
+        isMoving: false,
+        isJump: false,
+        isDoubleJump: false,
+        isSlide: false,
+        isShooting: false,
     }
+
+    public currentSprite: ISpriteData = this.sprites.idleRight;
+
     public lastPos: any;
 
     public horRay: any;
@@ -68,9 +134,9 @@ export class Player {
         this.primaryGun = new Gun(this, GunType.PISTOL);
 
         this.camera = new Camera(this);
-        this.width = 60;
-        this.height = 60;
-        this.defHeight = 60;
+        this.width = 37.5;
+        this.height = 120;
+        this.defHeight = 120;
         this.lastPos = { x: 100, y: 0 };
     }
 
@@ -81,7 +147,7 @@ export class Player {
     }
 
     public throwItem() {
-        const currentThrowAngle =  this.throwProjectileAngle;
+        const currentThrowAngle = this.throwProjectileAngle;
         const item = new Item({
             x: this.state.isLeft ? this.pos.x : this.pos.x + this.width,
             y: this.pos.y,
@@ -94,34 +160,87 @@ export class Player {
         this.throwProjectileAngle = 0;
         currentMap.items.push(item);
 
-        if(this.isYou) {
+        if (this.isYou) {
             server.host.emit('player-throw', {
                 roomId: this.currentRoom,
                 throwAngle: currentThrowAngle,
             });
-        } 
+        }
     }
 
     public slide(): void {
+        this.state.isSlide = true;
         this.canSlide = false;
-        this.height = this.defHeight/2;
+        this.height = this.defHeight / 2;
         this.slideSpeed *= 1 - this.friction;
-        if(this.state.isRight) {
+        if (this.state.isRight) {
             this.vel.x = this.slideSpeed;
         } else {
             this.vel.x = -this.slideSpeed;
         }
 
-        if(this.slideSpeed < 1) {
+        if (this.slideSpeed < 1) {
+            this.state.isSlide = false;
             this.canSlide = true;
             this.shouldSlide = false;
             this.slideSpeed = 20;
-            this.pos.y = this.pos.y - this.defHeight/2;
+
+            // only push the player up to increase back he's height IF he's on a platform
+            if (this.vel.y == 1.5 || this.vel.y == 0) this.pos.y = this.pos.y - this.defHeight / 2;
             this.height = this.defHeight;
         };
     }
 
-    updateProjectile() {
+    public updateCurrentSprite(): void {
+        if (!this.state.isJump && !this.state.isDoubleJump && !this.state.isSlide) {
+            this.loopAnimation = true;
+            if (!this.state.isMoving) {
+                this.state.isSlide = false;
+                if (this.state.isRight) {
+                    this.currentSprite = !this.state.isShooting ? this.sprites.idleRight : this.sprites.shootRight;
+                } else if (this.state.isLeft) {
+                    this.currentSprite = !this.state.isShooting ? this.sprites.idleLeft : this.sprites.shootLeft;
+                }
+            } else {
+                this.loopAnimation = true;
+                this.state.isSlide = false;
+                if (this.state.isRight) {
+                    this.currentSprite = this.sprites.runRight;
+                    this.reverseAnimation = false;
+                } else if (this.state.isLeft) {
+                    this.currentSprite = this.sprites.runLeft;
+                    this.reverseAnimation = true;
+                }
+            }
+        } else {
+            this.loopAnimation = false;
+            if (this.state.isJump) {
+                this.state.isSlide = false;
+                if (this.state.isRight) {
+                    this.currentSprite = this.sprites.jumpRight;
+                } else if (this.state.isLeft) {
+                    this.currentSprite = this.sprites.jumpLeft;
+                }
+            } else if (this.state.isDoubleJump) {
+                this.state.isSlide = false;
+                if (this.state.isRight) {
+                    this.reverseAnimation = false;
+                    this.currentSprite = this.sprites.doubleJumpRight;
+                } else if (this.state.isLeft) {
+                    this.reverseAnimation = true;
+                    this.currentSprite = this.sprites.doubleJumpLeft;
+                }
+            } else if (this.state.isSlide) {
+                if (this.state.isRight) {
+                    this.currentSprite = this.sprites.slideRight;
+                } else if (this.state.isLeft) {
+                    this.currentSprite = this.sprites.slideLeft;
+                }
+            }
+        }
+    }
+
+    public updateProjectile() {
         const rotSpeed = 2;
         if (currentGame.keys.a.pressed || currentGame.keys.z.pressed) {
             this.drawProjectileLine();
@@ -137,13 +256,13 @@ export class Player {
         }
     }
 
-    drawHealthBar() {
-        const barWidth = this.healthBarWidth * (this.hp/100);
+    public drawHealthBar() {
+        const barWidth = this.healthBarWidth * (this.hp / 100);
         let color = 'lime';
 
-        if(barWidth <= this.healthBarWidth/2 && barWidth > 20) { color = 'yellow' }
-        else if(barWidth <= 20) { color = 'red' } 
-    
+        if (barWidth <= this.healthBarWidth / 2 && barWidth > 20) { color = 'yellow' }
+        else if (barWidth <= 20) { color = 'red' }
+
         ctx.fillStyle = 'grey';
         ctx.fillRect(this.pos.x, this.pos.y - 60, this.healthBarWidth, 8);
 
@@ -151,7 +270,7 @@ export class Player {
         ctx.fillRect(this.pos.x, this.pos.y - 60, barWidth, 8);
     }
 
-    drawProjectileLine() {
+    public drawProjectileLine() {
         const angleInRadians = (this.state.isRight ? this.throwProjectileAngle : this.throwProjectileAngle + 180) * (Math.PI / 180);
 
         const x1 = this.state.isLeft ? this.pos.x : this.pos.x + this.width;
@@ -178,11 +297,41 @@ export class Player {
     }
 
     public draw() {
-        ctx.fillStyle = this.isYou ? 'red' : 'pink';
-        ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+        const offsetX = this.currentSprite.animate ? (this.currentSprite.animation as any).frameCut * (this.currentSprite.animation as any).frameX : 0;
+
+        let xCorrection = 0;
+        let yCorrection = 0;
+
+        if(this.currentSprite == this.sprites.runRight || this.currentSprite == this.sprites.runLeft) {
+            xCorrection = -50;
+        } else if (this.currentSprite == this.sprites.jumpRight) {
+            xCorrection = -16;
+        } else if (this.currentSprite == this.sprites.jumpLeft) {
+            xCorrection = -20;
+        } else if (this.currentSprite == this.sprites.shootRight || this.currentSprite == this.sprites.shootLeft) {
+            yCorrection = 20;
+        }
+
+        ctx.drawImage(sprites.sheet,
+            this.currentSprite.sX + offsetX,
+            this.currentSprite.sY,
+            this.currentSprite.cropWidth,
+            this.currentSprite.cropHeight,
+            this.pos.x + xCorrection,
+            (this.pos.y + 10) + yCorrection, // add slight corrections (10 is for physics displacement)
+            this.currentSprite.recommendedWidth ?? this.width,
+            this.currentSprite.recommendedHeight ?? this.height,
+        );
+
+        if (this.currentSprite.animate) {
+            sprites.animate(this.currentSprite, this.reverseAnimation, this.loopAnimation);
+        }
     }
 
+
     public udpate() {
+        this.updateCurrentSprite();
+
         if (this.isYou) {
             this.pos.y += this.vel.y;
             this.pos.x += this.vel.x;
@@ -192,36 +341,47 @@ export class Player {
             this.camera.followPlayer(currentGame.keys as IKeys);
             this.updateProjectile();
 
+            if (this.vel.y == 1.5 || this.vel.y == 0) {
+                this.isJumping = false;
+                this.jumpCount = 0;
+                this.state.isJump = false;
+                this.state.isDoubleJump = false;
+                this.sprites.doubleJumpRight.animation.frameX = 0;
+                this.sprites.doubleJumpLeft.animation.frameX = this.sprites.doubleJumpLeft.animation.frames;
+            }
+
             // Check if the position has changed from the last position
             if (this.absolutePos.x !== this.lastPos.x || this.absolutePos.y !== this.lastPos.y) {
                 server.host.emit('player-move', {
                     position: { x: this.absolutePos.x, y: this.absolutePos.y },
                     roomId: this.currentRoom,
-                    playerIsRight: this.state.isRight 
+                    jumpCount: this.jumpCount,
+                    playerState: this.state
                 });
                 this.lastPos = { ...this.absolutePos };
             }
 
-            if (this.vel.y == 1.5 || this.vel.y == 0){
-                this.isJumping = false;
-                this.jumpCount = 0;
-            }
+         
 
-        } else if(!this.isYou && this.isEnemy) {
+        } else if (!this.isYou && this.isEnemy) {
             this.pos.x += arena.pos.x;
             this.pos.y += arena.vel.y;
+
+            console.log(this.vel.y);
+
+            this.drawName();
+            this.drawHealthBar();
         }
 
-        if(this.shouldSlide) {
+        if (this.shouldSlide) {
             this.slide();
         }
+
+
+       
+
         
-
-      
-
-        this.drawHealthBar();
         this.primaryGun.update();
-        this.drawName();
         this.draw();
     }
 }

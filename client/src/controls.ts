@@ -3,18 +3,23 @@ import { currentGame, currentPlayer } from "./general";
 export class Controls {
     public initializeControls(): void {
         document.addEventListener('keydown', (e) => {
+            currentPlayer.primaryGun.idleCount = 10;
             switch (e.key) {
                 case 'ArrowUp':
                     if (currentPlayer.canJump) {
                         if (currentPlayer.jumpCount < 2) {
                             if (currentPlayer.jumpCount == 1) {
+                                currentPlayer.state.isDoubleJump = true;
+                                currentPlayer.state.isJump = false;
                                 setTimeout(() => {
                                     currentPlayer.isJumping = true;
                                     currentPlayer.jumpCount++;
                                     currentPlayer.vel.y -= 42;
                                 }, 50);
                             } else {
+                                currentPlayer.state.isJump = true;
                                 currentPlayer.isJumping = true;
+                                currentPlayer.isDoubleJump = false;
                                 currentPlayer.jumpCount++;
                                 currentPlayer.vel.y -= 32;
                             }
@@ -24,6 +29,7 @@ export class Controls {
                     }
                     break;
                 case 'ArrowDown':
+                    currentPlayer.state.isSlide = true;
                     currentPlayer.shouldSlide = true;
                     
                     break;                
@@ -31,14 +37,17 @@ export class Controls {
                     if (!currentGame.keys.right.pressed) {
                         currentGame.keys.left.pressed = true;
 
+                        currentPlayer.state.isMoving = true;
                         currentPlayer.state.isRight = false;
                         currentPlayer.state.isLeft = true;
+                        
                     }
                     break;
                 case 'ArrowRight':
                     if (!currentGame.keys.left.pressed) {
                         currentGame.keys.right.pressed = true;
 
+                        currentPlayer.state.isMoving = true;
                         currentPlayer.state.isRight = true;
                         currentPlayer.state.isLeft = false;
                     }
@@ -78,11 +87,15 @@ export class Controls {
                 case 'ArrowLeft':
                     if (!currentGame.keys.right.pressed) {
                         currentGame.keys.left.pressed = false;
+
+                        currentPlayer.state.isMoving = false;
                     }
                     break;
                 case 'ArrowRight':
                     if (!currentGame.keys.left.pressed) {
                         currentGame.keys.right.pressed = false;
+
+                        currentPlayer.state.isMoving = false;
                     }
                     break;
 
