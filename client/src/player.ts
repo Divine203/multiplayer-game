@@ -95,14 +95,14 @@ export class Player {
             recommendedHeight: 120
         },
         slideLeft: {
-            ...sprites.createSprite(250, 420, 110, 120),
-            recommendedWidth: 75,
-            recommendedHeight: 65
+            ...sprites.createSprite(250, 420, 130, 160),
+            recommendedWidth: 90,
+            recommendedHeight: 95
         },
         slideRight: {
-            ...sprites.createSprite(2510, 40, 110, 120),
-            recommendedWidth: 75,
-            recommendedHeight: 65
+            ...sprites.createSprite(2490, 40, 130, 160),
+            recommendedWidth: 90,
+            recommendedHeight: 95
         }
     }
 
@@ -310,6 +310,8 @@ export class Player {
             xCorrection = -20;
         } else if (this.currentSprite == this.sprites.shootRight || this.currentSprite == this.sprites.shootLeft) {
             yCorrection = 20;
+        } else if (this.currentSprite == this.sprites.slideRight || this.currentSprite == this.sprites.slideLeft) {
+            yCorrection = -15;
         }
 
         ctx.drawImage(sprites.sheet,

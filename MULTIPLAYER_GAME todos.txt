@@ -45,13 +45,21 @@
       - add slide movement --done
 	
     @ Sprite design
-      - character movements. 
-        ¬ running animation
-        ¬ idle animation  
-	¬ jump sprites (jumping and landing)
-        ¬ flip animation (double jump)
-        ¬ sliding sprite
-
+      - character movements. --done*
+        ¬ running animation --done
+        ¬ idle animation  --done
+	¬ jump sprites (jumping and landing) --done
+        ¬ flip animation (double jump) --done
+        ¬ sliding sprite --done
+ 
+	¬ throwing aim sprite
+        ¬ throw sprite
+        ¬ pickup item sprite
+        ¬ bullets for each gun sprite
+        ¬ grenade sprite
+        ¬ stones sprites (particles)
+        ¬ boom sprite (explosion)
+	
     @ Implement explosion with particles
     @ Implement death and wins.
     @ Limit Players in room to 10.
