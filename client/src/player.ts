@@ -103,6 +103,26 @@ export class Player {
             ...sprites.createSprite(2490, 40, 130, 160),
             recommendedWidth: 90,
             recommendedHeight: 95
+        },
+        throwingRight: {
+            ...sprites.createSprite(970, 210, 110, 140),
+            recommendedWidth: 80,
+            recommendedHeight: 100
+        },
+        throwingLeft: {
+            ...sprites.createSprite(1780, 590, 110, 140),
+            recommendedWidth: 80,
+            recommendedHeight: 100
+        },
+        thrownRight: {
+            ...sprites.createSprite(1150, 210, 140, 140),
+            recommendedWidth: 110,
+            recommendedHeight: 100
+        },
+        thrownLeft: {
+            ...sprites.createSprite(1590, 590, 120, 140),
+            recommendedWidth: 95,
+            recommendedHeight: 100
         }
     }
 
@@ -117,6 +137,8 @@ export class Player {
         isDoubleJump: false,
         isSlide: false,
         isShooting: false,
+        isThrowing: false,
+        isThrown: false
     }
 
     public currentSprite: ISpriteData = this.sprites.idleRight;
@@ -150,7 +172,7 @@ export class Player {
         const currentThrowAngle = this.throwProjectileAngle;
         const item = new Item({
             x: this.state.isLeft ? this.pos.x : this.pos.x + this.width,
-            y: this.pos.y,
+            y: this.pos.y + this.height/2,
             width: 15,
             height: 15,
             isThrowable: true,
@@ -192,7 +214,7 @@ export class Player {
     }
 
     public updateCurrentSprite(): void {
-        if (!this.state.isJump && !this.state.isDoubleJump && !this.state.isSlide) {
+        if (!this.state.isJump && !this.state.isDoubleJump && !this.state.isSlide && !this.state.isThrowing && !this.state.isThrown) {
             this.loopAnimation = true;
             if (!this.state.isMoving) {
                 this.state.isSlide = false;
@@ -220,6 +242,19 @@ export class Player {
                     this.currentSprite = this.sprites.jumpRight;
                 } else if (this.state.isLeft) {
                     this.currentSprite = this.sprites.jumpLeft;
+                }
+            }
+            if (this.state.isThrowing) {
+                if (this.state.isRight) {
+                    this.currentSprite = this.sprites.throwingRight;
+                } else if (this.state.isLeft) {
+                    this.currentSprite = this.sprites.throwingLeft;
+                }
+            } else if (this.state.isThrown) {
+                if (this.state.isRight) {
+                    this.currentSprite = this.sprites.thrownRight;
+                } else if (this.state.isLeft) {
+                    this.currentSprite = this.sprites.thrownLeft;
                 }
             } else if (this.state.isDoubleJump) {
                 this.state.isSlide = false;
@@ -274,7 +309,7 @@ export class Player {
         const angleInRadians = (this.state.isRight ? this.throwProjectileAngle : this.throwProjectileAngle + 180) * (Math.PI / 180);
 
         const x1 = this.state.isLeft ? this.pos.x : this.pos.x + this.width;
-        const y1 = this.pos.y;
+        const y1 = this.pos.y + this.height/2;
         const length = 200;
 
         ctx.save();
@@ -308,7 +343,13 @@ export class Player {
             xCorrection = -16;
         } else if (this.currentSprite == this.sprites.jumpLeft) {
             xCorrection = -20;
-        } else if (this.currentSprite == this.sprites.shootRight || this.currentSprite == this.sprites.shootLeft) {
+        } else if (
+            this.currentSprite == this.sprites.shootRight || 
+            this.currentSprite == this.sprites.shootLeft || 
+            this.currentSprite == this.sprites.throwingLeft ||
+            this.currentSprite == this.sprites.throwingRight ||
+            this.currentSprite == this.sprites.thrownRight ||
+            this.currentSprite == this.sprites.thrownLeft) {
             yCorrection = 20;
         } else if (this.currentSprite == this.sprites.slideRight || this.currentSprite == this.sprites.slideLeft) {
             yCorrection = -15;

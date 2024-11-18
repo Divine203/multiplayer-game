@@ -23,7 +23,7 @@ export class Controls {
                                 currentPlayer.jumpCount++;
                                 currentPlayer.vel.y -= 32;
                             }
-                            
+
                         }
                         currentPlayer.canJump = false;
                     }
@@ -31,8 +31,8 @@ export class Controls {
                 case 'ArrowDown':
                     currentPlayer.state.isSlide = true;
                     currentPlayer.shouldSlide = true;
-                    
-                    break;                
+
+                    break;
                 case 'ArrowLeft':
                     if (!currentGame.keys.right.pressed) {
                         currentGame.keys.left.pressed = true;
@@ -40,7 +40,7 @@ export class Controls {
                         currentPlayer.state.isMoving = true;
                         currentPlayer.state.isRight = false;
                         currentPlayer.state.isLeft = true;
-                        
+
                     }
                     break;
                 case 'ArrowRight':
@@ -60,19 +60,23 @@ export class Controls {
                     }
                     break
 
-                case 'y':
-                    currentPlayer.throwItem();
-                    break
-
                 case 'a':
-                    if (!currentGame.keys.z.pressed) {
-                        currentGame.keys.a.pressed = true;
+                    if (currentPlayer.canSlide) {
+                        if (!currentGame.keys.z.pressed) {
+                            currentGame.keys.a.pressed = true;
+                            currentPlayer.state.isThrowing = true;
+                            currentPlayer.state.isThrown = false;
+                        }
                     }
                     break
 
                 case 'z':
-                    if (!currentGame.keys.a.pressed) {
-                        currentGame.keys.z.pressed = true;
+                    if (currentPlayer.canSlide) {
+                        if (!currentGame.keys.a.pressed) {
+                            currentGame.keys.z.pressed = true;
+                            currentPlayer.state.isThrowing = true;
+                            currentPlayer.state.isThrown = false;
+                        }
                     }
                     break
 
@@ -104,16 +108,40 @@ export class Controls {
                     break
 
                 case 'a':
-                    if (!currentGame.keys.z.pressed) {
-                        currentGame.keys.a.pressed = false;
-                        currentPlayer.throwItem();
+                    if (currentPlayer.canSlide) {
+                        if (!currentGame.keys.z.pressed) {
+                            currentPlayer.canSlide = false;
+                            currentPlayer.canShoot = false;
+                            currentGame.keys.a.pressed = false;
+                            currentPlayer.throwItem();
+                            currentPlayer.state.isThrowing = false;
+                            currentPlayer.state.isThrown = true;
+
+                            setTimeout(() => {
+                                currentPlayer.canSlide = true;
+                                currentPlayer.canShoot = true;
+                                currentPlayer.state.isThrown = false;
+                            }, 500);
+                        }
                     }
                     break
 
                 case 'z':
-                    if (!currentGame.keys.a.pressed) {
-                        currentGame.keys.z.pressed = false;
-                        currentPlayer.throwItem();
+                    if (currentPlayer.canSlide) {
+                        if (!currentGame.keys.a.pressed) {
+                            currentPlayer.canSlide = false;
+                            currentPlayer.canShoot = false;
+                            currentGame.keys.z.pressed = false;
+                            currentPlayer.throwItem();
+                            currentPlayer.state.isThrowing = false;
+                            currentPlayer.state.isThrown = true;
+
+                            setTimeout(() => {
+                                currentPlayer.canSlide = true;
+                                currentPlayer.canShoot = true;
+                                currentPlayer.state.isThrown = false;
+                            }, 500);
+                        }
                     }
                     break
             }
