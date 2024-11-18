@@ -29,6 +29,8 @@ export class Game {
             ctx.fillStyle = "#495250";
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+            sprites.testDraw(sprites.bazuka_bullet);
+
             // Physics relationship
             if (currentPhysics) {
                 currentMap.tiles.forEach((tile: Tile) => {

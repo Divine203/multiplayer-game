@@ -1,23 +1,14 @@
-import { ctx } from "./general";
+import { ctx, currentPlayer } from "./general";
 
 export class Sprites {
     public sheet: HTMLImageElement;
 
-    public throwingRight: ISpriteData = {
-        ...this.createSprite(970, 210, 110, 140)
-    }
-
-    public throwingLeft: ISpriteData = {
-        ...this.createSprite(1780, 590, 110, 140)
-    }
-
-    public thrownRight: ISpriteData = {
-        ...this.createSprite(1170, 210, 110, 140)
-    }
-
-    public thrownLeft: ISpriteData = {
-        ...this.createSprite(1590, 590, 110, 140)
-    }
+    public pistol_bullet: ISpriteData = this.createSprite(90, 1450, 30, 10);
+    public ak47_bullet: ISpriteData = this.createSprite(260, 1450, 50, 10);
+    public smg_bullet: ISpriteData = this.createSprite(430, 1450, 40, 10);
+    public m14_bullet: ISpriteData = this.createSprite(610, 1450, 50, 10);
+    public shotgun_bullet: ISpriteData = this.createSprite(780, 1450, 40, 10);
+    public bazuka_bullet: ISpriteData = this.createSprite(970, 1440, 110, 30);
 
     constructor() {
         this.sheet = new Image();
@@ -66,24 +57,24 @@ export class Sprites {
         if (this.sheet.complete) {
             const offsetX = sprite.animate ? (sprite.animation as any).frameCut * (sprite.animation as any).frameX : 0;
 
-            const xPos = 100;
-            const yPos = 90;
-            const width = 60;
-            const height = 80;
+            const xPos = 300;
+            const yPos = 390;
+            const width = 50;
+            const height = 15;
 
             ctx.fillStyle = 'lime';
             ctx.fillRect(75, 75, 150, 150);
 
             ctx.strokeStyle = 'red';
-            ctx.strokeRect(xPos, yPos, width, height);
+            ctx.strokeRect(currentPlayer.pos.x,  currentPlayer.pos.y, width, height);
 
             ctx.drawImage(this.sheet,
                 sprite.sX + offsetX,
                 sprite.sY,
                 sprite.cropWidth,
                 sprite.cropHeight,
-                xPos,
-                yPos,
+                currentPlayer.pos.x,
+                currentPlayer.pos.y,
                 width,
                 height
             );
