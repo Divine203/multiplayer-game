@@ -21,5 +21,7 @@ export interface IKeys {
     right: { pressed: boolean },
     left: { pressed: boolean },
     a: { pressed: boolean },
-    z: { pressed: boolean }
+    z: { pressed: boolean },
+    t: { pressed: boolean },
+    y: { pressed: boolean }
 }

@@ -3,7 +3,7 @@ import { currentGame, currentPlayer } from "./general";
 export class Controls {
     public initializeControls(): void {
         document.addEventListener('keydown', (e) => {
-            currentPlayer.primaryGun.idleCount = 10;
+            currentPlayer.idleCount = 10;
             switch (e.key) {
                 case 'ArrowUp':
                     if (currentPlayer.canJump) {
@@ -54,7 +54,8 @@ export class Controls {
                     break;
 
                 case 'x':
-                    if (currentPlayer.canShoot) {
+                    if (currentPlayer.canShoot && currentPlayer.primaryGun) {
+                        currentPlayer.idleCount = 10;
                         currentPlayer.primaryGun.shoot();
                         currentPlayer.canShoot = false;
                     }
@@ -79,6 +80,19 @@ export class Controls {
                         }
                     }
                     break
+                case 't':
+                    if (!currentGame.keys.y.pressed) {
+                        currentGame.keys.t.pressed = true;
+                        currentPlayer.pickGun();
+                    }
+                    break
+
+                case 'y':
+                    if (!currentGame.keys.t.pressed) {
+                        currentGame.keys.y.pressed = true;
+                        currentPlayer.dropGun();
+                    }
+                    break;
 
             }
         });
@@ -144,6 +158,18 @@ export class Controls {
                         }
                     }
                     break
+
+                case 't':
+                    if (!currentGame.keys.y.pressed) {
+                        currentGame.keys.t.pressed = false;
+                    }
+                    break
+
+                case 'y':
+                    if (!currentGame.keys.t.pressed) {
+                        currentGame.keys.y.pressed = false;
+                    }
+                    break;
             }
         });
     }

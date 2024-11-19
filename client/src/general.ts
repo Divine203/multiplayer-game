@@ -41,12 +41,6 @@ export let currentGame: any;
 export let currentPlayer: any;
 export let currentMap: any;
 export let _ui: any;
-export let keys: IKeys = {
-    right: { pressed: false },
-    left: { pressed: false },
-    a: { pressed: false },
-    z: { pressed: false },
-};
 
 export const setSprites = (sp: Sprites): void => {
     sprites = sp;

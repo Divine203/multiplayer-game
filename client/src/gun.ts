@@ -1,15 +1,28 @@
 import { Bullet } from "./bullet";
 import { GunType } from "./data.enum";
-import { ctx, currentPlayer, sprites } from "./general";
+import { arena, cameraState, ctx, cvs, sprites } from "./general";
+import { Vec2 } from "./interfaces.interface";
 import { server } from "./main";
+import { gravity } from "./physics";
 import { Player } from "./player";
+import { ISpriteData } from "./sprite";
 
 export class Gun {
-    public player: Player;
+    public player: Player | any = null;
     public pos: any;
+    public vel: any;
     public width: number;
     public height: number;
     public gunType: GunType;
+    public isPicked: boolean = false;
+
+    public gunSprite: ISpriteData;
+    public bulletSprite: ISpriteData;
+
+    public xCorrection: number = 0;
+    public yCorrection: number = 0;
+
+    public noGravity: boolean = false;
 
     public bulletSprites: any = {
         pistol_bullet: {
@@ -56,7 +69,7 @@ export class Gun {
             recommendedHeight: 25
         },
         smg: {
-            ...sprites.createSprite(340, 1300, 140, 90),
+            ...sprites.createSprite(340, 1290, 150, 90),
             recommendedWidth: 55,
             recommendedHeight: 35
         },
@@ -71,7 +84,7 @@ export class Gun {
             recommendedHeight: 30
         },
         bazuka: {
-            ...sprites.createSprite(840, 1300, 240, 80),
+            ...sprites.createSprite(840, 1290, 240, 80),
             recommendedWidth: 115,
             recommendedHeight: 35
         }
@@ -79,38 +92,78 @@ export class Gun {
 
     public bulletsShot: any[] = [];
 
-    public idleCount: number = 10;
 
-
-    constructor(player: Player, gunType: GunType) {
+    constructor({ x, y, gunType, player }: IGun) {
         this.player = player;
         this.gunType = gunType;
+        this.gunSprite = this.gunSprites[this.gunType];
+        this.bulletSprite = this.bulletSprites[`${this.gunType}_bullet`];
         this.pos = {
-            x: this.player.pos.x,
-            y: this.player.pos.y,
+            x,
+            y,
         };
-        this.width = 30;
-        this.height = 10;
+        this.vel = { x: 0, y: 0 } as Vec2;
+        this.width = (this.gunSprite.recommendedWidth as number);
+        this.height = (this.gunSprite.recommendedHeight as number);
     }
 
-    position() {
-        if (this.gunType === GunType.PISTOL) {
-            this.pos.y = this.player.pos.y + this.player.height / 2;
-            if (this.player.state.isRight) {
-                this.pos.x = this.player.pos.x + this.player.width;
-            } else {
-                this.pos.x = this.player.pos.x - this.width;
-            }
-        }
-    }
+    // position() {
+    //     if (this.gunType === GunType.PISTOL) {
+    //         this.pos.y = this.player.pos.y + this.player.height / 2;
+    //         if (this.player.state.isRight) {
+    //             this.pos.x = this.player.pos.x + this.player.width;
+    //         } else {
+    //             this.pos.x = this.player.pos.x - this.width;
+    //         }
+    //     }
+    // }
 
     draw() {
-        // ctx.fillStyle = 'PURPLE';
-        // ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+        const offsetX = this.gunSprite.animate ? (this.gunSprite.animation as any).frameCut * (this.gunSprite.animation as any).frameX : 0;
+
+        let posX: number = this.pos.x;
+        ctx.save();
+
+       
+
+        if (this.isPicked) {
+            ctx.translate(this.player.width, 0);
+
+            if (this.player.state.isRight) {
+                ctx.scale(1, 1);
+            } else {
+                posX = posX * -1;
+                ctx.scale(-1, 1); // Flip horizontally
+            }
+
+            if(this.gunType == GunType.BAZUKA) {
+                this.xCorrection = this.player.state.isRight ? -80 : 17;
+                this.yCorrection = -20;
+            }
+        } else {
+            this.yCorrection = 15;
+        }
+
+        ctx.strokeStyle = 'red';
+        ctx.strokeRect(posX + this.xCorrection,this.pos.y + this.yCorrection,this.width, this.height);
+        
+
+        ctx.drawImage(sprites.sheet,
+            this.gunSprite.sX + offsetX,
+            this.gunSprite.sY,
+            this.gunSprite.cropWidth,
+            this.gunSprite.cropHeight,
+            posX + this.xCorrection,
+            this.pos.y + this.yCorrection,
+            this.width,
+            this.height
+        );
+
+        // Restore the original context state
+        ctx.restore();
     }
 
     shoot() {
-        this.idleCount = 10;
         this.player.state.isShooting = true;
         const bullet = new Bullet({
             x: this.pos.x,
@@ -129,23 +182,55 @@ export class Gun {
     }
 
     updateBullets() {
-        if(this.idleCount > 0) this.idleCount -= 0.05;
+        this.player.state.isShooting = !(this.player.idleCount <= 0);
 
-        this.player.state.isShooting = !(this.idleCount <= 0);
-   
         this.bulletsShot.forEach((bullet: Bullet, index: number) => {
             bullet.update();
 
-            if(bullet.hasHitObject) {
+            if (bullet.hasHitObject) {
                 this.bulletsShot.splice(index, 1);
             }
         });
     }
 
     update() {
-        this.position();
+        if (!this.isPicked) {
+            this.pos.x += this.vel.x;
+            this.pos.y += this.vel.y;
+
+            this.pos.x += arena.pos.x;
+            if (!this.noGravity) this.vel.y += gravity;
+
+            this.vel.y += gravity;
+
+            // fix bouncing effect as platform moves with camera
+            if (cameraState == 'up') {
+                this.pos.y += arena.speed;
+                this.noGravity = true;
+
+            } else if (cameraState == 'down') {
+                this.pos.y -= arena.speed;
+                this.noGravity = true;
+
+            } else if (cameraState == '') {
+                this.noGravity = false;
+            }
+        } else {
+            this.pos.x = this.player.pos.x + this.width / 4;
+            this.pos.y = this.player.pos.y + (this.player.height / 2);
+
+            if (this.bulletsShot.length > 0) {
+                this.updateBullets();
+            }
+        }
+
         this.draw();
-        this.updateBullets();
     }
 }
 
+export interface IGun {
+    x: number,
+    y: number,
+    gunType: GunType,
+    player?: Player | any
+}

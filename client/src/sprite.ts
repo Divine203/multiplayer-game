@@ -3,13 +3,6 @@ import { ctx, currentPlayer } from "./general";
 export class Sprites {
     public sheet: HTMLImageElement;
 
-    public pistol_bullet: ISpriteData = this.createSprite(90, 1450, 30, 10);
-    public ak47_bullet: ISpriteData = this.createSprite(260, 1450, 50, 10);
-    public smg_bullet: ISpriteData = this.createSprite(430, 1450, 40, 10);
-    public m14_bullet: ISpriteData = this.createSprite(610, 1450, 50, 10);
-    public shotgun_bullet: ISpriteData = this.createSprite(780, 1450, 40, 10);
-    public bazuka_bullet: ISpriteData = this.createSprite(970, 1440, 110, 30);
-
     constructor() {
         this.sheet = new Image();
         this.sheet.src = "/assets/sheet.png";
@@ -57,8 +50,6 @@ export class Sprites {
         if (this.sheet.complete) {
             const offsetX = sprite.animate ? (sprite.animation as any).frameCut * (sprite.animation as any).frameX : 0;
 
-            const xPos = 300;
-            const yPos = 390;
             const width = 50;
             const height = 15;
 

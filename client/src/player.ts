@@ -1,11 +1,9 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, roomId, sprites } from "./general";
+import { ctx, currentGame, currentMap, arena, roomId, sprites, currentPhysics } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
 import { Item } from "./item";
-import { GunType } from "./data.enum";
-import { Gun } from "./gun";
 import { Camera } from "./camera";
 import { ISpriteData } from "./sprite";
 
@@ -40,7 +38,12 @@ export class Player {
     public isPlayer: boolean = true;
     public currentPlatform: Tile | any;
     public camera: any;
+
     public primaryGun: any;
+    public secondaryGun: any;
+    public currentGun: any;
+    public viewedGun: any; // [gun, index] => index is the gun's position in the world!
+
     public throwProjectileAngle: number = 0;
     public initYPos: number = 0;
     public sprites: any = {
@@ -83,7 +86,7 @@ export class Player {
             ...sprites.createSprite(460, 380, 100, 160),
             recommendedWidth: 75,
             recommendedHeight: 120
-        }, 
+        },
         doubleJumpRight: {
             ...sprites.createSpriteAnimation(0, 190, 190, 160, true, 4, 8, 190),
             recommendedWidth: 100,
@@ -148,12 +151,14 @@ export class Player {
     public horRay: any;
     public verRay: any;
 
+    public idleCount: number = 10;
+
     constructor(id: string | any, name: string) {
         this.init();
         this.id = id;
         this.name = name;
         this.physics = new Physics();
-        this.primaryGun = new Gun(this, GunType.PISTOL);
+        this.primaryGun;
 
         this.camera = new Camera(this);
         this.width = 37.5;
@@ -168,11 +173,46 @@ export class Player {
         this.vel = { x: 0, y: 0 } as Vec2;
     }
 
+    public pickGun(): void {
+        if (this.viewedGun) {
+            if(this.currentGun) {
+                this.dropGun();
+            }
+
+            this.viewedGun[0].isPicked = true;
+            this.viewedGun[0].player = this;
+            this.primaryGun = this.viewedGun[0]; // [gun, index]
+            this.currentGun = this.primaryGun;
+            currentMap.guns.splice(this.viewedGun[1], 1);
+        }
+    }
+
+    public dropGun(): void {
+        let gunToBeDropped = this.currentGun;
+        gunToBeDropped.isPicked = false;
+        gunToBeDropped.player = null;
+        gunToBeDropped.vel.y -= 20;
+        currentMap.guns.push(gunToBeDropped);
+
+        this.currentGun = null;
+        this.primaryGun = null;
+    }
+
+    public validateViewedGun() {
+        // be 100% certain the player is within the gun's reach
+
+        if (this.viewedGun) {
+            if (!(['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, this.viewedGun[0])))) { // if the guns aren't colliding
+                this.viewedGun = null;
+            }
+        }
+    }
+
     public throwItem() {
         const currentThrowAngle = this.throwProjectileAngle;
         const item = new Item({
             x: this.state.isLeft ? this.pos.x : this.pos.x + this.width,
-            y: this.pos.y + this.height/2,
+            y: this.pos.y + this.height / 2,
             width: 15,
             height: 15,
             isThrowable: true,
@@ -309,7 +349,7 @@ export class Player {
         const angleInRadians = (this.state.isRight ? this.throwProjectileAngle : this.throwProjectileAngle + 180) * (Math.PI / 180);
 
         const x1 = this.state.isLeft ? this.pos.x : this.pos.x + this.width;
-        const y1 = this.pos.y + this.height/2;
+        const y1 = this.pos.y + this.height / 2;
         const length = 200;
 
         ctx.save();
@@ -337,15 +377,15 @@ export class Player {
         let xCorrection = 0;
         let yCorrection = 0;
 
-        if(this.currentSprite == this.sprites.runRight || this.currentSprite == this.sprites.runLeft) {
+        if (this.currentSprite == this.sprites.runRight || this.currentSprite == this.sprites.runLeft) {
             xCorrection = -50;
         } else if (this.currentSprite == this.sprites.jumpRight) {
             xCorrection = -16;
         } else if (this.currentSprite == this.sprites.jumpLeft) {
             xCorrection = -20;
         } else if (
-            this.currentSprite == this.sprites.shootRight || 
-            this.currentSprite == this.sprites.shootLeft || 
+            this.currentSprite == this.sprites.shootRight ||
+            this.currentSprite == this.sprites.shootLeft ||
             this.currentSprite == this.sprites.throwingLeft ||
             this.currentSprite == this.sprites.throwingRight ||
             this.currentSprite == this.sprites.thrownRight ||
@@ -374,6 +414,8 @@ export class Player {
 
     public udpate() {
         this.updateCurrentSprite();
+
+        if (this.idleCount > 0) this.idleCount -= 0.05;
 
         if (this.isYou) {
             this.pos.y += this.vel.y;
@@ -404,13 +446,12 @@ export class Player {
                 this.lastPos = { ...this.absolutePos };
             }
 
-         
+            this.validateViewedGun();
+
 
         } else if (!this.isYou && this.isEnemy) {
             this.pos.x += arena.pos.x;
             this.pos.y += arena.vel.y;
-
-            console.log(this.vel.y);
 
             this.drawName();
             this.drawHealthBar();
@@ -421,10 +462,12 @@ export class Player {
         }
 
 
-       
 
-        
-        this.primaryGun.update();
+
+      
         this.draw();
+        if (this.primaryGun) {
+            this.primaryGun.update();
+        }
     }
 }

@@ -4,6 +4,7 @@ import { IKeys } from "./interfaces.interface";
 import { Tile } from "./tile";
 import { Item } from "./item";
 import Socket from "./socket";
+import { Gun } from "./gun";
 export class Game {
     public cvsMinHeight = 840;
 
@@ -12,6 +13,8 @@ export class Game {
         left: { pressed: false },
         a: { pressed: false },
         z: { pressed: false },
+        t: { pressed: false },
+        y: { pressed: false }
     };
 
     constructor() {
@@ -29,8 +32,6 @@ export class Game {
             ctx.fillStyle = "#495250";
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-            sprites.testDraw(sprites.bazuka_bullet);
-
             // Physics relationship
             if (currentPhysics) {
                 currentMap.tiles.forEach((tile: Tile) => {
@@ -45,12 +46,27 @@ export class Game {
                     });
                 });
 
+                currentMap.guns.forEach((gun: Gun, index: number) => {
+
+                    currentMap.tiles.forEach((tile: Tile) => {
+                        currentPhysics.add(gun, tile);
+                    });
+
+                    if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](currentPlayer, gun))) {
+                        currentPlayer.viewedGun = [gun, index];
+                    }
+                    
+                    gun.update();
+                });
+
                 currentMap.items.forEach((item: Item) => {
                     currentMap.items.forEach((item2: Item) => {
                         currentPhysics.add(item, item2);
                     });
                     item.update();
                 });
+
+               
 
                 currentMap.players.forEach((player: Player) => {
                     if (!player.isYou) {

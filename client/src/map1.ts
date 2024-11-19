@@ -1,12 +1,15 @@
 import { MAP_BASE } from "./general";
+import { Gun } from "./gun";
 import { Item } from "./item";
 import { Player } from "./player";
 import { Tile } from "./tile";
+import { GunType } from "./data.enum";
 
 export class Map1 {
     public tiles: Tile[] = [];
     public items: Item[] = [];
     public players: Player[] = [];
+    public guns: Gun[] = [];
 
     // map base is 700;
 
@@ -48,6 +51,14 @@ export class Map1 {
         
         this.items = [
             // new Item({x: 400, y: 600, width: 100, height: 100, color: 'orange'})
+        ];
+
+        this.guns = [
+            new Gun({ x: 100, y: 100, gunType: GunType.PISTOL, player: null}),
+            new Gun({ x: 250, y: 100, gunType: GunType.AK47, player: null}),
+            new Gun({ x: 400, y: 100, gunType: GunType.SMG, player: null}),
+            new Gun({ x: 550, y: 100, gunType: GunType.M14, player: null}),
+            new Gun({ x: 700, y: 100, gunType: GunType.BAZUKA, player: null}),
         ];
 
         this.players = [];
