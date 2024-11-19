@@ -23,6 +23,7 @@ export class Gun {
     public yCorrection: number = 0;
 
     public noGravity: boolean = false;
+    public friction: number = 0.05;
 
     public bulletSprites: any = {
         pistol_bullet: {
@@ -107,17 +108,6 @@ export class Gun {
         this.height = (this.gunSprite.recommendedHeight as number);
     }
 
-    // position() {
-    //     if (this.gunType === GunType.PISTOL) {
-    //         this.pos.y = this.player.pos.y + this.player.height / 2;
-    //         if (this.player.state.isRight) {
-    //             this.pos.x = this.player.pos.x + this.player.width;
-    //         } else {
-    //             this.pos.x = this.player.pos.x - this.width;
-    //         }
-    //     }
-    // }
-
     draw() {
         const offsetX = this.gunSprite.animate ? (this.gunSprite.animation as any).frameCut * (this.gunSprite.animation as any).frameX : 0;
 
@@ -139,13 +129,38 @@ export class Gun {
             if(this.gunType == GunType.BAZUKA) {
                 this.xCorrection = this.player.state.isRight ? -80 : 17;
                 this.yCorrection = -20;
+            } else if(this.gunType == GunType.AK47) {
+                this.xCorrection = this.player.state.isRight ? -30 : 30;
+                this.yCorrection = -10;
+
+                if(this.player.state.isSlide) {
+                    this.xCorrection = this.player.state.isRight ? -14 : 20;
+                }
+
+            } else if(this.gunType == GunType.SMG) {
+                this.xCorrection = this.player.state.isRight ? -8 : 60;
+                this.yCorrection = -14;
+            } else if (this.gunType == GunType.M14) {
+                this.xCorrection = this.player.state.isRight ? -34 : 40;
+                this.yCorrection = -20;
+
+                if(this.player.state.isSlide) {
+                    this.xCorrection = this.player.state.isRight ? -14 : 20;
+                }
+            } else if (this.gunType == GunType.PISTOL) {
+                this.xCorrection = this.player.state.isRight ? -4 : 60;
+                this.yCorrection = -14;
+                
+                if(this.player.state.isSlide) {
+                    this.xCorrection = this.player.state.isRight ? 10 : 25;
+                }
             }
         } else {
             this.yCorrection = 15;
         }
 
-        ctx.strokeStyle = 'red';
-        ctx.strokeRect(posX + this.xCorrection,this.pos.y + this.yCorrection,this.width, this.height);
+        // ctx.strokeStyle = 'red';
+        // ctx.strokeRect(posX + this.xCorrection,this.pos.y + this.yCorrection,this.width, this.height);
         
 
         ctx.drawImage(sprites.sheet,
@@ -223,7 +238,7 @@ export class Gun {
                 this.updateBullets();
             }
         }
-
+        this.vel.x *= 1 - this.friction;
         this.draw();
     }
 }

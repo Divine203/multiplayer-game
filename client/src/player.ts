@@ -175,7 +175,7 @@ export class Player {
 
     public pickGun(): void {
         if (this.viewedGun) {
-            if(this.currentGun) {
+            if (this.currentGun) {
                 this.dropGun();
             }
 
@@ -188,14 +188,17 @@ export class Player {
     }
 
     public dropGun(): void {
-        let gunToBeDropped = this.currentGun;
-        gunToBeDropped.isPicked = false;
-        gunToBeDropped.player = null;
-        gunToBeDropped.vel.y -= 20;
-        currentMap.guns.push(gunToBeDropped);
+        if (this.currentGun && this.primaryGun) {
+            let gunToBeDropped = this.currentGun;
+            gunToBeDropped.isPicked = false;
+            gunToBeDropped.player = null;
+            gunToBeDropped.vel.y -= 30;
+            gunToBeDropped.vel.x = this.state.isRight ? 15 : -15;
+            currentMap.guns.push(gunToBeDropped);
 
-        this.currentGun = null;
-        this.primaryGun = null;
+            this.currentGun = null;
+            this.primaryGun = null;
+        }
     }
 
     public validateViewedGun() {
@@ -464,7 +467,7 @@ export class Player {
 
 
 
-      
+
         this.draw();
         if (this.primaryGun) {
             this.primaryGun.update();
