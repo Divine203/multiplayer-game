@@ -131,7 +131,7 @@ export class Gun {
                 }
             }
 
-            if(this.player.state.isDoubleJump && (this.gunType == GunType.PISTOL || this.gunType == GunType.SMG)) {
+            if((this.player.state.isDoubleJump && (this.gunType == GunType.PISTOL || this.gunType == GunType.SMG)) || !this.player.state.isActive) {
                 this.width = 0; // dont show the gun
             } else {
                 this.width = (this.gunSprite.recommendedWidth as number);
@@ -139,6 +139,7 @@ export class Gun {
         } else {
             this.yCorrection = 15;
         }
+
 
         // ctx.strokeStyle = 'red';
         // ctx.strokeRect(posX + this.xCorrection,this.pos.y + this.yCorrection,this.width, this.height);
@@ -160,7 +161,7 @@ export class Gun {
     }
 
     shoot() {
-        this.player.state.isShooting = true;
+        this.player.state.isActive = true;
 
         const bullet = new Bullet({
             x: (this.posX + this.xCorrection) + this.width,
@@ -179,7 +180,7 @@ export class Gun {
     }
 
     updateBullets() {
-        this.player.state.isShooting = !(this.player.idleCount <= 0);
+        this.player.state.isActive = !(this.player.idleCount <= 0);
 
         this.bulletsShot.forEach((bullet: Bullet, index: number) => {
             bullet.update();

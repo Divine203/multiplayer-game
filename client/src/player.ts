@@ -140,7 +140,7 @@ export class Player {
         isJump: false,
         isDoubleJump: false,
         isSlide: false,
-        isShooting: false,
+        isActive: false,
         isThrowing: false,
         isThrown: false
     }
@@ -197,16 +197,28 @@ export class Player {
     }
 
     public dropGun(): void {
-        if (this.currentGun && this.primaryGun) {
-            let gunToBeDropped = this.currentGun;
-            gunToBeDropped.isPicked = false;
-            gunToBeDropped.player = null;
-            gunToBeDropped.vel.y -= 30;
-            gunToBeDropped.vel.x = this.state.isRight ? 15 : -15;
-            currentMap.guns.push(gunToBeDropped);
+        const util = () => {
+            if (this.currentGun && this.primaryGun) {
+                let gunToBeDropped = this.currentGun;
+                gunToBeDropped.isPicked = false;
+                gunToBeDropped.player = null;
+                gunToBeDropped.vel.y -= 30;
+                gunToBeDropped.vel.x = this.state.isRight ? 15 : -15;
+                currentMap.guns.push(gunToBeDropped);
 
-            this.currentGun = null;
-            this.primaryGun = null;
+                this.currentGun = null;
+                this.primaryGun = null;
+            }
+        }
+
+        if (!this.state.isActive) {
+            this.idleCount = 10;
+            this.state.isActive = true;
+            setTimeout(() => {
+                util();
+            }, 100);
+        } else {
+            util();
         }
     }
 
@@ -271,9 +283,9 @@ export class Player {
             if (!this.state.isMoving) {
                 this.state.isSlide = false;
                 if (this.state.isRight) {
-                    this.currentSprite = !this.state.isShooting ? this.sprites.idleRight : this.sprites.shootRight;
+                    this.currentSprite = !this.state.isActive ? this.sprites.idleRight : this.sprites.shootRight;
                 } else if (this.state.isLeft) {
-                    this.currentSprite = !this.state.isShooting ? this.sprites.idleLeft : this.sprites.shootLeft;
+                    this.currentSprite = !this.state.isActive ? this.sprites.idleLeft : this.sprites.shootLeft;
                 }
             } else {
                 this.loopAnimation = true;
@@ -383,6 +395,23 @@ export class Player {
         ctx.fillText(this.name, this.pos.x, this.pos.y - 22);
     }
 
+    public drawIdleGun() {
+        ctx.save();
+        ctx.translate(this.state.isRight ? this.pos.x : this.pos.x + this.width * 2 - 10, this.pos.y + 20);
+        ctx.rotate(90 * (Math.PI / 180));
+        ctx.drawImage(sprites.sheet,
+            this.currentGun.gunSprite.sX,
+            this.currentGun.gunSprite.sY,
+            this.currentGun.gunSprite.cropWidth,
+            this.currentGun.gunSprite.cropHeight,
+            0,
+            0,
+            this.currentGun.gunSprite.recommendedWidth,
+            this.currentGun.gunSprite.recommendedHeight
+        );
+        ctx.restore();
+    }
+
     public draw() {
         const offsetX = this.currentSprite.animate ? (this.currentSprite.animation as any).frameCut * (this.currentSprite.animation as any).frameX : 0;
 
@@ -427,7 +456,18 @@ export class Player {
     public udpate() {
         this.updateCurrentSprite();
 
-        if (this.idleCount > 0) this.idleCount -= 0.05;
+        if (this.idleCount > 0) {
+            this.state.isActive = true;
+            this.idleCount -= 0.05
+        };
+
+        if (this.idleCount <= 1) {
+            this.state.isActive = false;
+
+            if (this.currentGun) {
+                this.drawIdleGun();
+            }
+        }
 
         if (this.isYou) {
             this.pos.y += this.vel.y;
