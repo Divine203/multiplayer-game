@@ -1,5 +1,5 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, roomId, sprites, currentPhysics } from "./general";
+import { ctx, currentGame, currentMap, arena, roomId, sprites, currentPhysics, cvs } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
@@ -20,6 +20,7 @@ export class Player {
     public canShoot: boolean = true;
     public canJump: boolean = true;
     public canSlide: boolean = true;
+    public canPick: boolean = true;
 
     public pos: any;
     public absolutePos: any;
@@ -174,16 +175,24 @@ export class Player {
     }
 
     public pickGun(): void {
-        if (this.viewedGun) {
-            if (this.currentGun) {
-                this.dropGun();
+        if (this.canPick) {
+            this.canPick = false;
+            if (this.viewedGun) {
+                if (this.currentGun) {
+                    this.dropGun();
+                }
+
+                this.viewedGun[0].isPicked = true;
+                this.viewedGun[0].player = this;
+                this.primaryGun = this.viewedGun[0]; // [gun, index]
+                this.currentGun = this.primaryGun;
+                currentMap.guns.splice(this.viewedGun[1], 1);
             }
 
-            this.viewedGun[0].isPicked = true;
-            this.viewedGun[0].player = this;
-            this.primaryGun = this.viewedGun[0]; // [gun, index]
-            this.currentGun = this.primaryGun;
-            currentMap.guns.splice(this.viewedGun[1], 1);
+            setTimeout(() => {
+                this.canPick = true;
+            }, 1000);
+
         }
     }
 
@@ -463,8 +472,6 @@ export class Player {
         if (this.shouldSlide) {
             this.slide();
         }
-
-
 
 
 

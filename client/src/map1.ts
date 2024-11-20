@@ -59,6 +59,7 @@ export class Map1 {
             new Gun({ x: 400, y: 100, gunType: GunType.SMG, player: null}),
             new Gun({ x: 550, y: 100, gunType: GunType.M14, player: null}),
             new Gun({ x: 700, y: 100, gunType: GunType.BAZUKA, player: null}),
+            new Gun({ x: 900, y: 100, gunType: GunType.SHOTGUN, player: null}),
         ];
 
         this.players = [];

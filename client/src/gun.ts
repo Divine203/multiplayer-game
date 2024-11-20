@@ -17,7 +17,6 @@ export class Gun {
     public isPicked: boolean = false;
 
     public gunSprite: ISpriteData;
-    public bulletSprite: ISpriteData;
 
     public xCorrection: number = 0;
     public yCorrection: number = 0;
@@ -25,38 +24,8 @@ export class Gun {
     public noGravity: boolean = false;
     public friction: number = 0.05;
 
-    public bulletSprites: any = {
-        pistol_bullet: {
-            ...sprites.createSprite(90, 1450, 30, 10),
-            recommendedWidth: 15,
-            recommendedHeight: 5
-        },
-        ak47_bullet: {
-            ...sprites.createSprite(260, 1450, 50, 10),
-            recommendedWidth: 25,
-            recommendedHeight: 5
-        },
-        smg_bullet: {
-            ...sprites.createSprite(430, 1450, 40, 10),
-            recommendedWidth: 20,
-            recommendedHeight: 5
-        },
-        m14_bullet: {
-            ...sprites.createSprite(610, 1450, 50, 10),
-            recommendedWidth: 25,
-            recommendedHeight: 5
-        },
-        shotgun_bullet: {
-            ...sprites.createSprite(780, 1450, 40, 10),
-            recommendedWidth: 20,
-            recommendedHeight: 5
-        },
-        bazuka_bullet: {
-            ...sprites.createSprite(970, 1440, 110, 30),
-            recommendedWidth: 50,
-            recommendedHeight: 15
-        }
-    }
+    public posX: number = 0;
+    public currentFrameOffsetX: number = 0;
 
     public gunSprites: any = {
         pistol: {
@@ -82,7 +51,7 @@ export class Gun {
         shotgun: {
             ...sprites.createSprite(680, 1310, 150, 50),
             recommendedWidth: 75,
-            recommendedHeight: 30
+            recommendedHeight: 25
         },
         bazuka: {
             ...sprites.createSprite(840, 1290, 240, 80),
@@ -98,7 +67,6 @@ export class Gun {
         this.player = player;
         this.gunType = gunType;
         this.gunSprite = this.gunSprites[this.gunType];
-        this.bulletSprite = this.bulletSprites[`${this.gunType}_bullet`];
         this.pos = {
             x,
             y,
@@ -109,51 +77,64 @@ export class Gun {
     }
 
     draw() {
-        const offsetX = this.gunSprite.animate ? (this.gunSprite.animation as any).frameCut * (this.gunSprite.animation as any).frameX : 0;
+        this.currentFrameOffsetX = this.gunSprite.animate ? (this.gunSprite.animation as any).frameCut * (this.gunSprite.animation as any).frameX : 0;
 
-        let posX: number = this.pos.x;
+        this.posX = this.pos.x;
         ctx.save();
 
-       
+
 
         if (this.isPicked) {
-            ctx.translate(this.player.width, 0);
+            ctx.translate(this.player.width ,0);
 
             if (this.player.state.isRight) {
                 ctx.scale(1, 1);
             } else {
-                posX = posX * -1;
+                this.posX = this.posX * -1;
                 ctx.scale(-1, 1); // Flip horizontally
             }
 
-            if(this.gunType == GunType.BAZUKA) {
+            if (this.gunType == GunType.BAZUKA) {
                 this.xCorrection = this.player.state.isRight ? -80 : 17;
                 this.yCorrection = -20;
-            } else if(this.gunType == GunType.AK47) {
+            } else if (this.gunType == GunType.AK47) {
                 this.xCorrection = this.player.state.isRight ? -30 : 30;
                 this.yCorrection = -10;
 
-                if(this.player.state.isSlide) {
+                if (this.player.state.isSlide) {
                     this.xCorrection = this.player.state.isRight ? -14 : 20;
                 }
 
-            } else if(this.gunType == GunType.SMG) {
+            } else if (this.gunType == GunType.SMG) {
                 this.xCorrection = this.player.state.isRight ? -8 : 60;
                 this.yCorrection = -14;
             } else if (this.gunType == GunType.M14) {
                 this.xCorrection = this.player.state.isRight ? -34 : 40;
                 this.yCorrection = -20;
 
-                if(this.player.state.isSlide) {
+                if (this.player.state.isSlide) {
                     this.xCorrection = this.player.state.isRight ? -14 : 20;
                 }
             } else if (this.gunType == GunType.PISTOL) {
                 this.xCorrection = this.player.state.isRight ? -4 : 60;
                 this.yCorrection = -14;
-                
-                if(this.player.state.isSlide) {
+
+                if (this.player.state.isSlide) {
                     this.xCorrection = this.player.state.isRight ? 10 : 25;
                 }
+            } else if (this.gunType == GunType.SHOTGUN) {
+                this.xCorrection = this.player.state.isRight ? -14 : 50;
+                this.yCorrection = -14;
+
+                if (this.player.state.isSlide) {
+                    this.xCorrection = this.player.state.isRight ? 8 : 25;
+                }
+            }
+
+            if(this.player.state.isDoubleJump && (this.gunType == GunType.PISTOL || this.gunType == GunType.SMG)) {
+                this.width = 0; // dont show the gun
+            } else {
+                this.width = (this.gunSprite.recommendedWidth as number);
             }
         } else {
             this.yCorrection = 15;
@@ -161,14 +142,14 @@ export class Gun {
 
         // ctx.strokeStyle = 'red';
         // ctx.strokeRect(posX + this.xCorrection,this.pos.y + this.yCorrection,this.width, this.height);
-        
+
 
         ctx.drawImage(sprites.sheet,
-            this.gunSprite.sX + offsetX,
+            this.gunSprite.sX + this.currentFrameOffsetX,
             this.gunSprite.sY,
             this.gunSprite.cropWidth,
             this.gunSprite.cropHeight,
-            posX + this.xCorrection,
+            this.posX + this.xCorrection,
             this.pos.y + this.yCorrection,
             this.width,
             this.height
@@ -180,13 +161,14 @@ export class Gun {
 
     shoot() {
         this.player.state.isShooting = true;
+
         const bullet = new Bullet({
-            x: this.pos.x,
-            y: this.pos.y,
-            width: 20,
-            height: 7
+            x: (this.posX + this.xCorrection) + this.width,
+            y: (this.pos.y + this.yCorrection) + 20/3,
+            bulletType: `${this.gunType}_bullet`,
+            isRight: this.player.state.isRight
         });
-        bullet.vel.x = this.player.state.isRight ? bullet.speed : -bullet.speed;
+        bullet.vel.x = bullet.speed;
         this.bulletsShot.push(bullet);
 
         if (this.player.isYou) {
