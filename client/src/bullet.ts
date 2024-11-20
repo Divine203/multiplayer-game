@@ -1,4 +1,5 @@
-import { arena, cameraState, ctx, currentMap, currentPhysics, currentPlayer, roomId, sprites } from "./general";
+import { GunType } from "./data.enum";
+import { arena, cameraState, ctx, currentMap, currentPhysics, currentPlayer, gunConfigurations, roomId, sprites } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { server } from "./main";
 import { Player } from "./player";
@@ -47,12 +48,12 @@ export class Bullet {
     public vel: Vec2;
     public width: number;
     public height: number;
-    public speed: number = 35;
+    public speed: number;
     public initYPos: number;
 
     public hasHitObject: boolean = false
 
-    constructor({x, y, bulletType, isRight}: IBullet) {
+    constructor({x, y, bulletType, gunType, isRight}: IBullet) {
         this.pos = {
             x,
             y
@@ -68,6 +69,8 @@ export class Bullet {
         };
 
         this.initYPos = y;
+    
+        this.speed = gunConfigurations[gunType].bulletSpeed;
     }
 
 
@@ -121,5 +124,6 @@ export interface IBullet {
     x: number;
     y: number;
     bulletType: string;
+    gunType: GunType;
     isRight: boolean;
 }

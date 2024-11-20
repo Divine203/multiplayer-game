@@ -1,6 +1,6 @@
 import { Bullet } from "./bullet";
 import { GunType } from "./data.enum";
-import { arena, cameraState, ctx, cvs, sprites } from "./general";
+import { arena, cameraState, ctx, cvs, gunConfigurations, sprites } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { server } from "./main";
 import { gravity } from "./physics";
@@ -17,6 +17,8 @@ export class Gun {
     public isPicked: boolean = false;
 
     public gunSprite: ISpriteData;
+    public fireRate: number = 0;
+    public damage: number = 0;
 
     public xCorrection: number = 0;
     public yCorrection: number = 0;
@@ -26,6 +28,8 @@ export class Gun {
 
     public posX: number = 0;
     public currentFrameOffsetX: number = 0;
+
+    private lastShotTime: number = 0;
 
     public gunSprites: any = {
         pistol: {
@@ -74,6 +78,9 @@ export class Gun {
         this.vel = { x: 0, y: 0 } as Vec2;
         this.width = (this.gunSprite.recommendedWidth as number);
         this.height = (this.gunSprite.recommendedHeight as number);
+
+        this.fireRate = gunConfigurations[gunType].fireRate;
+        this.damage = gunConfigurations[gunType].damage;
     }
 
     draw() {
@@ -142,7 +149,7 @@ export class Gun {
 
 
         // ctx.strokeStyle = 'red';
-        // ctx.strokeRect(posX + this.xCorrection,this.pos.y + this.yCorrection,this.width, this.height);
+        // ctx.strokeRect(this.posX + this.xCorrection,this.pos.y + this.yCorrection,this.width, this.height);
 
 
         ctx.drawImage(sprites.sheet,
@@ -156,27 +163,34 @@ export class Gun {
             this.height
         );
 
-        // Restore the original context state
         ctx.restore();
     }
 
     shoot() {
-        this.player.state.isActive = true;
+        const now = Date.now();
+        const timeBetweenShots = 1000 / this.fireRate;
 
-        const bullet = new Bullet({
-            x: (this.posX + this.xCorrection) + this.width,
-            y: (this.pos.y + this.yCorrection) + 20/3,
-            bulletType: `${this.gunType}_bullet`,
-            isRight: this.player.state.isRight
-        });
-        bullet.vel.x = bullet.speed;
-        this.bulletsShot.push(bullet);
+        if (now - this.lastShotTime >= timeBetweenShots) {
+            this.lastShotTime = now;
+            this.player.state.isActive = true;
 
-        if (this.player.isYou) {
-            server.host.emit('player-shoot', {
-                roomId: this.player.currentRoom
+            const bullet = new Bullet({
+                x: (this.posX + this.xCorrection) + this.width,
+                y: (this.pos.y + this.yCorrection) + 5,
+                bulletType: `${this.gunType}_bullet`,
+                gunType: this.gunType,
+                isRight: this.player.state.isRight
             });
-        }
+            bullet.vel.x = bullet.speed;
+            this.bulletsShot.push(bullet);
+    
+            if (this.player.isYou) {
+                server.host.emit('player-shoot', {
+                    roomId: this.player.currentRoom
+                });
+            }
+        } 
+     
     }
 
     updateBullets() {

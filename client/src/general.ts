@@ -1,4 +1,5 @@
 import { Controls } from "./controls";
+import { GunType } from "./data.enum";
 import { IKeys } from "./interfaces.interface";
 import { Item } from "./item";
 import { Game } from "./main";
@@ -79,3 +80,38 @@ export const setUI = (ui: UI): void => {
 }
 
 export const MAP_BASE: number = 700;
+
+
+
+export const gunConfigurations = {
+    [GunType.PISTOL]: {
+        bulletSpeed: 35,
+        fireRate: 4, // shots per second
+        damage: 5
+    },
+    [GunType.AK47]: {
+        bulletSpeed: 40,
+        fireRate: 8,
+        damage: 5
+    },
+    [GunType.M14]: {
+        bulletSpeed: 40,
+        fireRate: 8,
+        damage: 5
+    },
+    [GunType.SMG]: {
+        bulletSpeed: 45,
+        fireRate: 12,
+        damage: 4
+    },
+    [GunType.SHOTGUN]: {
+        bulletSpeed: 65,
+        fireRate: 1,
+        damage: 10
+    },
+    [GunType.BAZUKA]: {
+        bulletSpeed: 20,
+        fireRate: 1,
+        damage: 30
+    }
+};
