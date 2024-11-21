@@ -106,7 +106,7 @@ export const gunConfigurations = {
     },
     [GunType.SHOTGUN]: {
         bulletSpeed: 65,
-        fireRate: 1,
+        fireRate: 2,
         damage: 10
     },
     [GunType.BAZUKA]: {
