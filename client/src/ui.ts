@@ -106,12 +106,10 @@ export class UI {
             if (this.isMainMenuActive || this.inRoom) {
                 switch (e.key) {
                     case 'h':
-                        console.log('h');
                         this.toggleHelper();
                         break;
 
                     case 'z':
-                        console.log('z');
                         this.backToPrevPage();
                         break;
                 }

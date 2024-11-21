@@ -1,6 +1,5 @@
 import { Controls } from "./controls";
 import { GunType } from "./data.enum";
-import { IKeys } from "./interfaces.interface";
 import { Item } from "./item";
 import { Game } from "./main";
 import { Map1 } from "./map1";

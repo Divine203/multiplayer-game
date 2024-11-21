@@ -1,5 +1,5 @@
 import { Player } from "./player";
-import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics, sprites } from "./general";
+import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics } from "./general";
 import { IKeys } from "./interfaces.interface";
 import { Tile } from "./tile";
 import { Item } from "./item";
@@ -24,7 +24,6 @@ export class Game {
         });
     }
 
-
     private render(): void {
         
         if (!_ui.isMainMenuActive && !_ui.inRoom) {
@@ -45,7 +44,6 @@ export class Game {
                         }
                     });
                 });
-
                 currentMap.guns.forEach((gun: Gun, index: number) => {
 
                     currentMap.tiles.forEach((tile: Tile) => {
@@ -58,16 +56,12 @@ export class Game {
                     
                     gun.update();
                 });
-
                 currentMap.items.forEach((item: Item) => {
                     currentMap.items.forEach((item2: Item) => {
                         currentPhysics.add(item, item2);
                     });
                     item.update();
                 });
-
-               
-
                 currentMap.players.forEach((player: Player) => {
                     if (!player.isYou) {
                         player.udpate();
@@ -92,8 +86,6 @@ export class Game {
         cvs.style.height = `${boundingBox.height >= this.cvsMinHeight / pixelRatio ? boundingBox.height : this.cvsMinHeight / pixelRatio}px`;
     }
 
-
-
     public moveGame = () => {
         arena.pos.x = currentPlayer.camera.vel.x;
         arena.pos.y += arena.vel.y;
@@ -105,7 +97,6 @@ export class Game {
 }
 
 export const server = new Socket();
-
 
 const animate = () => {
     server.update();

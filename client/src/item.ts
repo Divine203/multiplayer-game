@@ -13,18 +13,16 @@ export class Item {
     public color: string;
 
     public isPlayer: boolean = false;
-
     public isRest: boolean = false;
+    public isThrowable: boolean;
 
     public noGravity: boolean = false;
-
-    public isThrowable: boolean;
     public xSpeed: number = 25;
     public ySpeed: number = 30;
     public isThrown: boolean = false;
     public throwRight: boolean = true;
     public friction: number = 0.02;
-    public noFriction = false;
+    public noFriction = false;  
 
 
     constructor({ x, y, width, height, color = 'yellow', isThrowable = false, throwRight = false }: IItem) {
@@ -58,7 +56,7 @@ export class Item {
     throw(angle: number, speed: number) {
         if (this.isThrowable) {
             const angleInRadians = (angle * Math.PI) / 180;
-            
+   
             this.xSpeed = speed * Math.cos(angleInRadians);
             this.ySpeed = speed * Math.sin(angleInRadians);
 

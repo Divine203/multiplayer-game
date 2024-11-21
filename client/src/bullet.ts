@@ -1,16 +1,13 @@
 import { GunType } from "./data.enum";
 import { arena, cameraState, ctx, currentMap, currentPhysics, currentPlayer, gunConfigurations, roomId, sprites } from "./general";
 import { Vec2 } from "./interfaces.interface";
-import { server } from "./main";
 import { Player } from "./player";
 import { ISpriteData } from "./sprite";
 
 export class Bullet {
-
     public bulletSprite: ISpriteData;
     public currentFrameOffsetX: number = 0;
     public isRight: boolean;
-
     public bulletSprites: any = {
         pistol_bullet: {
             ...sprites.createSprite(90, 1450, 30, 10),
@@ -50,7 +47,6 @@ export class Bullet {
     public height: number;
     public speed: number;
     public initYPos: number;
-
     public hasHitObject: boolean = false
 
     constructor({x, y, bulletType, gunType, isRight}: IBullet) {
@@ -117,8 +113,6 @@ export class Bullet {
         this.detectHits();
     }
 }
-
-
 
 export interface IBullet {
     x: number;

@@ -15,22 +15,16 @@ export class Gun {
     public height: number;
     public gunType: GunType;
     public isPicked: boolean = false;
-
     public gunSprite: ISpriteData;
     public fireRate: number = 0;
     public damage: number = 0;
-
     public xCorrection: number = 0;
     public yCorrection: number = 0;
-
     public noGravity: boolean = false;
     public friction: number = 0.05;
-
     public posX: number = 0;
     public currentFrameOffsetX: number = 0;
-
     private lastShotTime: number = 0;
-
     public gunSprites: any = {
         pistol: {
             ...sprites.createSprite(30, 1300, 90, 60),
@@ -63,9 +57,7 @@ export class Gun {
             recommendedHeight: 35
         }
     };
-
     public bulletsShot: any[] = [];
-
 
     constructor({ x, y, gunType, player }: IGun) {
         this.player = player;
@@ -88,8 +80,6 @@ export class Gun {
 
         this.posX = this.pos.x;
         ctx.save();
-
-
 
         if (this.isPicked) {
             ctx.translate(this.player.width ,0);
@@ -146,11 +136,6 @@ export class Gun {
         } else {
             this.yCorrection = 15;
         }
-
-
-        // ctx.strokeStyle = 'red';
-        // ctx.strokeRect(this.posX + this.xCorrection,this.pos.y + this.yCorrection,this.width, this.height);
-
 
         ctx.drawImage(sprites.sheet,
             this.gunSprite.sX + this.currentFrameOffsetX,
@@ -214,7 +199,7 @@ export class Gun {
             if (!this.noGravity) this.vel.y += gravity;
 
             this.vel.y += gravity;
-
+            
             // fix bouncing effect as platform moves with camera
             if (cameraState == 'up') {
                 this.pos.y += arena.speed;

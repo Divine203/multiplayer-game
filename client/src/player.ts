@@ -1,5 +1,5 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, roomId, sprites, currentPhysics, cvs } from "./general";
+import { ctx, currentGame, currentMap, arena, sprites, currentPhysics } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
@@ -43,7 +43,7 @@ export class Player {
     public primaryGun: any;
     public secondaryGun: any;
     public currentGun: any;
-    public viewedGun: any; // [gun, index] => index is the gun's position in the world!
+    public viewedGun: any; // [gun, index] => index is the gun's position in the world array!
 
     public throwProjectileAngle: number = 0;
     public initYPos: number = 0;
@@ -144,13 +144,8 @@ export class Player {
         isThrowing: false,
         isThrown: false
     }
-
     public currentSprite: ISpriteData = this.sprites.idleRight;
-
     public lastPos: any;
-
-    public horRay: any;
-    public verRay: any;
 
     public idleCount: number = 10;
 
@@ -224,7 +219,6 @@ export class Player {
 
     public validateViewedGun() {
         // be 100% certain the player is within the gun's reach
-
         if (this.viewedGun) {
             if (!(['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, this.viewedGun[0])))) { // if the guns aren't colliding
                 this.viewedGun = null;
@@ -404,8 +398,7 @@ export class Player {
             this.currentGun.gunSprite.sY,
             this.currentGun.gunSprite.cropWidth,
             this.currentGun.gunSprite.cropHeight,
-            0,
-            0,
+            0,0,
             this.currentGun.gunSprite.recommendedWidth,
             this.currentGun.gunSprite.recommendedHeight
         );
@@ -414,7 +407,6 @@ export class Player {
 
     public draw() {
         const offsetX = this.currentSprite.animate ? (this.currentSprite.animation as any).frameCut * (this.currentSprite.animation as any).frameX : 0;
-
         let xCorrection = 0;
         let yCorrection = 0;
 

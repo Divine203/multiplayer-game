@@ -8,9 +8,7 @@ export class Tile {
     public height: number;
     public initYPos: number;
     public initXPos: number;
-
     public color: string;
-
     public isIndicatorTile: boolean = false;
 
     constructor({ x, y, width, height, color = '#252e2c', isIndicatorTile = false }: ITile) {
@@ -38,7 +36,6 @@ export class Tile {
         this.draw();
     }
 }
-
 
 export interface ITile {
     x: number,
