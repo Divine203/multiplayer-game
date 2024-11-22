@@ -8,6 +8,7 @@ import { Player } from "./player";
 import { ISpriteData } from "./sprite";
 
 export class Gun {
+    public shot: boolean = false;
     public player: Player | any = null;
     public pos: any;
     public vel: any;
@@ -57,6 +58,37 @@ export class Gun {
             recommendedHeight: 35
         }
     };
+
+    public gunFireSprites: any = {
+        machinGunFire1: {
+            ...sprites.createSprite(2510, 1150, 180, 260),
+            recommendedWidth: 55,
+            recommendedHeight: 75
+        },
+        machinGunFire2: {
+            ...sprites.createSprite(2450, 1500, 240, 130),
+            recommendedWidth: 95,
+            recommendedHeight: 45
+        },
+
+        pistolFire: {
+            ...sprites.createSprite(2850, 1240, 60, 70),
+            recommendedWidth: 25,
+            recommendedHeight: 30
+        },
+
+        shotGunFire: {
+            ...sprites.createSprite(2460, 1750, 240, 110),
+            recommendedWidth: 95,
+            recommendedHeight: 35
+        },
+
+        smallExplosion: {
+            ...sprites.createSprite(2830, 1500, 100, 100),
+            recommendedWidth: 50,
+            recommendedHeight: 50,
+        }
+    };
     public bulletsShot: any[] = [];
 
     constructor({ x, y, gunType, player }: IGun) {
@@ -82,7 +114,7 @@ export class Gun {
         ctx.save();
 
         if (this.isPicked) {
-            ctx.translate(this.player.width ,0);
+            ctx.translate(this.player.width, 0);
 
             if (this.player.state.isRight) {
                 ctx.scale(1, 1);
@@ -128,11 +160,15 @@ export class Gun {
                 }
             }
 
-            if((this.player.state.isDoubleJump && (this.gunType == GunType.PISTOL || this.gunType == GunType.SMG)) || !this.player.state.isActive) {
+            if ((this.player.state.isDoubleJump && (this.gunType == GunType.PISTOL || this.gunType == GunType.SMG)) || !this.player.state.isActive) {
                 this.width = 0; // dont show the gun
             } else {
                 this.width = (this.gunSprite.recommendedWidth as number);
             }
+            if (this.shot) {
+                this.drawGunFire();
+            }
+
         } else {
             this.yCorrection = 15;
         }
@@ -147,15 +183,53 @@ export class Gun {
             this.width,
             this.height
         );
-
         ctx.restore();
     }
+
+    drawGunFire() {
+        let { machinGunFire1, machinGunFire2, pistolFire, shotGunFire, smallExplosion } = this.gunFireSprites;
+        let sprite: ISpriteData = machinGunFire1;
+        let xAdd = 75;
+        let yAdd = -33;
+
+        if (this.gunType === GunType.M14) {
+            sprite = machinGunFire2;
+            yAdd = -14;
+        } else if (this.gunType === GunType.PISTOL) {
+            sprite = pistolFire;
+            xAdd = 40;
+            yAdd = -14;
+        } else if (this.gunType === GunType.SMG) {
+            xAdd = 60;
+            yAdd = -28;
+        } else if (this.gunType === GunType.SHOTGUN) {
+            sprite = shotGunFire;
+            yAdd = -15;
+        } else if (this.gunType === GunType.BAZUKA) {
+            sprite = smallExplosion;
+            xAdd = 115;
+            yAdd = -15;
+        }
+
+        ctx.drawImage(sprites.sheet,
+            sprite.sX,
+            sprite.sY,
+            sprite.cropWidth,
+            sprite.cropHeight,
+            this.posX + this.xCorrection + xAdd,
+            this.pos.y + this.yCorrection + yAdd,
+            sprite.recommendedWidth as number,
+            sprite.recommendedHeight as number,
+        );
+    }
+
 
     shoot() {
         const now = Date.now();
         const timeBetweenShots = 1000 / this.fireRate;
 
         if (now - this.lastShotTime >= timeBetweenShots) {
+            this.shot = true;
             this.lastShotTime = now;
             this.player.state.isActive = true;
 
@@ -168,14 +242,15 @@ export class Gun {
             });
             bullet.vel.x = bullet.speed;
             this.bulletsShot.push(bullet);
-    
+
+            setTimeout(() => { this.shot = false }, 100);
+
             if (this.player.isYou) {
                 server.host.emit('player-shoot', {
                     roomId: this.player.currentRoom
                 });
             }
-        } 
-     
+        }
     }
 
     updateBullets() {
@@ -199,7 +274,7 @@ export class Gun {
             if (!this.noGravity) this.vel.y += gravity;
 
             this.vel.y += gravity;
-            
+
             // fix bouncing effect as platform moves with camera
             if (cameraState == 'up') {
                 this.pos.y += arena.speed;

@@ -1,5 +1,5 @@
 import { Player } from "./player";
-import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics } from "./general";
+import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics, sprites } from "./general";
 import { IKeys } from "./interfaces.interface";
 import { Tile } from "./tile";
 import { Item } from "./item";
@@ -25,6 +25,8 @@ export class Game {
     }
 
     private render(): void {
+
+
         
         if (!_ui.isMainMenuActive && !_ui.inRoom) {
             ctx.clearRect(0, 0, cvs.width, cvs.height);

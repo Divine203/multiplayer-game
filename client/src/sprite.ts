@@ -51,7 +51,7 @@ export class Sprites {
             const offsetX = sprite.animate ? (sprite.animation as any).frameCut * (sprite.animation as any).frameX : 0;
 
             const width = 50;
-            const height = 15;
+            const height = 50;
 
             ctx.fillStyle = 'lime';
             ctx.fillRect(75, 75, 150, 150);
