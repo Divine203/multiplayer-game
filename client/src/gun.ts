@@ -108,73 +108,40 @@ export class Gun {
     }
 
     draw() {
-        this.currentFrameOffsetX = this.gunSprite.animate ? (this.gunSprite.animation as any).frameCut * (this.gunSprite.animation as any).frameX : 0;
-
         this.posX = this.pos.x;
         ctx.save();
 
         if (this.isPicked) {
             ctx.translate(this.player.width, 0);
 
-            if (this.player.state.isRight) {
-                ctx.scale(1, 1);
+            // Flip horizontally if the player is facing left
+            if (!this.player.state.isRight) {
+                this.posX *= -1;
+                ctx.scale(-1, 1);
+            }
+
+            // Apply position corrections based on gun type and state
+            this.applyPositionCorrection();
+
+            // Hide gun if conditions require it
+            if (this.shouldHideGun()) {
+                this.width = 0; // Don't show the gun
             } else {
-                this.posX = this.posX * -1;
-                ctx.scale(-1, 1); // Flip horizontally
+                this.width = this.gunSprite.recommendedWidth as number;
             }
 
-            if (this.gunType == GunType.BAZUKA) {
-                this.xCorrection = this.player.state.isRight ? -80 : 17;
-                this.yCorrection = -20;
-            } else if (this.gunType == GunType.AK47) {
-                this.xCorrection = this.player.state.isRight ? -30 : 30;
-                this.yCorrection = -10;
-
-                if (this.player.state.isSlide) {
-                    this.xCorrection = this.player.state.isRight ? -14 : 20;
-                }
-
-            } else if (this.gunType == GunType.SMG) {
-                this.xCorrection = this.player.state.isRight ? -8 : 60;
-                this.yCorrection = -14;
-            } else if (this.gunType == GunType.M14) {
-                this.xCorrection = this.player.state.isRight ? -34 : 40;
-                this.yCorrection = -20;
-
-                if (this.player.state.isSlide) {
-                    this.xCorrection = this.player.state.isRight ? -14 : 20;
-                }
-            } else if (this.gunType == GunType.PISTOL) {
-                this.xCorrection = this.player.state.isRight ? -4 : 60;
-                this.yCorrection = -14;
-
-                if (this.player.state.isSlide) {
-                    this.xCorrection = this.player.state.isRight ? 10 : 25;
-                }
-            } else if (this.gunType == GunType.SHOTGUN) {
-                this.xCorrection = this.player.state.isRight ? -14 : 50;
-                this.yCorrection = -14;
-
-                if (this.player.state.isSlide) {
-                    this.xCorrection = this.player.state.isRight ? 8 : 25;
-                }
-            }
-
-            if ((this.player.state.isDoubleJump && (this.gunType == GunType.PISTOL || this.gunType == GunType.SMG)) || !this.player.state.isActive) {
-                this.width = 0; // dont show the gun
-            } else {
-                this.width = (this.gunSprite.recommendedWidth as number);
-            }
+            // Draw gunfire effect if shooting
             if (this.shot) {
                 this.drawGunFire();
             }
-
         } else {
-            this.yCorrection = 15;
+            this.yCorrection = 15; // Default correction when not picked
         }
 
-        ctx.drawImage(sprites.sheet,
-            this.gunSprite.sX + this.currentFrameOffsetX,
+        // Draw the gun sprite
+        ctx.drawImage(
+            sprites.sheet,
+            this.gunSprite.sX,
             this.gunSprite.sY,
             this.gunSprite.cropWidth,
             this.gunSprite.cropHeight,
@@ -183,9 +150,36 @@ export class Gun {
             this.width,
             this.height
         );
+
         ctx.restore();
     }
 
+    // Helper function to apply position corrections
+    private applyPositionCorrection(): void {
+        const { isRight, isSlide } = this.player.state;
+
+        const corrections = {
+            [GunType.BAZUKA]: { x: isRight ? -80 : 17, y: -20 },
+            [GunType.AK47]: { x: isSlide ? (isRight ? -14 : 20) : isRight ? -30 : 30, y: -10 },
+            [GunType.SMG]: { x: isRight ? -8 : 60, y: -14 },
+            [GunType.M14]: { x: isSlide ? (isRight ? -14 : 20) : isRight ? -34 : 40, y: -20 },
+            [GunType.PISTOL]: { x: isSlide ? (isRight ? 10 : 25) : isRight ? -4 : 60, y: -14 },
+            [GunType.SHOTGUN]: { x: isSlide ? (isRight ? 8 : 25) : isRight ? -14 : 50, y: -14 },
+        };
+
+        const correction = corrections[this.gunType] || { x: 0, y: 0 };
+        this.xCorrection = correction.x;
+        this.yCorrection = correction.y;
+    }
+
+    // Helper function to determine if the gun should be hidden
+    private shouldHideGun(): boolean {
+        const { isDoubleJump, isActive } = this.player.state;
+        return (
+            (isDoubleJump && (this.gunType === GunType.PISTOL || this.gunType === GunType.SMG)) ||
+            !isActive
+        );
+    }
     drawGunFire() {
         let { machinGunFire1, machinGunFire2, pistolFire, shotGunFire, smallExplosion } = this.gunFireSprites;
         let sprite: ISpriteData = machinGunFire1;

@@ -24,25 +24,12 @@ export class Physics {
 
 
     public top(char: any, object: Tile): boolean | any {
-        let result: boolean = false;
-        result = (
-            this.topVar(char, object, 14) ||
-            this.topVar(char, object, 13) ||
-            this.topVar(char, object, 12) ||
-            this.topVar(char, object, 11) ||
-            this.topVar(char, object, 10) ||
-            this.topVar(char, object, 9) ||
-            this.topVar(char, object, 8) ||
-            this.topVar(char, object, 7) ||
-            this.topVar(char, object, 6) ||
-            this.topVar(char, object, 5) ||
-            this.topVar(char, object, 4) ||
-            this.topVar(char, object, 3) ||
-            this.topVar(char, object, 2) ||
-            this.topVar(char, object, 1) ||
-            this.topVar(char, object, 0)
-        );
-        return result;
+        for (let i = 14; i >= 0; i--) {
+            if (this.topVar(char, object, i)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public left(char: any, object: Tile): boolean {

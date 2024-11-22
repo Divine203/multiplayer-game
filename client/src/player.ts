@@ -160,6 +160,8 @@ export class Player {
         this.height = 120;
         this.defHeight = 120;
         this.lastPos = { x: 100, y: 0 };
+
+        this.currentPlatform = null;
     }
 
     public init() {
@@ -281,74 +283,68 @@ export class Player {
             this.shouldSlide = false;
             this.slideSpeed = 20;
 
-            // only push the player up to increase back he's height IF he's on a platform
-            if (this.vel.y == 1.5 || this.vel.y == 0) this.pos.y = this.pos.y - this.defHeight / 2;
+            // only push the player up to increase back their height IF they're on a platform
+            if (this.vel.y == 1.5 || this.vel.y == 0) this.pos.y = this.pos.y - this.defHeight / 1.5;
             this.height = this.defHeight;
         };
     }
 
-    public updateCurrentSprite(): void {
-        if (!this.state.isJump && !this.state.isDoubleJump && !this.state.isSlide && !this.state.isThrowing && !this.state.isThrown) {
-            this.loopAnimation = true;
-            if (!this.state.isMoving) {
-                this.state.isSlide = false;
-                if (this.state.isRight) {
-                    this.currentSprite = !this.state.isActive ? this.sprites.idleRight : this.sprites.shootRight;
-                } else if (this.state.isLeft) {
-                    this.currentSprite = !this.state.isActive ? this.sprites.idleLeft : this.sprites.shootLeft;
-                }
-            } else {
-                this.loopAnimation = true;
-                this.state.isSlide = false;
-                if (this.state.isRight) {
-                    this.currentSprite = this.sprites.runRight;
-                    this.reverseAnimation = false;
-                } else if (this.state.isLeft) {
-                    this.currentSprite = this.sprites.runLeft;
-                    this.reverseAnimation = true;
-                }
-            }
-        } else {
-            this.loopAnimation = false;
-            if (this.state.isJump) {
-                this.state.isSlide = false;
-                if (this.state.isRight) {
-                    this.currentSprite = this.sprites.jumpRight;
-                } else if (this.state.isLeft) {
-                    this.currentSprite = this.sprites.jumpLeft;
-                }
-            }
-            if (this.state.isThrowing) {
-                if (this.state.isRight) {
-                    this.currentSprite = this.sprites.throwingRight;
-                } else if (this.state.isLeft) {
-                    this.currentSprite = this.sprites.throwingLeft;
-                }
-            } else if (this.state.isThrown) {
-                if (this.state.isRight) {
-                    this.currentSprite = this.sprites.thrownRight;
-                } else if (this.state.isLeft) {
-                    this.currentSprite = this.sprites.thrownLeft;
-                }
-            } else if (this.state.isDoubleJump) {
-                this.state.isSlide = false;
-                if (this.state.isRight) {
-                    this.reverseAnimation = false;
-                    this.currentSprite = this.sprites.doubleJumpRight;
-                } else if (this.state.isLeft) {
-                    this.reverseAnimation = true;
-                    this.currentSprite = this.sprites.doubleJumpLeft;
-                }
-            } else if (this.state.isSlide) {
-                if (this.state.isRight) {
-                    this.currentSprite = this.sprites.slideRight;
-                } else if (this.state.isLeft) {
-                    this.currentSprite = this.sprites.slideLeft;
-                }
-            }
-        }
+    // Helper function for setting the sprite
+    private setSprite(sprite: any, reverse: boolean = false): void {
+        this.currentSprite = sprite;
+        this.reverseAnimation = reverse;
+        this.loopAnimation = !this.state.isJump && !this.state.isDoubleJump && !this.state.isSlide;
     }
 
+    public updateCurrentSprite(): void {
+        // Reset animation properties
+        this.loopAnimation = true;
+        this.reverseAnimation = false;
+
+        // Handle states
+        if (this.state.isJump) {
+            this.setSprite(this.state.isRight ? this.sprites.jumpRight : this.sprites.jumpLeft);
+            return;
+        }
+
+        if (this.state.isDoubleJump) {
+            this.setSprite(
+                this.state.isRight ? this.sprites.doubleJumpRight : this.sprites.doubleJumpLeft,
+                this.state.isLeft
+            );
+            return;
+        }
+
+        if (this.state.isSlide) {
+            this.setSprite(this.state.isRight ? this.sprites.slideRight : this.sprites.slideLeft);
+            return;
+        }
+
+        if (this.state.isThrowing) {
+            this.setSprite(this.state.isRight ? this.sprites.throwingRight : this.sprites.throwingLeft);
+            return;
+        }
+
+        if (this.state.isThrown) {
+            this.setSprite(this.state.isRight ? this.sprites.thrownRight : this.sprites.thrownLeft);
+            return;
+        }
+
+        // Default behavior: idle or running
+        if (!this.state.isMoving) {
+            this.setSprite(
+                this.state.isRight
+                    ? (!this.state.isActive ? this.sprites.idleRight : this.sprites.shootRight)
+                    : (!this.state.isActive ? this.sprites.idleLeft : this.sprites.shootLeft)
+            );
+        } else {
+            this.setSprite(
+                this.state.isRight ? this.sprites.runRight : this.sprites.runLeft,
+                this.state.isLeft
+            );
+        }
+    }
+    
     public updateProjectile() {
         const rotSpeed = 2;
         if (currentGame.keys.a.pressed || currentGame.keys.z.pressed) {
@@ -430,11 +426,11 @@ export class Player {
             yTranslate = this.pos.y;
         }
 
-        if(this.secondaryGun.gunType === GunType.PISTOL) {
+        if (this.secondaryGun.gunType === GunType.PISTOL) {
             yTranslate = this.pos.y + 75;
             xTrasnlate = this.state.isRight ? this.pos.x + 20 : this.pos.x + 20;
-            
-            if(this.state.isSlide) {
+
+            if (this.state.isSlide) {
                 yTranslate = this.pos.y + 25;
             }
         }
@@ -563,7 +559,7 @@ export class Player {
             this.drawSecondaryGun();
         }
 
-        if(this.currentPlatform) {
+        if (this.currentPlatform) {
             console.log('yo!');
         }
 
