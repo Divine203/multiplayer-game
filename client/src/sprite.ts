@@ -3,10 +3,16 @@ import { ctx, currentPlayer } from "./general";
 export class Sprites {
     public sheet: HTMLImageElement;
 
+    public explosionAnimation: ISpriteData = {
+        ...this.createSpriteAnimation(130, 1740, 160, 140, true, 9, 5, 180),
+    }
+
     constructor() {
         this.sheet = new Image();
         this.sheet.src = "/assets/sheet.png";
     }
+
+    
     
     public createSprite(sX: number, sY: number, cropWidth: number, cropHeight: number): ISpriteData {
         return {
@@ -50,25 +56,27 @@ export class Sprites {
         if (this.sheet.complete) {
             const offsetX = sprite.animate ? (sprite.animation as any).frameCut * (sprite.animation as any).frameX : 0;
 
-            const width = 50;
-            const height = 50;
+            const width = 90;
+            const height = 90;
 
             ctx.fillStyle = 'lime';
             ctx.fillRect(75, 75, 150, 150);
 
             ctx.strokeStyle = 'red';
-            ctx.strokeRect(currentPlayer.pos.x,  currentPlayer.pos.y, width, height);
+            ctx.strokeRect(75,  75, width, height);
 
             ctx.drawImage(this.sheet,
                 sprite.sX + offsetX,
                 sprite.sY,
                 sprite.cropWidth,
                 sprite.cropHeight,
-                currentPlayer.pos.x,
-                currentPlayer.pos.y,
+                75,
+                75,
                 width,
                 height
             );
+
+
         };
 
         this.sheet.onerror = () => {

@@ -25,9 +25,6 @@ export class Game {
     }
 
     private render(): void {
-
-
-        
         if (!_ui.isMainMenuActive && !_ui.inRoom) {
             ctx.clearRect(0, 0, cvs.width, cvs.height);
             ctx.fillStyle = "#495250";
@@ -55,7 +52,7 @@ export class Game {
                     if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](currentPlayer, gun))) {
                         currentPlayer.viewedGun = [gun, index];
                     }
-                    
+
                     gun.update();
                 });
                 currentMap.items.forEach((item: Item) => {
@@ -71,6 +68,12 @@ export class Game {
                 });
             }
             //
+
+            // if (currentPlayer) {
+            //     sprites.testDraw(sprites.explosionAnimation);
+            //     sprites.animate(sprites.explosionAnimation, false, false);
+            // }
+
             this.moveGame();
             currentPlayer.udpate();
         }

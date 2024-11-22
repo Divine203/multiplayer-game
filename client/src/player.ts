@@ -1,5 +1,5 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, sprites, currentPhysics } from "./general";
+import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, cameraState } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
@@ -40,6 +40,7 @@ export class Player {
     public isPlayer: boolean = true;
     public currentPlatform: Tile | any;
     public camera: any;
+    public noGravity: boolean = false;
 
     public secondaryGun: any;
     public currentGun: any;
@@ -124,7 +125,7 @@ export class Player {
             recommendedHeight: 100
         },
         thrownLeft: {
-            ...sprites.createSprite(1590, 590, 120, 140),
+            ...sprites.createSprite(1580, 590, 120, 140),
             recommendedWidth: 95,
             recommendedHeight: 100
         }
@@ -254,6 +255,7 @@ export class Player {
             isThrowable: true,
             throwRight: this.state.isRight
         });
+        item.isGrenade = true;
         item.throw(this.state.isRight ? this.throwProjectileAngle * -1 : this.throwProjectileAngle, 30);
         this.throwProjectileAngle = 0;
         currentMap.items.push(item);
@@ -344,7 +346,7 @@ export class Player {
             );
         }
     }
-    
+
     public updateProjectile() {
         const rotSpeed = 2;
         if (currentGame.keys.a.pressed || currentGame.keys.z.pressed) {
@@ -515,7 +517,7 @@ export class Player {
             this.pos.y += this.vel.y;
             this.pos.x += this.vel.x;
 
-            this.vel.y += gravity;
+            if (!this.noGravity) this.vel.y += gravity;
 
             this.camera.followPlayer(currentGame.keys as IKeys);
             this.updateProjectile();
@@ -558,11 +560,7 @@ export class Player {
         if (this.secondaryGun) {
             this.drawSecondaryGun();
         }
-
-        if (this.currentPlatform) {
-            console.log('yo!');
-        }
-
+        
         this.draw();
 
 
