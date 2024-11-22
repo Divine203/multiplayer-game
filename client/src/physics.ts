@@ -1,7 +1,7 @@
 import { Game } from "./main";
 import { Item } from "./item";
 import { Tile } from "./tile";
-import { currentGame, currentPlayer } from "./general";
+import { cameraState, currentGame, currentPlayer } from "./general";
 
 export const gravity: number = 1.5;
 
@@ -24,7 +24,8 @@ export class Physics {
 
 
     public top(char: any, object: Tile): boolean | any {
-        const result =  (
+        let result: boolean = false;
+        result = (
             this.topVar(char, object, 14) ||
             this.topVar(char, object, 13) ||
             this.topVar(char, object, 12) ||
@@ -43,7 +44,7 @@ export class Physics {
         );
         return result;
     }
-    
+
     public left(char: any, object: Tile): boolean {
         return (char.pos.x + char.width >= object.pos.x &&
             char.pos.x + char.width + char.vel.x <= object.pos.x + object.width &&
@@ -66,31 +67,36 @@ export class Physics {
     }
 
     public add = (char: any, platform: Tile | any): any => {
-        if (this.top(char, platform)) { 
+        if (this.top(char, platform)) {
             char.vel.y = 0;
             char.pos.y = (platform.pos.y - char.height) - 10;
-            if(char.isPlayer) char.currentPlatform = platform;
-            if(char.isPlayer) char.camera.vel.y = 0;
-        } 
+            if (char.isPlayer) {
+                char.currentPlatform = platform;
+            }
+        } else {
+            if (char.isPlayer) {
+                char.currentPlatform = null;
+            }
+        }
         if (this.left(char, platform)) {
             char.vel.x = 0;
-            if(char.isPlayer) char.camera.vel.x = 0;
-            if(char.isPlayer) {
+            if (char.isPlayer) char.camera.vel.x = 0;
+            if (char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x - char.width) - 10;
                 if (currentGame.keys.left.pressed && char == currentPlayer) currentPlayer.vel.x = -10;
             }
         }
         if (this.right(char, platform)) {
             char.vel.x = 0;
-            if(char.isPlayer) char.camera.vel.x = 0;
-            if(char.isPlayer) {
+            if (char.isPlayer) char.camera.vel.x = 0;
+            if (char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x + platform.width) + 10;
                 if (currentGame.keys.right.pressed && char == currentPlayer) currentPlayer.vel.x = 10;
-            } 
+            }
         }
         if (this.bottom(char, platform)) {
             char.vel.y += 45;
-            if(char.isPlayer) char.camera.vel.y = 0;
+            if (char.isPlayer) char.camera.vel.y = 0;
         }
     }
 

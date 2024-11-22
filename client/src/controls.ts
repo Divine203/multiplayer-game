@@ -54,9 +54,9 @@ export class Controls {
                     break;
 
                 case 'x':
-                    if (currentPlayer.canShoot && currentPlayer.primaryGun) {
+                    if (currentPlayer.canShoot && currentPlayer.currentGun) {
                         currentPlayer.idleCount = 10;
-                        currentPlayer.primaryGun.shoot();
+                        currentPlayer.currentGun.shoot();
                         currentPlayer.canShoot = false;
                     }
                     break
@@ -90,7 +90,15 @@ export class Controls {
                 case 'y':
                     if (!currentGame.keys.t.pressed) {
                         currentGame.keys.y.pressed = true;
-                        currentPlayer.dropGun();
+                        currentPlayer.dropGun(true);
+                    }
+                    break;
+
+                case 'v':
+                    if (!currentGame.keys.t.pressed && !currentGame.keys.y.pressed) {
+                        if (currentPlayer.secondaryGun) {
+                            currentPlayer.switchGuns();
+                        }
                     }
                     break;
 

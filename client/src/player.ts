@@ -6,6 +6,7 @@ import { Tile } from "./tile";
 import { Item } from "./item";
 import { Camera } from "./camera";
 import { ISpriteData } from "./sprite";
+import { GunType } from "./data.enum";
 
 
 export class Player {
@@ -40,7 +41,6 @@ export class Player {
     public currentPlatform: Tile | any;
     public camera: any;
 
-    public primaryGun: any;
     public secondaryGun: any;
     public currentGun: any;
     public viewedGun: any; // [gun, index] => index is the gun's position in the world array!
@@ -154,7 +154,6 @@ export class Player {
         this.id = id;
         this.name = name;
         this.physics = new Physics();
-        this.primaryGun;
 
         this.camera = new Camera(this);
         this.width = 37.5;
@@ -169,31 +168,42 @@ export class Player {
         this.vel = { x: 0, y: 0 } as Vec2;
     }
 
+    public switchGuns() {
+        let secondaryGun = this.secondaryGun;
+        this.secondaryGun = this.currentGun;
+        this.currentGun = secondaryGun;
+    }
+
+    private pickUtil = () => {
+        this.viewedGun[0].isPicked = true;
+        this.viewedGun[0].player = this;
+        this.currentGun = this.viewedGun[0];
+        currentMap.guns.splice(this.viewedGun[1], 1);
+    }
+
     public pickGun(): void {
         if (this.canPick) {
             this.canPick = false;
             if (this.viewedGun) {
-                if (this.currentGun) {
+                if (this.currentGun && !this.secondaryGun) {
+                    this.viewedGun[0].isPicked = true;
+                    this.viewedGun[0].player = this;
+                    this.secondaryGun = this.viewedGun[0];
+                    currentMap.guns.splice(this.viewedGun[1], 1);
+                } else if (!this.currentGun && !this.secondaryGun) {
+                    this.pickUtil();
+                } else {
                     this.dropGun();
+                    this.pickUtil();
                 }
-
-                this.viewedGun[0].isPicked = true;
-                this.viewedGun[0].player = this;
-                this.primaryGun = this.viewedGun[0]; // [gun, index]
-                this.currentGun = this.primaryGun;
-                currentMap.guns.splice(this.viewedGun[1], 1);
             }
-
-            setTimeout(() => {
-                this.canPick = true;
-            }, 1000);
-
+            setTimeout(() => { this.canPick = true }, 1000);
         }
     }
 
-    public dropGun(): void {
+    public dropGun(replaceWithSecondary: boolean = false): void {
         const util = () => {
-            if (this.currentGun && this.primaryGun) {
+            if (this.currentGun && this.currentGun) {
                 let gunToBeDropped = this.currentGun;
                 gunToBeDropped.isPicked = false;
                 gunToBeDropped.player = null;
@@ -201,8 +211,14 @@ export class Player {
                 gunToBeDropped.vel.x = this.state.isRight ? 15 : -15;
                 currentMap.guns.push(gunToBeDropped);
 
-                this.currentGun = null;
-                this.primaryGun = null;
+                if (replaceWithSecondary && this.secondaryGun) {
+                    this.currentGun = this.secondaryGun;
+                    this.secondaryGun = null;
+                } else {
+                    this.currentGun = null;
+                    this.idleCount = 10;
+                    this.state.isActive = false;
+                }
             }
         }
 
@@ -398,9 +414,42 @@ export class Player {
             this.currentGun.gunSprite.sY,
             this.currentGun.gunSprite.cropWidth,
             this.currentGun.gunSprite.cropHeight,
-            0,0,
+            0, 0,
             this.currentGun.gunSprite.recommendedWidth,
             this.currentGun.gunSprite.recommendedHeight
+        );
+        ctx.restore();
+    }
+
+    public drawSecondaryGun() {
+        let xTrasnlate = this.state.isRight ? this.pos.x - 20 : this.pos.x + 20;
+        let yTranslate = this.pos.y + 35;
+
+        if (this.state.isSlide) {
+            xTrasnlate = this.state.isRight ? this.pos.x - 20 : this.pos.x + 60;
+            yTranslate = this.pos.y;
+        }
+
+        if(this.secondaryGun.gunType === GunType.PISTOL) {
+            yTranslate = this.pos.y + 75;
+            xTrasnlate = this.state.isRight ? this.pos.x + 20 : this.pos.x + 20;
+            
+            if(this.state.isSlide) {
+                yTranslate = this.pos.y + 25;
+            }
+        }
+
+        ctx.save();
+        ctx.translate(xTrasnlate, yTranslate);
+        ctx.rotate(45 * (Math.PI / 180));
+        ctx.drawImage(sprites.sheet,
+            this.secondaryGun.gunSprite.sX,
+            this.secondaryGun.gunSprite.sY,
+            this.secondaryGun.gunSprite.cropWidth,
+            this.secondaryGun.gunSprite.cropHeight,
+            0, 0,
+            this.secondaryGun.gunSprite.recommendedWidth,
+            this.secondaryGun.gunSprite.recommendedHeight
         );
         ctx.restore();
     }
@@ -448,10 +497,15 @@ export class Player {
     public udpate() {
         this.updateCurrentSprite();
 
-        if (this.idleCount > 0) {
-            this.state.isActive = true;
-            this.idleCount -= 0.05
-        };
+        if (this.currentGun) {
+            if (this.idleCount > 0) {
+                this.state.isActive = true;
+                this.idleCount -= 0.05
+            };
+        } else {
+            this.state.isActive = false;
+            this.idleCount = 10;
+        }
 
         if (this.idleCount <= 1) {
             this.state.isActive = false;
@@ -505,11 +559,19 @@ export class Player {
             this.slide();
         }
 
+        if (this.secondaryGun) {
+            this.drawSecondaryGun();
+        }
 
+        if(this.currentPlatform) {
+            console.log('yo!');
+        }
 
         this.draw();
-        if (this.primaryGun) {
-            this.primaryGun.update();
+
+
+        if (this.currentGun) {
+            this.currentGun.update();
         }
     }
 }
