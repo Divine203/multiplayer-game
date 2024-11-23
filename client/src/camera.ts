@@ -1,10 +1,6 @@
-import { arena, ctx, currentPlayer, cvs, setCameraState, currentGame, currentMap, MAP_BASE } from "./general";
-import { IKeys } from "./interfaces.interface";
-import { Item } from "./item";
-import { Game } from "./main";
+import { arena, ctx, cvs, setCameraState, currentGame, currentMap, MAP_BASE } from "./general";
 import { Player } from "./player";
 import { Tile } from "./tile";
-import { utils } from "./utils";
 
 export class Camera {
     public pos: any;
@@ -17,7 +13,7 @@ export class Camera {
 
     constructor(player: Player) {
         this.player = player;
-        this.width = 1000;
+        this.width = cvs.width - (cvs.width/5);
         this.height = 100;
         this.pos = {
             x: 0,
@@ -63,7 +59,7 @@ export class Camera {
             x: 0,
             y: 0
         };
-        this.width = 1000;
+        this.width = cvs.width - (cvs.width/5);
         this.height = 700;
 
         // up down movement
@@ -91,7 +87,6 @@ export class Camera {
                 if (this.player.camera.pos.x + this.player.camera.width < arena.width) {
                     this.player.camera.vel.x = -(this.player.speed);
                 }
-            
             }
         } else if (currentGame.keys.left.pressed) {
             this.player.vel.x = -this.player.speed;
@@ -104,18 +99,23 @@ export class Camera {
             this.player.vel.x = 0;
         }
 
+        if(this.player.shouldSlide) {
+            if(this.player.camera.isCamLeft()) {
+                if (this.player.camera.pos.x + this.player.camera.width < arena.width) {
+                    this.player.camera.vel.x = -(this.player.speed);
+                }
+            }
+            else if (this.player.camera.isCamRight()) {
+                this.player.camera.vel.x = (this.player.speed);
+            } 
+        }
+
         // calculate player's absolute position
         // i.e he/she's ACTUAL position in the game (at real time).
         currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
             const yd = tile.pos.y - this.player.pos.y;
             this.player.absolutePos.y = this.mapBase - yd;
             this.player.absolutePos.x = this.player.pos.x - tile.pos.x;
-        });
-
-        currentMap.players.forEach((p: Player) => {
-            if(!p.isYou) {
-                // console.log(p.pos);
-            }
         });
 
         // this.showCamera();

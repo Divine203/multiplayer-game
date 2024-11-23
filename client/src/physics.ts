@@ -1,7 +1,7 @@
 import { Game } from "./main";
 import { Item } from "./item";
 import { Tile } from "./tile";
-import { currentGame, currentPlayer } from "./general";
+import { cameraState, currentGame, currentPlayer } from "./general";
 
 export const gravity: number = 1.5;
 
@@ -24,26 +24,14 @@ export class Physics {
 
 
     public top(char: any, object: Tile): boolean | any {
-        const result =  (
-            this.topVar(char, object, 14) ||
-            this.topVar(char, object, 13) ||
-            this.topVar(char, object, 12) ||
-            this.topVar(char, object, 11) ||
-            this.topVar(char, object, 10) ||
-            this.topVar(char, object, 9) ||
-            this.topVar(char, object, 8) ||
-            this.topVar(char, object, 7) ||
-            this.topVar(char, object, 6) ||
-            this.topVar(char, object, 5) ||
-            this.topVar(char, object, 4) ||
-            this.topVar(char, object, 3) ||
-            this.topVar(char, object, 2) ||
-            this.topVar(char, object, 1) ||
-            this.topVar(char, object, 0)
-        );
-        return result;
+        for (let i = 14; i >= 0; i--) {
+            if (this.topVar(char, object, i)) {
+                return true;
+            }
+        }
+        return false;
     }
-    
+
     public left(char: any, object: Tile): boolean {
         return (char.pos.x + char.width >= object.pos.x &&
             char.pos.x + char.width + char.vel.x <= object.pos.x + object.width &&
@@ -66,31 +54,36 @@ export class Physics {
     }
 
     public add = (char: any, platform: Tile | any): any => {
-        if (this.top(char, platform)) { 
+        if (this.top(char, platform)) {
             char.vel.y = 0;
             char.pos.y = (platform.pos.y - char.height) - 10;
-            if(char.isPlayer) char.currentPlatform = platform;
-            if(char.isPlayer) char.camera.vel.y = 0;
-        } 
+            if (char.isPlayer) {
+                char.currentPlatform = platform;
+            }
+        } else {
+            if (char.isPlayer) {
+                char.currentPlatform = null;
+            }
+        }
         if (this.left(char, platform)) {
             char.vel.x = 0;
-            if(char.isPlayer) char.camera.vel.x = 0;
-            if(char.isPlayer) {
+            if (char.isPlayer) char.camera.vel.x = 0;
+            if (char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x - char.width) - 10;
                 if (currentGame.keys.left.pressed && char == currentPlayer) currentPlayer.vel.x = -10;
             }
         }
         if (this.right(char, platform)) {
             char.vel.x = 0;
-            if(char.isPlayer) char.camera.vel.x = 0;
-            if(char.isPlayer) {
+            if (char.isPlayer) char.camera.vel.x = 0;
+            if (char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x + platform.width) + 10;
                 if (currentGame.keys.right.pressed && char == currentPlayer) currentPlayer.vel.x = 10;
-            } 
+            }
         }
         if (this.bottom(char, platform)) {
-            char.vel.y = 0;
-            if(char.isPlayer) char.camera.vel.y = 0;
+            char.vel.y += 45;
+            if (char.isPlayer) char.camera.vel.y = 0;
         }
     }
 

@@ -70,8 +70,8 @@ io.on('connection', (socket) => {
         io.in(roomId).emit('start-game', {});
     }); 
 
-    socket.on('player-move', ({ position, roomId, playerIsRight }) => {
-        io.in(roomId).emit('player-move', { playerId: socket.id, position: position, playerIsRight: playerIsRight });
+    socket.on('player-move', ({ position, roomId, playerState, jumpCount }) => {
+        io.in(roomId).emit('player-move', { playerId: socket.id, position: position, playerState: playerState, jumpCount: jumpCount });
     });
 
     socket.on('disconnect', () => {

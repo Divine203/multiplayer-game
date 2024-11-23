@@ -1,12 +1,13 @@
 import { io } from "../node_modules/socket.io-client/build/esm/index";
 import { Game } from "./main";
 import { Player } from "./player";
-import { currentGame, setGame, currentMap, setPlayer, setMap, setUI, _ui, setRoomId } from "./general";
+import { currentGame, setGame, currentMap, setPlayer, setMap, setUI, _ui, setRoomId, setSprites } from "./general";
 import { Map1 } from "./map1";
 import { Tile } from "./tile";
 import { UI } from "./ui";
 import { Vec2 } from "./interfaces.interface";
 import { UIEvent } from "./data.enum";
+import { Sprites } from "./sprite";
 
 class Socket {
     public host: any = io('http://localhost:3000');
@@ -29,6 +30,9 @@ class Socket {
 
             const newGame = new Game();
             setGame(newGame);
+
+            const sprites = new Sprites();
+            setSprites(sprites);
         });
 
         this.host.on('pong', (startTime: Date | any) => {
@@ -75,7 +79,7 @@ class Socket {
         });
 
         if (!this.host.hasListeners('player-move')) {
-            this.host.off('player-move').on('player-move', ({ playerId, position, playerIsRight }: { playerId: string | any, position: Vec2, playerIsRight: boolean }) => {
+            this.host.off('player-move').on('player-move', ({ playerId, position, playerState, jumpCount }: { playerId: string | any, position: Vec2, playerState: boolean, jumpCount: number }) => {
                 const player = currentMap.players.find((p: Player) => p.id === playerId);
                 if (player && !player.isYou) {
 
@@ -84,7 +88,13 @@ class Socket {
                     // so were going to be using our magic indicator tile as a form of 'relativity'
                     // to correctly position other players in our instance of the map.
                     currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
-                        player.state.isRight = playerIsRight;
+                        player.state = playerState;
+                        player.jumpCount = jumpCount;
+                        if (!player.state.isDoubleJump) {
+                            player.sprites.doubleJumpRight.animation.frameX = 0;
+                            player.sprites.doubleJumpLeft.animation.frameX = player.sprites.doubleJumpLeft.animation.frames;
+                        }
+                        player.updateCurrentSprite();
                         player.pos = { y: tile.pos.y - (tile.initYPos - position.y), x: (tile.pos.x + (position.x - tile.initXPos) + 40) }; // +40 is simply correcting a slight displacement for more accuracy
                     });
                 }
@@ -98,6 +108,7 @@ class Socket {
                 if (player && !player.isYou) {
                     console.log(`${player.name} just shot`);
                     player.primaryGun.shoot();
+                    player.idleCount = 10;
                 }
             });
         }

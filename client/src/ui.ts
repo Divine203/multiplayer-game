@@ -1,4 +1,4 @@
-import { currentControls, currentMap, currentPlayer, roomId, setControls, setPhysics } from "./general";
+import { currentControls, currentMap, currentPlayer, cvs, roomId, setControls, setPhysics, spawn } from "./general";
 import { server } from "./main";
 import { UIEvent } from "./data.enum";
 import { Controls } from "./controls";
@@ -50,6 +50,10 @@ export class UI {
         if (this.isMainMenuActive || this.inRoom) {
             this.listeners();
         }
+
+        setTimeout(() => {
+            this.startAutomatically();
+        });
     }
 
     private closeMainUI() {
@@ -74,6 +78,22 @@ export class UI {
         this.enterPage(this.prevPage);
     }
 
+    // for development only...
+    private startAutomatically(): void {
+        server.host.emit('player-create-room', {
+            playerName: 'Divine'
+        });
+
+        setTimeout(() => {
+            server.host.emit('start-game', {
+                roomId: roomId
+            });
+
+            spawn(500);
+            currentPlayer.pos.x = cvs.width/2;
+        }, 500);
+    }
+
     private toggleHelper() {
         this.isShowingHelp = !this.isShowingHelp;
 
@@ -86,12 +106,10 @@ export class UI {
             if (this.isMainMenuActive || this.inRoom) {
                 switch (e.key) {
                     case 'h':
-                        console.log('h');
                         this.toggleHelper();
                         break;
 
                     case 'z':
-                        console.log('z');
                         this.backToPrevPage();
                         break;
                 }

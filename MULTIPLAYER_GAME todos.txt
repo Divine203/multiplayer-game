@@ -39,10 +39,27 @@
       - global items (immobile, their either in the game or not)
       
     @ Implement damage, hp and health bar. --done
-      - Correct double jump
-      - Correct grenade throwing
-      - add crouch and slide movement
-
+      - Correct double jump --done* (front flip)
+      - Correct grenade throwing --done
+      - Correct shooting --done
+      - add slide movement --done
+	
+    @ Sprite design
+      - character movements. --done*
+        ¬ running animation --done
+        ¬ idle animation  --done
+	¬ jump sprites (jumping and landing) --done
+        ¬ flip animation (double jump) --done
+        ¬ sliding sprite --done
+ 
+	¬ throwing aim sprite
+        ¬ throw sprite
+        ¬ pickup item sprite
+        ¬ bullets for each gun sprite
+        ¬ grenade sprite
+        ¬ stones sprites (particles)
+        ¬ boom sprite (explosion)
+	
     @ Implement explosion with particles
     @ Implement death and wins.
     @ Limit Players in room to 10.
@@ -132,18 +149,28 @@ no engine limitations --use()
 . UI
 . lighting and shadows. (later) #
 
-60/100 = x/50;
-
-100/50 = 60/x;
-
-
-100x = 300;
-
-x = 3;
 
 
 
+Map Plans
+. Ghost town
+  - tall buildings
+  - small buildings
+  - houses
+  - shops
+  - 1 watch tower (the main attention draw)
+  
+  + Auxilary stuff
+   - parked cars
+   - dead bodies
+   - withered trees
+   - a few weeds
+   - tripping street lights
 
+
+. Forest
+  -  Trees and grass and floating platforms
+  - 
 
 
 

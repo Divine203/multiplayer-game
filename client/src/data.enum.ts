@@ -1,3 +1,5 @@
+import { sprites } from "./general";
+
 export enum UIEvent {
     CREATED_ROOM = 'createdRoom',
     JOINED_ROOM = 'joinedRoom',
@@ -11,9 +13,8 @@ export enum UIEvent {
 export enum GunType {
     PISTOL = 'pistol',
     AK47 = 'ak47',
-    LMG = 'lmg',
+    SMG = 'smg',
+    M14 = 'm14',
     SHOTGUN = 'shotgun',
-    GRENADE_LAUNCHER = 'grenadeLauncher',
     BAZUKA = 'bazuka',
 }
-
