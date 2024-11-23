@@ -177,15 +177,16 @@ export class Gun {
             this.player.state.isActive = true;
 
             const bullet = new Bullet({
-                x: (this.posX + this.xCorrection) + this.width,
+                x: this.player.state.isRight ? (this.posX + this.xCorrection) + this.width : this.player.pos.x - this.width,
+                absX: (this.posX + this.xCorrection) + this.width,
                 y: (this.pos.y + this.yCorrection) + 5,
                 bulletType: `${this.gunType}_bullet`,
                 gunType: this.gunType,
                 isRight: this.player.state.isRight
             });
-            bullet.vel.x = bullet.speed;
+            bullet.absVel.x = bullet.speed;
+            bullet.vel.x = this.player.state.isRight ? bullet.speed : -bullet.speed;
             this.bulletsShot.push(bullet);
-
             setTimeout(() => { this.shot = false }, 100);
 
             if (this.player.isYou) {

@@ -1,5 +1,5 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, cameraState, gunConfigurations } from "./general";
+import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, cameraState, gunConfigurations, roomId } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
@@ -185,6 +185,11 @@ export class Player {
         this.viewedGun[0].player = this;
         this.currentGun = this.viewedGun[0];
         currentMap.guns.splice(this.viewedGun[1], 1);
+        server.host.emit('player-pick-gun', {
+            roomId: this.currentRoom,
+            gunMapIndex: this.viewedGun[1],
+            isToCurrentGun: true
+        });
         this.viewedGun = null;
     }
 
@@ -197,6 +202,11 @@ export class Player {
                     this.viewedGun[0].player = this;
                     this.secondaryGun = this.viewedGun[0];
                     currentMap.guns.splice(this.viewedGun[1], 1);
+                    server.host.emit('player-pick-gun', {
+                        roomId: this.currentRoom,
+                        gunMapIndex: this.viewedGun[1],
+                        isToCurrentGun: false
+                    });
                     this.viewedGun = null;
                 } else if (!this.currentGun && !this.secondaryGun) {
                     this.pickUtil();
@@ -204,6 +214,9 @@ export class Player {
                     this.dropGun();
                     this.pickUtil();
                 }
+
+              
+        
             }
             setTimeout(() => { this.canPick = true }, 1000);
         }
@@ -227,6 +240,13 @@ export class Player {
                     this.idleCount = 10;
                     this.state.isActive = false;
                 }
+
+                server.host.emit('player-drop-gun', {
+                    roomId: this.currentRoom,
+                    currentGun: this.currentGun ? this.currentGun.gunType : null,
+                    secondaryGun: this.secondaryGun ? this.secondaryGun.gunType : null,
+                    gunToBeDropped: gunToBeDropped
+                });
             }
         }
 
@@ -585,7 +605,8 @@ export class Player {
                     position: { x: this.absolutePos.x, y: this.absolutePos.y },
                     roomId: this.currentRoom,
                     jumpCount: this.jumpCount,
-                    playerState: this.state
+                    playerState: this.state,
+                    idleCount: this.idleCount
                 });
                 this.lastPos = { ...this.absolutePos };
             }

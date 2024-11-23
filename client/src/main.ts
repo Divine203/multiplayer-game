@@ -38,7 +38,7 @@ export class Game {
 
                     currentMap.items.forEach((item: Item) => {
                         currentPhysics.add(item, tile);
-                       
+
                     });
                 });
                 currentMap.guns.forEach((gun: Gun, index: number) => {
@@ -52,7 +52,9 @@ export class Game {
                         }
                     }
 
-                    gun.update();
+                    if (gun) {
+                        gun.update();
+                    }
                 });
                 currentMap.items.forEach((item: Item) => {
                     currentMap.items.forEach((item2: Item) => {

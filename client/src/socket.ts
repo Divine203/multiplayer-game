@@ -6,8 +6,9 @@ import { Map1 } from "./map1";
 import { Tile } from "./tile";
 import { UI } from "./ui";
 import { Vec2 } from "./interfaces.interface";
-import { UIEvent } from "./data.enum";
+import { GunType, UIEvent } from "./data.enum";
 import { Sprites } from "./sprite";
+import { Gun } from "./gun";
 
 class Socket {
     public host: any = io('http://localhost:3000');
@@ -78,52 +79,86 @@ class Socket {
             _ui.listenUIEvent(UIEvent.START_GAME);
         });
 
-        if (!this.host.hasListeners('player-move')) {
-            this.host.off('player-move').on('player-move', ({ playerId, position, playerState, jumpCount }: { playerId: string | any, position: Vec2, playerState: boolean, jumpCount: number }) => {
-                const player = currentMap.players.find((p: Player) => p.id === playerId);
-                if (player && !player.isYou) {
+        this.host.off('player-move').on('player-move', ({ playerId, position, playerState, jumpCount, idleCount }: { playerId: string | any, position: Vec2, playerState: boolean, jumpCount: number, idleCount: number }) => {
+            const player = currentMap.players.find((p: Player) => p.id === playerId);
+            if (player && !player.isYou) {
 
-                    // we could have just slapped the data.position to player.pos and call it a day.
-                    // Turns out dat doesn't F-ing work for reasons i still don't understand.
-                    // so were going to be using our magic indicator tile as a form of 'relativity'
-                    // to correctly position other players in our instance of the map.
-                    currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
-                        player.state = playerState;
-                        player.jumpCount = jumpCount;
-                        if (!player.state.isDoubleJump) {
-                            player.sprites.doubleJumpRight.animation.frameX = 0;
-                            player.sprites.doubleJumpLeft.animation.frameX = player.sprites.doubleJumpLeft.animation.frames;
-                        }
-                        player.updateCurrentSprite();
-                        player.pos = { y: tile.pos.y - (tile.initYPos - position.y), x: (tile.pos.x + (position.x - tile.initXPos) + 40) }; // +40 is simply correcting a slight displacement for more accuracy
-                    });
-                }
-            });
-        }
+                // we could have just slapped the data.position to player.pos and call it a day.
+                // Turns out dat doesn't F-ing work for reasons i still don't understand.
+                // so were going to be using our magic indicator tile as a form of 'relativity'
+                // to correctly position other players in our instance of the map.
+                currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
+                    player.state = playerState;
+                    player.idleCount = idleCount;
+                    player.jumpCount = jumpCount;
+                    if (!player.state.isDoubleJump) {
+                        player.sprites.doubleJumpRight.animation.frameX = 0;
+                        player.sprites.doubleJumpLeft.animation.frameX = player.sprites.doubleJumpLeft.animation.frames;
+                    }
+                    player.updateCurrentSprite();
+                    player.pos = { y: tile.pos.y - (tile.initYPos - position.y), x: (tile.pos.x + (position.x - tile.initXPos) + 40) }; // +40 is simply correcting a slight displacement for more accuracy
+                });
+            }
+        });
 
-        if (!this.host.hasListeners('player-shot')) {
-            this.host.off('player-shot').on('player-shot', ({ playerId }: { playerId: string | any }) => {
-                const player = currentMap.players.find((p: Player) => p.id === playerId);
 
-                if (player && !player.isYou) {
-                    console.log(`${player.name} just shot`);
-                    player.primaryGun.shoot();
-                    player.idleCount = 10;
-                }
-            });
-        }
+        this.host.off('player-shot').on('player-shot', ({ playerId }: { playerId: string | any }) => {
+            const player = currentMap.players.find((p: Player) => p.id === playerId);
 
-        if (!this.host.hasListeners('player-threw')) {
-            this.host.off('player-threw').on('player-threw', ({ playerId, throwAngle }: { playerId: string | any, throwAngle: number }) => {
-                const player = currentMap.players.find((p: Player) => p.id === playerId);
+            if (player && !player.isYou) {
+                console.log(`${player.name} just shot`);
+                player.primaryGun.shoot();
+                player.idleCount = 10;
+            }
+        });
 
-                if (player && !player.isYou) {
-                    console.log(`${player.name} just threw at ${throwAngle}`);
-                    player.throwProjectileAngle = throwAngle;
-                    player.throwItem();
-                }
-            });
-        }
+        this.host.off('player-pick-gun').on('player-pick-gun', ({ playerId, gunMapIndex, isToCurrentGun }: { playerId: string | any, gunMapIndex: number, isToCurrentGun: boolean }) => {
+            const player = currentMap.players.find((p: Player) => p.id === playerId);
+
+            if (player && !player.isYou) {
+
+                player[isToCurrentGun ? 'currentGun' : 'secondaryGun'] = currentMap.guns[gunMapIndex];
+                player[isToCurrentGun ? 'currentGun' : 'secondaryGun'].isPicked = true;
+                player[isToCurrentGun ? 'currentGun' : 'secondaryGun'].player = player;
+                currentMap.guns.splice(gunMapIndex, 1);
+            }
+        });
+
+        this.host.off('player-drop-gun').on('player-drop-gun', ({ playerId, currentGun, secondaryGun, gunToBeDropped }: any) => {
+            const player = currentMap.players.find((p: Player) => p.id === playerId);
+
+            if (player && !player.isYou) {
+                if (currentGun) {
+                    player.currentGun = new Gun({ x: 0, y: 0, gunType: currentGun });
+                    player.currentGun.isPicked = true;
+                    player.currentGun.player = player;
+                } else { player.currentGun = null }
+                if (secondaryGun) {
+                    player.secondaryGun = new Gun({ x: 0, y: 0, gunType: secondaryGun });
+                    player.secondaryGun.isPicked = true;
+                    player.secondaryGun.player = player;
+                } else { player.secondaryGun = null }
+
+                const { ammo, gunType, pos, vel, posX, xCorrection } = gunToBeDropped;
+                const gunToDrop = new Gun({x: pos.x, y: pos.y, gunType: gunType });
+                gunToDrop.posX = posX;
+                gunToDrop.xCorrection = xCorrection;
+                gunToDrop.vel = vel;
+                gunToDrop.ammo = ammo;
+                currentMap.guns.push(gunToDrop);
+            }
+        });
+
+        this.host.off('player-threw').on('player-threw', ({ playerId, throwAngle }: { playerId: string | any, throwAngle: number }) => {
+            const player = currentMap.players.find((p: Player) => p.id === playerId);
+
+            if (player && !player.isYou) {
+                console.log(`${player.name} just threw at ${throwAngle}`);
+                player.throwProjectileAngle = throwAngle;
+                player.throwItem();
+            }
+        });
+
 
         this.host.on('player-leave', ({ playerId, name }: { playerId: string | any, name: string }) => {
             console.log(`Player ${name} left`);

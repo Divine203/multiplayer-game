@@ -15,6 +15,10 @@ const io = new Server(server, {
 const port = 3000;
 
 const rooms = {};
+ 
+// gun state.
+// pick item.
+
 
 
 app.use(express.static(path.join(__dirname, '../client/public')));
@@ -41,6 +45,14 @@ io.on('connection', (socket) => {
         socket.join(newRoomId);
         socket.emit('created-room', { roomId: newRoomId });
         socket.emit('initialize-players', rooms[newRoomId]);
+    });
+
+    socket.on('player-pick-gun', ({ roomId, gunMapIndex, isToCurrentGun }) => {
+        socket.to(roomId).emit('player-pick-gun', { playerId: socket.id, gunMapIndex: gunMapIndex, isToCurrentGun: isToCurrentGun });
+    });
+
+    socket.on('player-drop-gun', ({ roomId, currentGun, secondaryGun, gunToBeDropped }) => {
+        socket.to(roomId).emit('player-drop-gun', { playerId: socket.id, currentGun: currentGun, secondaryGun: secondaryGun, gunToBeDropped: gunToBeDropped });
     });
 
     socket.on('player-shoot', ({ roomId }) => {
@@ -70,8 +82,8 @@ io.on('connection', (socket) => {
         io.in(roomId).emit('start-game', {});
     }); 
 
-    socket.on('player-move', ({ position, roomId, playerState, jumpCount }) => {
-        io.in(roomId).emit('player-move', { playerId: socket.id, position: position, playerState: playerState, jumpCount: jumpCount });
+    socket.on('player-move', ({ position, roomId, playerState, jumpCount, idleCount }) => {
+        io.in(roomId).emit('player-move', { playerId: socket.id, position: position, playerState: playerState, jumpCount: jumpCount, idleCount });
     });
 
     socket.on('disconnect', () => {
@@ -85,7 +97,7 @@ io.on('connection', (socket) => {
                 const disconnectedPlayer = room.players[playerIndex];
                 room.players.splice(playerIndex, 1);
 
-                io.to(roomId).emit('player-leave', {
+                io.in(roomId).emit('player-leave', {
                     playerId: disconnectedPlayer.id,
                     name: disconnectedPlayer.name
                 });

@@ -12,6 +12,8 @@ export class Bullet {
 
 
     public pos: Vec2;
+    public absPos: Vec2;   
+    public absVel: Vec2;
     public vel: Vec2;
     public width: number;
     public height: number;
@@ -20,17 +22,26 @@ export class Bullet {
     public hasHitObject: boolean = false;
     public gunType: GunType;
 
-    constructor({ x, y, bulletType, gunType, isRight }: IBullet) {
+    constructor({ x, absX, y, bulletType, gunType, isRight }: IBullet) {
         this.pos = {
             x,
             y
         };
+        this.absPos = {
+            x,
+            y
+        };
+        this.absPos.x = absX;
         this.isRight = isRight;
         this.bulletSprite = sprites.bulletSprites[bulletType];
         this.width = (this.bulletSprite.recommendedWidth as number);
         this.height = (this.bulletSprite.recommendedHeight as number);
 
         this.vel = {
+            x: 0,
+            y: 0
+        };
+        this.absVel = {
             x: 0,
             y: 0
         };
@@ -51,13 +62,16 @@ export class Bullet {
             this.bulletSprite.sY,
             this.bulletSprite.cropWidth,
             this.bulletSprite.cropHeight,
-            this.pos.x,
-            this.pos.y,
+            this.absPos.x,
+            this.absPos.y,  
             this.width,
             this.height
         );
-
         ctx.restore();
+        // this.vel.x = this.isRight ? this.absVel.x : this.absVel.x * -1;
+        // console.log(this.vel.x);
+        ctx.strokeStyle = 'red';
+        ctx.strokeRect(this.pos.x, this.pos.y, 30, 10);
     }
 
     detectHits() {
@@ -77,7 +91,7 @@ export class Bullet {
         });
 
         currentMap.tiles.forEach((tile: Tile) => {
-            if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, tile))) {
+            if (['left', 'right'].some(side => currentPhysics[side](this, tile))) {
                 this.hasHitObject = true;
             }
         })
@@ -87,10 +101,17 @@ export class Bullet {
         this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
 
+        this.absPos.x += this.absVel.x;
+        this.absPos.y += this.vel.y;
+
         // fix falling/rising effect when camera moves up/down
-        if (cameraState == 'up' || cameraState == 'down') this.pos.y = currentPlayer.pos.y;
+        if (cameraState == 'up' || cameraState == 'down') {
+            this.pos.y = currentPlayer.pos.y;
+            this.absPos.y = currentPlayer.pos.y;
+        }
 
         this.pos.x += arena.pos.x;
+        this.absPos.x += arena.pos.x;
 
         this.draw();
         this.detectHits();
@@ -99,6 +120,7 @@ export class Bullet {
 
 export interface IBullet {
     x: number;
+    absX: number,
     y: number;
     bulletType: string;
     gunType: GunType;
