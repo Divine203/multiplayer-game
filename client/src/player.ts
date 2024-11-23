@@ -1,12 +1,12 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, cameraState } from "./general";
+import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, cameraState, gunConfigurations } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
 import { Item } from "./item";
 import { Camera } from "./camera";
 import { ISpriteData } from "./sprite";
-import { GunType } from "./data.enum";
+import { GunType, ItemType } from "./data.enum";
 
 
 export class Player {
@@ -35,7 +35,10 @@ export class Player {
     public friction: number = 0.05;
     public physics: Physics;
     public isJumping: boolean = false;
-    public hp: number = 100;
+    public hp: number = 50;
+    public armorHp: number = 50;
+    public grenadeAmount = 6;
+
     public healthBarWidth: number = 60;
     public isPlayer: boolean = true;
     public currentPlatform: Tile | any;
@@ -182,6 +185,7 @@ export class Player {
         this.viewedGun[0].player = this;
         this.currentGun = this.viewedGun[0];
         currentMap.guns.splice(this.viewedGun[1], 1);
+        this.viewedGun = null;
     }
 
     public pickGun(): void {
@@ -193,6 +197,7 @@ export class Player {
                     this.viewedGun[0].player = this;
                     this.secondaryGun = this.viewedGun[0];
                     currentMap.guns.splice(this.viewedGun[1], 1);
+                    this.viewedGun = null;
                 } else if (!this.currentGun && !this.secondaryGun) {
                     this.pickUtil();
                 } else {
@@ -246,16 +251,17 @@ export class Player {
     }
 
     public throwItem() {
+        this.grenadeAmount--;
         const currentThrowAngle = this.throwProjectileAngle;
         const item = new Item({
             x: this.state.isLeft ? this.pos.x : this.pos.x + this.width,
             y: this.pos.y + this.height / 2,
             width: 15,
             height: 15,
+            itemType: ItemType.GRENADE,
             isThrowable: true,
             throwRight: this.state.isRight
         });
-        item.isGrenade = true;
         item.throw(this.state.isRight ? this.throwProjectileAngle * -1 : this.throwProjectileAngle, 30);
         this.throwProjectileAngle = 0;
         currentMap.items.push(item);
@@ -266,6 +272,16 @@ export class Player {
                 throwAngle: currentThrowAngle,
             });
         }
+    }
+
+    private resetAfterSlide() {
+        this.state.isSlide = false;
+        this.canSlide = true;
+        this.shouldSlide = false;
+
+        // only push the player up to increase back their height IF they're on a platform
+        if (this.vel.y == 1.5 || this.vel.y == 0) this.pos.y = this.pos.y - this.defHeight / 1.5;
+        this.height = this.defHeight;
     }
 
     public slide(): void {
@@ -280,15 +296,41 @@ export class Player {
         }
 
         if (this.slideSpeed < 1) {
-            this.state.isSlide = false;
-            this.canSlide = true;
-            this.shouldSlide = false;
             this.slideSpeed = 20;
-
-            // only push the player up to increase back their height IF they're on a platform
-            if (this.vel.y == 1.5 || this.vel.y == 0) this.pos.y = this.pos.y - this.defHeight / 1.5;
-            this.height = this.defHeight;
+            this.resetAfterSlide();
         };
+    }
+
+    public applyItemLogic() {
+        currentMap.items.forEach((item: Item) => {
+            if (!item.isThrowable && item.hasPhysics) {
+                currentPhysics.add(this, item);
+            }
+            if (item.itemType === ItemType.HEALTH && this.hp < 100) {
+                if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, item))) {
+                    this.hp = 100;
+                    currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
+                }
+            } else if (item.itemType === ItemType.AMMO && this.currentGun) {
+                const maxAmmo = gunConfigurations[this.currentGun.gunType].mag;
+                if (this.currentGun.ammo < maxAmmo && ['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, item))) {
+                    this.currentGun.ammo = maxAmmo;
+                    currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
+                }
+            } else if (item.itemType === ItemType.ARMOR && this.armorHp < 100) {
+                if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, item))) {
+                    this.armorHp = 100;
+                    currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
+                }
+            } else if (item.itemType === ItemType.GRENADE && !item.isThrowable) {
+                if (this.grenadeAmount < 6) {
+                    if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, item))) {
+                        this.grenadeAmount++;
+                        currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
+                    }
+                }
+            }
+        })
     }
 
     // Helper function for setting the sprite
@@ -404,8 +446,10 @@ export class Player {
     }
 
     public drawIdleGun() {
+        let xRightCorrection = !this.state.isThrowing && !this.state.isThrown ? 0 : 30;
+
         ctx.save();
-        ctx.translate(this.state.isRight ? this.pos.x : this.pos.x + this.width * 2 - 10, this.pos.y + 20);
+        ctx.translate(this.state.isRight ? this.pos.x + xRightCorrection : this.pos.x + this.width * 2 - 10, this.pos.y + 20);
         ctx.rotate(90 * (Math.PI / 180));
         ctx.drawImage(sprites.sheet,
             this.currentGun.gunSprite.sX,
@@ -513,6 +557,10 @@ export class Player {
             }
         }
 
+        if ((this.state.isThrowing || this.state.isThrown) && this.currentGun) {
+            this.drawIdleGun();
+        }
+
         if (this.isYou) {
             this.pos.y += this.vel.y;
             this.pos.x += this.vel.x;
@@ -560,8 +608,9 @@ export class Player {
         if (this.secondaryGun) {
             this.drawSecondaryGun();
         }
-        
+
         this.draw();
+        this.applyItemLogic();
 
 
         if (this.currentGun) {

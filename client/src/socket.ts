@@ -37,7 +37,7 @@ class Socket {
 
         this.host.on('pong', (startTime: Date | any) => {
             const ping = Date.now() - startTime;
-            _ui.displayPing(ping);
+            _ui.ping = ping;
         });
 
         this.host.on('created-room', ({ roomId }: { roomId: string | any }) => {

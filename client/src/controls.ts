@@ -62,21 +62,25 @@ export class Controls {
                     break
 
                 case 'a':
-                    if (currentPlayer.canSlide) {
-                        if (!currentGame.keys.z.pressed) {
-                            currentGame.keys.a.pressed = true;
-                            currentPlayer.state.isThrowing = true;
-                            currentPlayer.state.isThrown = false;
+                    if (currentPlayer.grenadeAmount > 0) {
+                        if (currentPlayer.canSlide) {
+                            if (!currentGame.keys.z.pressed) {
+                                currentGame.keys.a.pressed = true;
+                                currentPlayer.state.isThrowing = true;
+                                currentPlayer.state.isThrown = false;
+                            }
                         }
                     }
                     break
 
                 case 'z':
-                    if (currentPlayer.canSlide) {
-                        if (!currentGame.keys.a.pressed) {
-                            currentGame.keys.z.pressed = true;
-                            currentPlayer.state.isThrowing = true;
-                            currentPlayer.state.isThrown = false;
+                    if (currentPlayer.grenadeAmount > 0) {
+                        if (currentPlayer.canSlide) {
+                            if (!currentGame.keys.a.pressed) {
+                                currentGame.keys.z.pressed = true;
+                                currentPlayer.state.isThrowing = true;
+                                currentPlayer.state.isThrown = false;
+                            }
                         }
                     }
                     break
@@ -130,39 +134,44 @@ export class Controls {
                     break
 
                 case 'a':
-                    if (currentPlayer.canSlide) {
-                        if (!currentGame.keys.z.pressed) {
-                            currentPlayer.canSlide = false;
-                            currentPlayer.canShoot = false;
-                            currentGame.keys.a.pressed = false;
-                            currentPlayer.throwItem();
-                            currentPlayer.state.isThrowing = false;
-                            currentPlayer.state.isThrown = true;
+                    if (currentPlayer.grenadeAmount > 0) {
+                        if (currentPlayer.canSlide) {
+                            if (!currentGame.keys.z.pressed) {
+                                currentPlayer.canSlide = false;
+                                currentPlayer.canShoot = false;
+                                currentGame.keys.a.pressed = false;
+                                currentPlayer.throwItem();
+                                currentPlayer.state.isThrowing = false;
+                                currentPlayer.state.isThrown = true;
 
-                            setTimeout(() => {
-                                currentPlayer.canSlide = true;
-                                currentPlayer.canShoot = true;
-                                currentPlayer.state.isThrown = false;
-                            }, 500);
+                                setTimeout(() => {
+                                    currentPlayer.canSlide = true;
+                                    currentPlayer.canShoot = true;
+                                    currentPlayer.state.isThrown = false;
+                                }, 500);
+                            }
                         }
                     }
+
                     break
 
                 case 'z':
-                    if (currentPlayer.canSlide) {
-                        if (!currentGame.keys.a.pressed) {
-                            currentPlayer.canSlide = false;
-                            currentPlayer.canShoot = false;
-                            currentGame.keys.z.pressed = false;
-                            currentPlayer.throwItem();
-                            currentPlayer.state.isThrowing = false;
-                            currentPlayer.state.isThrown = true;
+                    if (currentPlayer.grenadeAmount > 0) {
+                        if (currentPlayer.canSlide) {
+                            if (!currentGame.keys.a.pressed) {
+                                currentPlayer.canSlide = false;
+                                currentPlayer.canShoot = false;
+                                currentGame.keys.z.pressed = false;
+                                currentPlayer.throwItem();
+                                currentPlayer.state.isThrowing = false;
+                                currentPlayer.state.isThrown = true;
 
-                            setTimeout(() => {
-                                currentPlayer.canSlide = true;
-                                currentPlayer.canShoot = true;
-                                currentPlayer.state.isThrown = false;
-                            }, 500);
+                                setTimeout(() => {
+                                    currentPlayer.canSlide = true;
+                                    currentPlayer.canShoot = true;
+                                    currentPlayer.state.isThrown = false;
+                                }, 500);
+                            }
                         }
                     }
                     break

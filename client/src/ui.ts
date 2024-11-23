@@ -1,17 +1,28 @@
-import { currentControls, currentMap, currentPlayer, cvs, roomId, setControls, setPhysics, spawn } from "./general";
+import { ctx, currentControls, currentMap, currentPlayer, cvs, gunConfigurations, roomId, setControls, setPhysics, spawn, sprites } from "./general";
 import { server } from "./main";
-import { UIEvent } from "./data.enum";
+import { GunType, ItemType, readableTextByGunType, UIEvent } from "./data.enum";
 import { Controls } from "./controls";
 import { Physics } from "./physics";
+import { ISpriteData, Sprites } from "./sprite";
 
 export class UI {
+    public ping: number = 1;
     public isMainMenuActive: boolean = true;
     public inRoom: boolean = false;
+    public bgColor: string = '#02020354';
 
     public isShowingHelp: boolean = true;
 
     public currentPage: string = "";
     public prevPage: string = "";
+
+    public sprites = new Sprites();
+
+    public profile: ISpriteData = {
+        ...this.sprites.createSprite(1970, 0, 50, 70),
+        recommendedWidth: 40,
+        recommendedHeight: 50
+    }
 
     public pageKeys: any = ['home', 'joinRoom', 'createRoom', 'room'];
     public pages: any = {
@@ -90,7 +101,7 @@ export class UI {
             });
 
             spawn(500);
-            currentPlayer.pos.x = cvs.width/2;
+            currentPlayer.pos.x = cvs.width / 2;
         }, 500);
     }
 
@@ -164,16 +175,20 @@ export class UI {
         });
     };
 
-    public displayPing(ping: number) {
+    public displayPing() {
         let color = 'lime';
-        if (ping >= 100 && ping < 150) {
+        if (this.ping >= 100 && this.ping < 150) {
             color = 'yellow';
-        } else if (ping >= 150) {
+        } else if (this.ping >= 150) {
             color = 'red';
         }
-        this.views.ping.style.display = 'block';
-        this.views.ping_val.innerHTML = ping;
-        this.views.ping_val.style.color = color;
+
+        ctx.fillStyle = this.bgColor;
+        ctx.fillRect(0, 0, 350, 60);
+
+        ctx.fillStyle = color;
+        ctx.font = `18px consolas`;
+        ctx.fillText(`${this.ping.toString()} ms`, 25, 35);
     }
 
     public listenUIEvent(event: UIEvent) {
@@ -196,7 +211,7 @@ export class UI {
             this.closeMainUI();
             this.isMainMenuActive = false;
             this.inRoom = false;
-            
+
             const controls = new Controls();
             setControls(controls);
             currentControls.initializeControls();
@@ -206,8 +221,200 @@ export class UI {
         }
     }
 
-    update() {
+    public drawHealthBar() {
+        const fullHealthBarWidth: number = 200;
+        const barWidth = fullHealthBarWidth * (currentPlayer.hp / 100);
+        let color = 'lime';
 
+        if (barWidth <= fullHealthBarWidth / 2 && barWidth > 20) { color = 'yellow' }
+        else if (barWidth <= 20) { color = 'red' }
+
+        ctx.fillStyle = 'grey';
+        ctx.fillRect(90, 100, fullHealthBarWidth, 8);
+
+        ctx.fillStyle = color;
+        ctx.fillRect(90, 100, barWidth, 8);
+    }
+
+    public drawArmorHealthBar() {
+        if (currentPlayer.armorHp > 0) {
+            const fullHealthBarWidth: number = 200;
+            const barWidth = fullHealthBarWidth * (currentPlayer.armorHp / 100);
+            let color = 'white';
+
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(90, 120, fullHealthBarWidth, 8);
+
+            ctx.fillStyle = color;
+            ctx.fillRect(90, 120, barWidth, 8);
+        }
+    }
+
+    public drawPlayerGrenades() {
+        if(currentPlayer.grenadeAmount > 0) {
+            ctx.fillStyle = this.bgColor;
+            ctx.fillRect(0, 315, 350, 80);
+
+            for(let i = 0; i < currentPlayer.grenadeAmount; i++) {
+                let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = sprites.itemSprites[ItemType.GRENADE];
+                ctx.drawImage(this.sprites.sheet,
+                    sX,
+                    sY,
+                    cropWidth,
+                    cropHeight,
+                    (50 * i) + 30, 340,
+                    recommendedWidth as number,
+                    recommendedHeight as number
+                );
+    
+            }
+        }
+    }
+
+    public drawPlayerGuns() {
+        if (currentPlayer.currentGun) {
+            ctx.fillStyle = this.bgColor;
+            ctx.fillRect(0, 165, 350, 150);
+
+            let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = currentPlayer.currentGun.gunSprite;
+            let ammo = currentPlayer.currentGun.ammo;
+            ctx.drawImage(this.sprites.sheet,
+                sX,
+                sY,
+                cropWidth,
+                cropHeight,
+                185, 202,
+                recommendedWidth as number,
+                recommendedHeight as number
+            );
+
+            ctx.fillStyle = '#fff';
+            ctx.font = `17px consolas`
+            ctx.fillText(readableTextByGunType[currentPlayer.currentGun.gunType as GunType], 185, 262);
+
+            if (true) {
+                let bulletType = `${currentPlayer.currentGun.gunType}_bullet`;
+                let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = sprites.bulletSprites[bulletType];
+
+                ctx.drawImage(sprites.sheet,
+                    sX,
+                    sY,
+                    cropWidth,
+                    cropHeight,
+                    190,
+                    280,
+                    recommendedWidth,
+                    recommendedHeight
+                );
+            }
+
+            ctx.fillStyle = '#fff';
+            ctx.font = `18px consolas`
+            ctx.fillText(ammo.toString(), 260, 290);
+        }
+
+        if (currentPlayer.secondaryGun) {
+            ctx.fillStyle = '#fff';
+            ctx.font = `17px consolas`
+            ctx.fillText(readableTextByGunType[currentPlayer.secondaryGun.gunType as GunType], 25, 262);
+
+            if (true) {
+                let ammo = currentPlayer.secondaryGun.ammo;
+                let bulletType = `${currentPlayer.secondaryGun.gunType}_bullet`;
+                let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = sprites.bulletSprites[bulletType];
+                ctx.drawImage(sprites.sheet,
+                    sX,
+                    sY,
+                    cropWidth,
+                    cropHeight,
+                    25,
+                    280,
+                    recommendedWidth,
+                    recommendedHeight
+                );
+
+                ctx.fillStyle = '#fff';
+                ctx.font = `18px consolas`
+                ctx.fillText(ammo.toString(), 100, 290);
+            }
+            let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = currentPlayer.secondaryGun.gunSprite;
+
+            ctx.drawImage(this.sprites.sheet,
+                sX,
+                sY,
+                cropWidth,
+                cropHeight,
+                25, 202,
+                recommendedWidth as number,
+                recommendedHeight as number
+            );
+        }
+    }
+
+    public drawName() {
+        ctx.fillStyle = '#fff';
+        ctx.font = `17px consolas`
+        ctx.fillText(currentPlayer.name, 18, 148);
+    }
+
+    public drawViewedGunDetails() {
+        const width = 450;
+        ctx.fillStyle = this.bgColor;
+        ctx.fillRect(cvs.width - width, 0, width, 150);
+
+        if (currentPlayer.viewedGun) {
+            const { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = currentPlayer.viewedGun[0].gunSprite;
+            ctx.drawImage(this.sprites.sheet,
+                sX,
+                sY,
+                cropWidth,
+                cropHeight,
+                cvs.width - (width - 40), 60,
+                recommendedWidth * 1.4 as number,
+                recommendedHeight * 1.4 as number
+            );
+
+            let gunType: GunType = currentPlayer.viewedGun[0].gunType;
+            let gunName = readableTextByGunType[gunType];
+            let { bulletSpeed, fireRate, damage } = gunConfigurations[gunType];
+
+            ctx.fillStyle = '#fff';
+            ctx.font = `18px consolas`
+            ctx.fillText('Name:', cvs.width - 220, 30);
+            ctx.fillText(gunName, cvs.width - 130, 30);
+            ctx.fillText('Speed:', cvs.width - 220, 60);
+            ctx.fillText(bulletSpeed.toString(), cvs.width - 130, 60);
+            ctx.fillText('SPS:', cvs.width - 220, 90);
+            ctx.fillText(fireRate.toString(), cvs.width - 130, 90);
+            ctx.fillText('Damage:', cvs.width - 220, 120);
+            ctx.fillText(damage.toString(), cvs.width - 130, 120);
+        }
+    }
+
+    update() {
+        this.displayPing();
+        if (!this.isMainMenuActive && !this.inRoom && this.sprites) {
+            ctx.fillStyle = this.bgColor;
+            ctx.fillRect(0, 62, 350, 100);
+
+            let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = this.profile;
+
+            ctx.drawImage(this.sprites.sheet,
+                sX,
+                sY,
+                cropWidth,
+                cropHeight,
+                25, 74,
+                recommendedWidth as number,
+                recommendedHeight as number
+            );
+            this.drawName();
+            this.drawHealthBar();
+            this.drawArmorHealthBar();
+            this.drawPlayerGuns();
+            this.drawPlayerGrenades();
+            this.drawViewedGunDetails();
+        }
     }
 
     public displayPlayersInRoom(): void {

@@ -82,35 +82,41 @@ export const MAP_BASE: number = 700;
 
 
 
-export const gunConfigurations = {
+export const gunConfigurations: any = {
     [GunType.PISTOL]: {
         bulletSpeed: 35,
         fireRate: 4, // shots per second
-        damage: 5
+        damage: 5,
+        mag: 100
     },
     [GunType.AK47]: {
         bulletSpeed: 40,
         fireRate: 8,
-        damage: 5
+        damage: 5,
+        mag: 400,
     },
     [GunType.M14]: {
         bulletSpeed: 40,
         fireRate: 8,
-        damage: 5
+        damage: 5,
+        mag: 400,
     },
     [GunType.SMG]: {
         bulletSpeed: 45,
         fireRate: 12,
-        damage: 4
+        damage: 4,
+        mag: 500,
     },
     [GunType.SHOTGUN]: {
         bulletSpeed: 65,
         fireRate: 2,
-        damage: 10
+        damage: 20,
+        mag: 50,
     },
     [GunType.BAZUKA]: {
         bulletSpeed: 20,
         fireRate: 1,
-        damage: 30
+        damage: 30,
+        mag: 10
     }
 };

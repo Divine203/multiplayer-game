@@ -1,15 +1,9 @@
-import { Game } from "./main";
-import { Item } from "./item";
 import { Tile } from "./tile";
-import { cameraState, currentGame, currentPlayer } from "./general";
+import { currentGame, currentPlayer } from "./general";
 
 export const gravity: number = 1.5;
 
 export class Physics {
-
-    constructor() {
-    }
-
     public topVar(char: any, object: Tile, num: number): boolean {
         return (char.pos.y + char.height <= object.pos.y - num &&
             char.pos.y + char.height + char.vel.y >= object.pos.y - num &&
@@ -71,6 +65,11 @@ export class Physics {
             if (char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x - char.width) - 10;
                 if (currentGame.keys.left.pressed && char == currentPlayer) currentPlayer.vel.x = -10;
+
+                if(char.state.isSlide) {
+                    char.state.isRight = false;
+                    char.state.isLeft = true;
+                }
             }
         }
         if (this.right(char, platform)) {
@@ -79,6 +78,11 @@ export class Physics {
             if (char.isPlayer) {
                 if (!this.bottom(char, platform)) char.pos.x = (platform.pos.x + platform.width) + 10;
                 if (currentGame.keys.right.pressed && char == currentPlayer) currentPlayer.vel.x = 10;
+
+                if(char.state.isSlide) {
+                    char.state.isRight = true;
+                    char.state.isLeft = false;
+                }
             }
         }
         if (this.bottom(char, platform)) {
