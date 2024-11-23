@@ -295,6 +295,7 @@ export class UI {
             if (true) {
                 let bulletType = `${currentPlayer.currentGun.gunType}_bullet`;
                 let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = sprites.bulletSprites[bulletType];
+                let color = '#fff';
 
                 ctx.drawImage(sprites.sheet,
                     sX,
@@ -306,11 +307,12 @@ export class UI {
                     recommendedWidth,
                     recommendedHeight
                 );
+                color = ammo > 0 ? '#fff' : 'red';
+                ctx.fillStyle = color;
+                ctx.font = `18px consolas`
+                ctx.fillText(ammo.toString(), 260, 290);
             }
 
-            ctx.fillStyle = '#fff';
-            ctx.font = `18px consolas`
-            ctx.fillText(ammo.toString(), 260, 290);
         }
 
         if (currentPlayer.secondaryGun) {
@@ -319,6 +321,7 @@ export class UI {
             ctx.fillText(readableTextByGunType[currentPlayer.secondaryGun.gunType as GunType], 25, 262);
 
             if (true) {
+                let color = '#fff';
                 let ammo = currentPlayer.secondaryGun.ammo;
                 let bulletType = `${currentPlayer.secondaryGun.gunType}_bullet`;
                 let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = sprites.bulletSprites[bulletType];
@@ -332,8 +335,8 @@ export class UI {
                     recommendedWidth,
                     recommendedHeight
                 );
-
-                ctx.fillStyle = '#fff';
+                color = ammo > 0 ? '#fff' : 'red';
+                ctx.fillStyle = color;
                 ctx.font = `18px consolas`
                 ctx.fillText(ammo.toString(), 100, 290);
             }
