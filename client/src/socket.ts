@@ -8,7 +8,6 @@ import { UI } from "./ui";
 import { Vec2 } from "./interfaces.interface";
 import { UIEvent } from "./data.enum";
 import { Sprites } from "./sprite";
-import { Gun } from "./gun";
 
 class Socket {
     public host: any = io('http://localhost:3000');
@@ -86,7 +85,7 @@ class Socket {
                 // we could have just slapped the data.position to player.pos and call it a day.
                 // Turns out dat doesn't F-ing work for reasons i still don't understand.
                 // so were going to be using our magic indicator tile as a form of 'relativity'
-                // to correctly position other players in our instance of the map.
+                // to correctly position other players in each client's instance of the map.
                 currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
                     player.state = playerState;
                     player.idleCount = idleCount;
@@ -139,12 +138,22 @@ class Socket {
             }
         });
 
-        this.host.off('player-threw').on('player-threw', ({ playerId, throwAngle }: { playerId: string | any, throwAngle: number }) => {
+        this.host.off('player-throw').on('player-throw', ({ playerId, throwAngle }: { playerId: string | any, throwAngle: number }) => {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 
             if (player && !player.isYou) {
                 player.throwProjectileAngle = throwAngle;
                 player.throwItem();
+            }
+        });
+
+        this.host.off('player-throwing').on('player-throwing', ({ playerId, throwAngle }: { playerId: string | any, throwAngle: number }) => {
+            const player = currentMap.players.find((p: Player) => p.id === playerId);
+
+            if (player && !player.isYou) {
+                player.state.isThrowing = true;
+                player.state.isThrown = false;
+                player.idleCount = 10;
             }
         });
 

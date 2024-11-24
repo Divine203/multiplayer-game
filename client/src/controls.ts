@@ -1,4 +1,5 @@
 import { currentGame, currentPlayer } from "./general";
+import { server } from "./main";
 
 export class Controls {
     public initializeControls(): void {
@@ -68,6 +69,10 @@ export class Controls {
                                 currentGame.keys.a.pressed = true;
                                 currentPlayer.state.isThrowing = true;
                                 currentPlayer.state.isThrown = false;
+
+                                server.host.emit('player-throwing', {
+                                    roomId: currentPlayer.currentRoom,
+                                });
                             }
                         }
                     }
@@ -163,14 +168,6 @@ export class Controls {
                                 currentPlayer.canShoot = false;
                                 currentGame.keys.z.pressed = false;
                                 currentPlayer.throwItem();
-                                currentPlayer.state.isThrowing = false;
-                                currentPlayer.state.isThrown = true;
-
-                                setTimeout(() => {
-                                    currentPlayer.canSlide = true;
-                                    currentPlayer.canShoot = true;
-                                    currentPlayer.state.isThrown = false;
-                                }, 500);
                             }
                         }
                     }

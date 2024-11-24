@@ -299,6 +299,16 @@ export class Player {
                 throwAngle: currentThrowAngle,
             });
         }
+
+        this.state.isThrowing = false;
+        this.state.isThrown = true;
+
+        setTimeout(() => {
+            this.canSlide = true;
+            this.canShoot = true;
+            this.state.isThrown = false;
+        }, 500);
+        
     }
 
     private resetAfterSlide() {

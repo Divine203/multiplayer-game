@@ -65,7 +65,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('player-throw', ({ roomId, throwAngle }) => {
-        socket.to(roomId).emit('player-threw', { playerId: socket.id, throwAngle: throwAngle });
+        socket.to(roomId).emit('player-throw', { playerId: socket.id, throwAngle: throwAngle });
+    });
+
+    socket.on('player-throwing', ({ roomId }) => {
+        socket.to(roomId).emit('player-throwing', { playerId: socket.id });
     });
 
     socket.on('check-and-join-room', ({ playerName, roomId }) => {
