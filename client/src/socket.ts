@@ -123,6 +123,14 @@ class Socket {
             }
         });
 
+        this.host.off('player-switch-gun').on('player-switch-gun', ({ playerId, replaceWithSecondary }: any) => {
+            const player = currentMap.players.find((p: Player) => p.id === playerId);
+
+            if (player && !player.isYou) {
+                player.switchGuns();
+            }
+        });
+
         this.host.off('player-drop-gun').on('player-drop-gun', ({ playerId, replaceWithSecondary }: any) => {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 

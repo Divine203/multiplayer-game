@@ -51,6 +51,10 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('player-pick-gun', { playerId: socket.id, gunMapIndex: gunMapIndex, isToCurrentGun: isToCurrentGun });
     });
 
+    socket.on('player-switch-gun', ({ roomId }) => {
+        socket.to(roomId).emit('player-switch-gun', { playerId: socket.id });
+    });
+
 
     socket.on('player-drop-gun', ({ roomId, replaceWithSecondary }) => {
         socket.to(roomId).emit('player-drop-gun', { playerId: socket.id, replaceWithSecondary: replaceWithSecondary });

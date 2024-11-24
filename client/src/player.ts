@@ -178,6 +178,11 @@ export class Player {
         let secondaryGun = this.secondaryGun;
         this.secondaryGun = this.currentGun;
         this.currentGun = secondaryGun;
+        if (this.isYou) {
+            server.host.emit('player-switch-gun', {
+                roomId: this.currentRoom,
+            });
+        }
     }
 
     private pickUtil = () => {

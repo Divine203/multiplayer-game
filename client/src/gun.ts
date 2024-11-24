@@ -158,11 +158,11 @@ export class Gun {
 
     showNoAmmoAlert() {
         ctx.fillStyle = _ui.bgColor;
-        ctx.fillRect(cvs.width/2.2, 100, 100, 40);
+        ctx.fillRect(cvs.width / 2.2, 100, 100, 40);
 
         ctx.fillStyle = 'red';
         ctx.font = `18px consolas`
-        ctx.fillText('No ammo', (cvs.width/2.2) + 16, 125);
+        ctx.fillText('No ammo', (cvs.width / 2.2) + 16, 125);
     }
 
 
@@ -233,8 +233,10 @@ export class Gun {
                 this.noGravity = false;
             }
         } else {
-            if(this.ammo <= 0) {
-                this.showNoAmmoAlert();
+            if (this.player.isYou) {
+                if (this.ammo <= 0) {
+                    this.showNoAmmoAlert();
+                }
             }
             this.pos.x = this.player.pos.x + this.width / 4;
             this.pos.y = this.player.pos.y + (this.player.height / 2);
