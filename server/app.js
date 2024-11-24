@@ -3,7 +3,6 @@ const http = require('http');
 const path = require('path');
 const { Server } = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -15,11 +14,6 @@ const io = new Server(server, {
 const port = 3000;
 
 const rooms = {};
- 
-// gun state.
-// pick item.
-
-
 
 app.use(express.static(path.join(__dirname, '../client/public')));
 
@@ -54,7 +48,6 @@ io.on('connection', (socket) => {
     socket.on('player-switch-gun', ({ roomId }) => {
         socket.to(roomId).emit('player-switch-gun', { playerId: socket.id });
     });
-
 
     socket.on('player-drop-gun', ({ roomId, replaceWithSecondary }) => {
         socket.to(roomId).emit('player-drop-gun', { playerId: socket.id, replaceWithSecondary: replaceWithSecondary });

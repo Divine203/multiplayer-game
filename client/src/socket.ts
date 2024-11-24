@@ -105,7 +105,6 @@ class Socket {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 
             if (player && !player.isYou) {
-                console.log(`${player.name} just shot`);
                 player.currentGun.shoot();
                 player.idleCount = 10;
             }
@@ -122,7 +121,7 @@ class Socket {
             }
         });
 
-        this.host.off('player-switch-gun').on('player-switch-gun', ({ playerId, replaceWithSecondary }: any) => {
+        this.host.off('player-switch-gun').on('player-switch-gun', ({ playerId }: any) => {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 
             if (player && !player.isYou) {
@@ -147,7 +146,7 @@ class Socket {
             }
         });
 
-        this.host.off('player-throwing').on('player-throwing', ({ playerId, throwAngle }: { playerId: string | any, throwAngle: number }) => {
+        this.host.off('player-throwing').on('player-throwing', ({ playerId }: { playerId: string | any }) => {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 
             if (player && !player.isYou) {
