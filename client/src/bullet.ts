@@ -1,6 +1,7 @@
-import { GunType } from "./data.enum";
+import { GunType, ItemType } from "./data.enum";
 import { arena, cameraState, ctx, currentMap, currentPhysics, currentPlayer, gunConfigurations, roomId, sprites } from "./general";
 import { Vec2 } from "./interfaces.interface";
+import { Item } from "./item";
 import { Player } from "./player";
 import { ISpriteData } from "./sprite";
 import { Tile } from "./tile";
@@ -86,6 +87,13 @@ export class Bullet {
 
                     this.hasHitObject = true;
                 }
+            }
+        });
+
+        currentMap.items.filter((item: Item) => (item.itemType === ItemType.BARREL)).forEach((i: Item) => {
+            if (['left', 'right'].some(side => currentPhysics[side](this, i))) {
+                this.hasHitObject = true;   
+                i.explodeCounter = 0;
             }
         });
 

@@ -47,6 +47,15 @@ export class Physics {
             char.pos.x <= object.pos.x + object.width);
     }
 
+    public allSides(char: any, object: any) {
+        return (
+            char.pos.x < object.pos.x + object.width && // char's right edge is past object's left edge
+            char.pos.x + char.width > object.pos.x && // char's left edge is before object's right edge
+            char.pos.y < object.pos.y + object.height && // char's bottom edge is past object's top edge
+            char.pos.y + char.height > object.pos.y // Rect1's top edge is before Rect2's bottom edge
+        );
+    }
+
     public add = (char: any, platform: Tile | any): any => {
         if (this.top(char, platform)) {
             char.vel.y = 0;

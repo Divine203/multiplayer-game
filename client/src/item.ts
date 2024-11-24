@@ -1,9 +1,10 @@
 import { ItemType } from "./data.enum";
-import { arena, ctx, cameraState, sprites, currentMap } from "./general";
+import { arena, ctx, cameraState, sprites, currentMap, currentPhysics } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { gravity } from "./physics";
 import { v4 as uuidv4 } from 'uuid';
 import { ISpriteData } from "./sprite";
+import { Player } from "./player";
 
 export class Item {
     public _id: string | any = uuidv4();
@@ -31,6 +32,10 @@ export class Item {
     public noFriction = false;
 
     public isExploding: boolean = false;
+    public explostionDamage: number = 50;
+
+    public explosionPosX: number;
+    public explosionPosY: number;
 
     public grenadeSprite: any = {
         explosionAnimation: {
@@ -49,6 +54,8 @@ export class Item {
         this.isThrowable = isThrowable;
         this.itemType = itemType;
         this.hasPhysics = hasPhysics;
+        this.explosionPosX = x;
+        this.explosionPosY = y;
         if (this.isThrowable) {
             this.throwRight = throwRight;
         };
@@ -75,22 +82,43 @@ export class Item {
         }
     }
 
+    detecExplosionHit() {
+        currentMap.players.forEach((p: Player) => {
+            if (currentPhysics.allSides(p, this)) {
+                if (p.armorHp > 0) {
+                    p.armorHp = Math.max(p.armorHp - this.explostionDamage, 0);
+                } else {
+                    if(p.hp > 0) {
+                        p.hp = Math.max(p.hp - this.explostionDamage, 0);
+                    }
+                }
+                p.vel.y -= 10;
+            }
+        });
+    }
+
     explode() {
+        this.isExploding = true;
         const { animate, animation, sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = this.grenadeSprite.explosionAnimation;
         const offsetX = animate ? (animation as any).frameCut * (animation as any).frameX : 0;
-
+        this.pos.x = this.explosionPosX - 50;
+        this.pos.y = (this.explosionPosY - recommendedHeight) + 40;  // add slight corrections (10 is for physics displacement)
+        this.width = recommendedWidth,
+        this.height = recommendedHeight;
         ctx.drawImage(sprites.sheet,
             sX + offsetX,
             sY,
             cropWidth,
             cropHeight,
-            this.pos.x - 50,
-            (this.pos.y - recommendedHeight) + 40, // add slight corrections (10 is for physics displacement)
-            recommendedWidth,
-            recommendedHeight
+            this.pos.x,
+            this.pos.y,
+            this.width,
+            this.height
         );
         sprites.animate(this.grenadeSprite.explosionAnimation, false, false);
-        this.isExploding = true;
+        ctx.strokeStyle = 'red';
+        ctx.strokeRect(this.pos.x, this.pos.y, this.width, this.height);
+        this.detecExplosionHit();
         setTimeout(() => {
             currentMap.items = currentMap.items.filter((i: Item) => (i !== this));
         }, 300);
@@ -106,10 +134,6 @@ export class Item {
 
         if (this.isThrown) {
             this.explodeCounter -= 0.05;
-        }
-
-        if (this.explodeCounter <= 0) {
-            this.explode();
         }
     }
 
@@ -133,10 +157,24 @@ export class Item {
             this.updateThrow();
         }
 
+        if (this.explodeCounter <= 0) {
+            this.explode();
+        }
+
+        if (!this.isExploding) {
+            this.explosionPosX = this.pos.x;
+            this.explosionPosY = this.pos.y;
+        }
+
         this.pos.y += this.vel.y;
         this.pos.x += this.vel.x;
 
+        this.explosionPosX += this.vel.x;
+        this.explosionPosY += this.vel.y;
+
         this.pos.x += arena.pos.x;
+        this.explosionPosX += arena.pos.x;
+
         if (!this.noGravity) this.vel.y += gravity;
 
         // fix bouncing effect as platform moves with camera
