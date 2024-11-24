@@ -51,12 +51,13 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('player-pick-gun', { playerId: socket.id, gunMapIndex: gunMapIndex, isToCurrentGun: isToCurrentGun });
     });
 
-    socket.on('player-drop-gun', ({ roomId, currentGun, secondaryGun, gunToBeDropped }) => {
-        socket.to(roomId).emit('player-drop-gun', { playerId: socket.id, currentGun: currentGun, secondaryGun: secondaryGun, gunToBeDropped: gunToBeDropped });
+
+    socket.on('player-drop-gun', ({ roomId, replaceWithSecondary }) => {
+        socket.to(roomId).emit('player-drop-gun', { playerId: socket.id, replaceWithSecondary: replaceWithSecondary });
     });
 
     socket.on('player-shoot', ({ roomId }) => {
-        socket.to(roomId).emit('player-shot', { playerId: socket.id });
+        io.in(roomId).emit('player-shoot', { playerId: socket.id });
     });
 
     socket.on('player-throw', ({ roomId, throwAngle }) => {

@@ -9,7 +9,7 @@ export class Bullet {
     public bulletSprite: ISpriteData;
     public currentFrameOffsetX: number = 0;
     public isRight: boolean;
-
+    public player: any;
 
     public pos: Vec2;
     public absPos: Vec2;   
@@ -68,15 +68,13 @@ export class Bullet {
             this.height
         );
         ctx.restore();
-        // this.vel.x = this.isRight ? this.absVel.x : this.absVel.x * -1;
-        // console.log(this.vel.x);
         ctx.strokeStyle = 'red';
         ctx.strokeRect(this.pos.x, this.pos.y, 30, 10);
     }
 
     detectHits() {
         currentMap.players.forEach((player: Player) => {
-            if (!player.isYou) {
+            if (player !== this.player) { // if the bullet didnt hit the player that shot it
                 if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, player))) {
                     if (player.armorHp > 0) {
                         player.armorHp = Math.max(player.armorHp - gunConfigurations[this.gunType].damage, 0);
@@ -85,6 +83,7 @@ export class Bullet {
                             player.hp = Math.max(player.hp - gunConfigurations[this.gunType].damage, 0);
                         }
                     }
+
                     this.hasHitObject = true;
                 }
             }

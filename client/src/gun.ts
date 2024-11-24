@@ -184,6 +184,7 @@ export class Gun {
                 gunType: this.gunType,
                 isRight: this.player.state.isRight
             });
+            bullet.player = this.player;
             bullet.absVel.x = bullet.speed;
             bullet.vel.x = this.player.state.isRight ? bullet.speed : -bullet.speed;
             this.bulletsShot.push(bullet);

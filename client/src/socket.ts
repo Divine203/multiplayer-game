@@ -102,12 +102,12 @@ class Socket {
         });
 
 
-        this.host.off('player-shot').on('player-shot', ({ playerId }: { playerId: string | any }) => {
+        this.host.off('player-shoot').on('player-shoot', ({ playerId }: { playerId: string | any }) => {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 
             if (player && !player.isYou) {
                 console.log(`${player.name} just shot`);
-                player.primaryGun.shoot();
+                player.currentGun.shoot();
                 player.idleCount = 10;
             }
         });
@@ -123,36 +123,11 @@ class Socket {
             }
         });
 
-        this.host.off('player-drop-gun').on('player-drop-gun', ({ playerId, currentGun, secondaryGun, gunToBeDropped }: any) => {
+        this.host.off('player-drop-gun').on('player-drop-gun', ({ playerId, replaceWithSecondary }: any) => {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 
             if (player && !player.isYou) {
-                if (currentGun) {
-                    player.currentGun = new Gun({ x: 0, y: 0, gunType: currentGun });
-                    player.currentGun.isPicked = true;
-                    player.currentGun.player = player;
-                } else { player.currentGun = null }
-                if (secondaryGun) {
-                    player.secondaryGun = new Gun({ x: 0, y: 0, gunType: secondaryGun });
-                    player.secondaryGun.isPicked = true;
-                    player.secondaryGun.player = player;
-                } else { player.secondaryGun = null }
-
-                currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
-                    const { ammo, gunType, pos } = gunToBeDropped;
-                    const gunToDrop = new Gun({x: pos.x, y: pos.y, gunType: gunType });
-                    gunToDrop.pos = { y: tile.pos.y - (tile.initYPos - pos.y), x: (tile.pos.x + (pos.x - tile.initXPos) + 40 ) }; // +40 is simply correcting a slight displacement for more accuracy
-                    if(player.state.isRight) {
-                        gunToDrop.pos.x -= 29;
-                        gunToDrop.vel.x = 15;
-                    } else {
-                        gunToDrop.pos.x += 29;
-                        gunToDrop.vel.x = -15;
-                    }
-                    gunToDrop.vel.y -= 30;
-                    gunToDrop.ammo = ammo;
-                    currentMap.guns.push(gunToDrop);
-                });   
+                player.dropGun(replaceWithSecondary);
             }
         });
 
@@ -160,7 +135,6 @@ class Socket {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 
             if (player && !player.isYou) {
-                console.log(`${player.name} just threw at ${throwAngle}`);
                 player.throwProjectileAngle = throwAngle;
                 player.throwItem();
             }

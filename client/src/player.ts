@@ -215,8 +215,8 @@ export class Player {
                     this.pickUtil();
                 }
 
-              
-        
+
+
             }
             setTimeout(() => { this.canPick = true }, 1000);
         }
@@ -243,17 +243,12 @@ export class Player {
                     this.state.isActive = false;
                 }
                 currentMap.guns.push(gunToBeDropped);
-
-                server.host.emit('player-drop-gun', {
-                    roomId: this.currentRoom,
-                    currentGun: this.currentGun ? this.currentGun.gunType : null,
-                    secondaryGun: this.secondaryGun ? this.secondaryGun.gunType : null,
-                    gunToBeDropped: {
-                        ammo: gunToBeDropped.ammo,
-                        gunType: gunToBeDropped.gunType,
-                        pos: { x: this.absolutePos.x, y: this.absolutePos.y },
-                    }
-                });
+                if (this.isYou) {
+                    server.host.emit('player-drop-gun', {
+                        roomId: this.currentRoom,
+                        replaceWithSecondary: replaceWithSecondary,
+                    });
+                }
             }
         }
 
