@@ -6,7 +6,7 @@ import { Map1 } from "./map1";
 import { Tile } from "./tile";
 import { UI } from "./ui";
 import { Vec2 } from "./interfaces.interface";
-import { GunType, UIEvent } from "./data.enum";
+import { UIEvent } from "./data.enum";
 import { Sprites } from "./sprite";
 import { Gun } from "./gun";
 
@@ -116,7 +116,6 @@ class Socket {
             const player = currentMap.players.find((p: Player) => p.id === playerId);
 
             if (player && !player.isYou) {
-
                 player[isToCurrentGun ? 'currentGun' : 'secondaryGun'] = currentMap.guns[gunMapIndex];
                 player[isToCurrentGun ? 'currentGun' : 'secondaryGun'].isPicked = true;
                 player[isToCurrentGun ? 'currentGun' : 'secondaryGun'].player = player;
@@ -139,13 +138,21 @@ class Socket {
                     player.secondaryGun.player = player;
                 } else { player.secondaryGun = null }
 
-                const { ammo, gunType, pos, vel, posX, xCorrection } = gunToBeDropped;
-                const gunToDrop = new Gun({x: pos.x, y: pos.y, gunType: gunType });
-                gunToDrop.posX = posX;
-                gunToDrop.xCorrection = xCorrection;
-                gunToDrop.vel = vel;
-                gunToDrop.ammo = ammo;
-                currentMap.guns.push(gunToDrop);
+                currentMap.tiles.filter((t: Tile) => t.isIndicatorTile).forEach((tile: Tile) => {
+                    const { ammo, gunType, pos } = gunToBeDropped;
+                    const gunToDrop = new Gun({x: pos.x, y: pos.y, gunType: gunType });
+                    gunToDrop.pos = { y: tile.pos.y - (tile.initYPos - pos.y), x: (tile.pos.x + (pos.x - tile.initXPos) + 40 ) }; // +40 is simply correcting a slight displacement for more accuracy
+                    if(player.state.isRight) {
+                        gunToDrop.pos.x -= 29;
+                        gunToDrop.vel.x = 15;
+                    } else {
+                        gunToDrop.pos.x += 29;
+                        gunToDrop.vel.x = -15;
+                    }
+                    gunToDrop.vel.y -= 30;
+                    gunToDrop.ammo = ammo;
+                    currentMap.guns.push(gunToDrop);
+                });   
             }
         });
 

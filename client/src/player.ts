@@ -225,12 +225,14 @@ export class Player {
     public dropGun(replaceWithSecondary: boolean = false): void {
         const util = () => {
             if (this.currentGun && this.currentGun) {
+                let [posX, posY] = [this.pos.x, this.pos.y];
                 let gunToBeDropped = this.currentGun;
                 gunToBeDropped.isPicked = false;
                 gunToBeDropped.player = null;
+                gunToBeDropped.pos.x = posX;
+                gunToBeDropped.pos.y = posY;
                 gunToBeDropped.vel.y -= 30;
                 gunToBeDropped.vel.x = this.state.isRight ? 15 : -15;
-                currentMap.guns.push(gunToBeDropped);
 
                 if (replaceWithSecondary && this.secondaryGun) {
                     this.currentGun = this.secondaryGun;
@@ -240,12 +242,17 @@ export class Player {
                     this.idleCount = 10;
                     this.state.isActive = false;
                 }
+                currentMap.guns.push(gunToBeDropped);
 
                 server.host.emit('player-drop-gun', {
                     roomId: this.currentRoom,
                     currentGun: this.currentGun ? this.currentGun.gunType : null,
                     secondaryGun: this.secondaryGun ? this.secondaryGun.gunType : null,
-                    gunToBeDropped: gunToBeDropped
+                    gunToBeDropped: {
+                        ammo: gunToBeDropped.ammo,
+                        gunType: gunToBeDropped.gunType,
+                        pos: { x: this.absolutePos.x, y: this.absolutePos.y },
+                    }
                 });
             }
         }
