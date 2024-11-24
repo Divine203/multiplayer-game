@@ -308,17 +308,19 @@ export class Player {
             this.canShoot = true;
             this.state.isThrown = false;
         }, 500);
-        
+
     }
 
     private resetAfterSlide() {
+
+        this.height = this.defHeight;
         this.state.isSlide = false;
         this.canSlide = true;
         this.shouldSlide = false;
 
         // only push the player up to increase back their height IF they're on a platform
-        if (this.vel.y == 1.5 || this.vel.y == 0) this.pos.y = this.pos.y - this.defHeight / 1.5;
-        this.height = this.defHeight;
+        if (this.currentPlatform) this.pos.y = this.pos.y - this.defHeight
+
     }
 
     public slide(): void {

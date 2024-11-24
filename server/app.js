@@ -15,6 +15,33 @@ const port = 3000;
 
 const rooms = {};
 
+const generateSpawnPoints = (start, end, count) => {
+    if (count > Math.floor((end - start) / 30)) {
+        throw new Error("Not enough space in the range to generate unique spawn points with a gap of 30.");
+    }
+
+    const spawnPoints = [];
+    while (spawnPoints.length < count) {
+        const randomPoint = Math.floor(Math.random() * (end - start + 1)) + start;
+
+        // Check if the spawn point is valid (gap of at least 30 and not already in use)
+        if (
+            !spawnPoints.some(point => Math.abs(point - randomPoint) < 30)
+        ) {
+            spawnPoints.push(randomPoint);
+        }
+    }
+
+    return spawnPoints;
+}
+
+const generatePlayersSpawn = (players) => {    
+    const mapStart = -2000;
+    const mapEnd = 15000;
+
+    return generateSpawnPoints(mapStart, mapEnd, players.length);
+}
+
 app.use(express.static(path.join(__dirname, '../client/public')));
 
 io.on('connection', (socket) => {
@@ -22,7 +49,7 @@ io.on('connection', (socket) => {
 
     socket.on('ping', (startTime) => {
         socket.emit('pong', startTime);
-    });    
+    });
 
     socket.on('player-create-room', ({ playerName }) => {
         let newRoomId = uuidv4();
@@ -78,11 +105,12 @@ io.on('connection', (socket) => {
             io.in(roomId).emit('initialize-players', rooms[roomId]);
         }
     });
- 
+
     socket.on('start-game', ({ roomId }) => {
         rooms[roomId].isGameStarted = true;
-        io.in(roomId).emit('start-game', {});
-    }); 
+        const playersSpawnLocations = generatePlayersSpawn(rooms[roomId].players);
+        io.in(roomId).emit('start-game', {playersSpawnLocations: playersSpawnLocations});
+    });
 
     socket.on('player-move', ({ position, roomId, playerState, jumpCount, idleCount }) => {
         io.in(roomId).emit('player-move', { playerId: socket.id, position: position, playerState: playerState, jumpCount: jumpCount, idleCount });

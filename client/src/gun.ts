@@ -108,7 +108,10 @@ export class Gun {
 
         const correction = corrections[this.gunType] || { x: 0, y: 0 };
         this.xCorrection = correction.x;
-        this.yCorrection = correction.y;
+        this.yCorrection = correction.y; 
+        if(!this.player.isYou && isSlide) {
+            this.yCorrection = correction.y - 30;
+        }
     }
 
     // Helper function to determine if the gun should be hidden

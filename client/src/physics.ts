@@ -63,10 +63,6 @@ export class Physics {
             if (char.isPlayer) {
                 char.currentPlatform = platform;
             }
-        } else {
-            if (char.isPlayer) {
-                char.currentPlatform = null;
-            }
         }
         if (this.left(char, platform)) {
             char.vel.x = 0;

@@ -1,5 +1,6 @@
 import { Controls } from "./controls";
 import { GunType } from "./data.enum";
+import { Gun } from "./gun";
 import { Item } from "./item";
 import { Game } from "./main";
 import { Map1 } from "./map1";
@@ -30,6 +31,7 @@ export const spawn = (xLoc: number): void => {
     currentMap.tiles.forEach((t: Tile) => t.pos.x += xLoc);
     currentMap.items.forEach((i: Item) => i.pos.x += xLoc);
     currentMap.players.forEach((p: Player) => p.pos.x += xLoc);
+    currentMap.guns.forEach((g: Gun) => g.pos.x += xLoc);
 }
 
 export let sprites: Sprites;

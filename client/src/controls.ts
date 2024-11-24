@@ -9,6 +9,7 @@ export class Controls {
                 case 'ArrowUp':
                     if (currentPlayer.canJump) {
                         if (currentPlayer.jumpCount < 2) {
+                            currentPlayer.currentPlatform = null;
                             if (currentPlayer.jumpCount == 1) {
                                 currentPlayer.state.isDoubleJump = true;
                                 currentPlayer.state.isJump = false;

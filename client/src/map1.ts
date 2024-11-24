@@ -10,9 +10,7 @@ export class Map1 {
     public items: Item[] = [];
     public players: Player[] = [];
     public guns: Gun[] = [];
-
-    // map base is 700;
-
+    
     constructor() {
         this.init();
     }
@@ -41,14 +39,14 @@ export class Map1 {
             new Tile({ x: 9200, y: MAP_BASE + 300, width: 15400, height: 300, color: 'pink' }),
             new Tile({ x: 9500, y: MAP_BASE, width: 1200, height: 300, color: 'pink' }),
             new Tile({ x: 10900, y: MAP_BASE - 300, width: 400, height: 80, color: 'pink' }),
-            new Tile({ x: 11600, y: MAP_BASE - 500, width: 400, height: 80, color: 'pink' }),
+            new Tile({ x: 11600, y: MAP_BASE - 400, width: 400, height: 80, color: 'pink' }),
             new Tile({ x: 12400, y: MAP_BASE - 500, width: 600, height: 900, color: 'pink' }),
             new Tile({ x: 13400, y: MAP_BASE - 400, width: 600, height: 900, color: 'pink' }),
 
             new Tile({ x: 14300, y: MAP_BASE - 50, width: 300, height: 80, color: 'pink' }),
             new Tile({ x: 15000, y: MAP_BASE - 50, width: 300, height: 80, color: 'pink' }),
 
-            new Tile({ x: 15900, y: MAP_BASE - 400, width: 5600, height: 900, color: 'pink' }),
+            new Tile({ x: 15900, y: MAP_BASE, width: 5600, height: 900, color: 'pink' }),
         ];
         
         this.items = [

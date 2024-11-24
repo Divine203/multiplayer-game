@@ -1,7 +1,7 @@
 import { io } from "../node_modules/socket.io-client/build/esm/index";
 import { Game } from "./main";
 import { Player } from "./player";
-import { currentGame, setGame, currentMap, setPlayer, setMap, setUI, _ui, setRoomId, setSprites } from "./general";
+import { currentGame, setGame, currentMap, setPlayer, setMap, setUI, _ui, setRoomId, setSprites, arena, spawn, cvs } from "./general";
 import { Map1 } from "./map1";
 import { Tile } from "./tile";
 import { UI } from "./ui";
@@ -74,7 +74,16 @@ class Socket {
         });
 
 
-        this.host.on('start-game', () => {
+        this.host.on('start-game', ({ playersSpawnLocations } : any) => {
+            currentMap.players.forEach((p: Player, index: number) => {
+                let spawnX = playersSpawnLocations[index];
+                let d = spawnX - cvs.width/2;
+
+                p.pos.x = spawnX;
+                if(p.isYou) {
+                    spawn(-d);
+                } 
+            });
             _ui.listenUIEvent(UIEvent.START_GAME);
         });
 
