@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
 const app = express();
 const server = http.createServer(app);
+const { generateGunSpawns, generateItemSpawns, generateSpawnPoints, mapStart, mapEnd } = require('./utils');
 const io = new Server(server, {
     cors: {
         origin: 'http://localhost:8080', // Client URL
@@ -15,32 +16,26 @@ const port = 3000;
 
 const rooms = {};
 
-const generateSpawnPoints = (start, end, count) => {
-    if (count > Math.floor((end - start) / 30)) {
-        throw new Error("Not enough space in the range to generate unique spawn points with a gap of 30.");
-    }
-
-    const spawnPoints = [];
-    while (spawnPoints.length < count) {
-        const randomPoint = Math.floor(Math.random() * (end - start + 1)) + start;
-
-        // Check if the spawn point is valid (gap of at least 30 and not already in use)
-        if (
-            !spawnPoints.some(point => Math.abs(point - randomPoint) < 30)
-        ) {
-            spawnPoints.push(randomPoint);
-        }
-    }
-
-    return spawnPoints;
-}
-
-const generatePlayersSpawn = (players) => {    
-    const mapStart = -2000;
-    const mapEnd = 15000;
-
+const generatePlayersSpawn = (players) => {
     return generateSpawnPoints(mapStart, mapEnd, players.length);
 }
+
+const gunConfigs = {
+    pistol: { bulletSpeed: 35, fireRate: 4, damage: 5, mag: 100 },
+    ak47: { bulletSpeed: 40, fireRate: 8, damage: 5, mag: 400 },
+    m14: { bulletSpeed: 40, fireRate: 8, damage: 5, mag: 400 },
+    smg: { bulletSpeed: 45, fireRate: 12, damage: 4, mag: 500 },
+    shotgun: { bulletSpeed: 65, fireRate: 2, damage: 20, mag: 50 },
+    bazuka: { bulletSpeed: 20, fireRate: 1, damage: 30, mag: 10 }
+};
+
+const itemConfigs = {
+    grenade: 'grenade',
+    health: 'health',
+    armor: 'armor',
+    ammo: 'ammo',
+    barrel: 'barrel'
+};
 
 app.use(express.static(path.join(__dirname, '../client/public')));
 
@@ -92,6 +87,10 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('player-throwing', { playerId: socket.id });
     });
 
+    socket.on('barrel-explode', ({ roomId, barrelIndex }) => {
+        socket.to(roomId).emit('barrel-explode', { barrelIndex: barrelIndex });
+    });
+
     socket.on('check-and-join-room', ({ playerName, roomId }) => {
         if (roomId in rooms) {
             rooms[roomId].players.push({
@@ -109,7 +108,13 @@ io.on('connection', (socket) => {
     socket.on('start-game', ({ roomId }) => {
         rooms[roomId].isGameStarted = true;
         const playersSpawnLocations = generatePlayersSpawn(rooms[roomId].players);
-        io.in(roomId).emit('start-game', {playersSpawnLocations: playersSpawnLocations});
+        const gunSpawnLocations = generateGunSpawns(mapStart, mapEnd, 30, gunConfigs);
+        const itemSpawnLocations = generateItemSpawns(mapStart, mapEnd, 20, itemConfigs);
+        io.in(roomId).emit('start-game', { 
+            playersSpawnLocations: playersSpawnLocations, 
+            gunSpawnLocations: gunSpawnLocations,
+            itemSpawnLocations: itemSpawnLocations
+         });
     });
 
     socket.on('player-move', ({ position, roomId, playerState, jumpCount, idleCount }) => {

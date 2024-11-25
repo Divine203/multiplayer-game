@@ -1,13 +1,16 @@
 import { io } from "../node_modules/socket.io-client/build/esm/index";
 import { Game } from "./main";
 import { Player } from "./player";
-import { currentGame, setGame, currentMap, setPlayer, setMap, setUI, _ui, setRoomId, setSprites, arena, spawn, cvs } from "./general";
+import { currentGame, setGame, currentMap, setPlayer, setMap, setUI, _ui, setRoomId, setSprites, spawn, cvs, MAP_BASE, setSound } from "./general";
 import { Map1 } from "./map1";
 import { Tile } from "./tile";
 import { UI } from "./ui";
 import { Vec2 } from "./interfaces.interface";
-import { UIEvent } from "./data.enum";
+import { ItemType, UIEvent } from "./data.enum";
 import { Sprites } from "./sprite";
+import { Gun } from "./gun";
+import { Item } from "./item";
+import { Sound } from "./sound";
 
 class Socket {
     public host: any = io('http://localhost:3000');
@@ -74,16 +77,29 @@ class Socket {
         });
 
 
-        this.host.on('start-game', ({ playersSpawnLocations } : any) => {
+        this.host.on('start-game', ({ playersSpawnLocations, gunSpawnLocations, itemSpawnLocations } : any) => {
             currentMap.players.forEach((p: Player, index: number) => {
                 let spawnX = playersSpawnLocations[index];
                 let d = spawnX - cvs.width/2;
 
                 p.pos.x = spawnX;
                 if(p.isYou) {
+
+                    gunSpawnLocations.forEach((g: any) => {
+                        const gun = new Gun({ x: g.x, y: MAP_BASE - 1130, gunType: g.type });
+                        currentMap.guns.push(gun);
+                    });
+
+                    itemSpawnLocations.forEach((i: any) => {
+                        const item = new Item({ x: i.x, y: MAP_BASE - 1130, width: 100, height: 100, itemType: i.type });
+                        currentMap.items.push(item);
+                    });
+
                     spawn(-d);
+                    
                 } 
             });
+           
             _ui.listenUIEvent(UIEvent.START_GAME);
         });
 
@@ -163,6 +179,14 @@ class Socket {
                 player.state.isThrown = false;
                 player.idleCount = 10;
             }
+        });
+
+        this.host.off('barrel-explode').on('barrel-explode', ({ barrelIndex }: { barrelIndex: number }) => {
+            currentMap.items.forEach((item: Item, index: number) => {
+                if(index == barrelIndex && item.itemType == ItemType.BARREL) {
+                    currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
+                }
+            });
         });
 
 

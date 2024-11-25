@@ -1,5 +1,3 @@
-import { sprites } from "./general";
-
 export enum UIEvent {
     CREATED_ROOM = 'createdRoom',
     JOINED_ROOM = 'joinedRoom',

@@ -2,6 +2,7 @@ import { GunType, ItemType } from "./data.enum";
 import { arena, cameraState, ctx, currentMap, currentPhysics, currentPlayer, gunConfigurations, roomId, sprites } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { Item } from "./item";
+import { server } from "./main";
 import { Player } from "./player";
 import { ISpriteData } from "./sprite";
 import { Tile } from "./tile";
@@ -69,14 +70,13 @@ export class Bullet {
             this.height
         );
         ctx.restore();
-        ctx.strokeStyle = 'red';
-        ctx.strokeRect(this.pos.x, this.pos.y, 30, 10);
     }
 
     detectHits() {
         currentMap.players.forEach((player: Player) => {
             if (player !== this.player) { // if the bullet didnt hit the player that shot it
-                if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, player))) {
+                if (currentPhysics.allSides(this, player)) {
+                    this.player.sound.playAudio(this.player.sound.sound.bulletHitPlayer);
                     if (player.armorHp > 0) {
                         player.armorHp = Math.max(player.armorHp - gunConfigurations[this.gunType].damage, 0);
                     } else {
@@ -84,18 +84,23 @@ export class Bullet {
                             player.hp = Math.max(player.hp - gunConfigurations[this.gunType].damage, 0);
                         }
                     }
-
                     this.hasHitObject = true;
                 }
             }
         });
 
-        currentMap.items.filter((item: Item) => (item.itemType === ItemType.BARREL)).forEach((i: Item) => {
-            if (['left', 'right'].some(side => currentPhysics[side](this, i))) {
-                this.hasHitObject = true;   
-                i.explodeCounter = 0;
+        currentMap.items.forEach((item: Item, index: number) => {
+            if(item.itemType === ItemType.BARREL) {
+                if (currentPhysics.allSides(this, item)) {
+                    this.hasHitObject = true;   
+                    item.explodeCounter = 0;
+                    server.host.emit('barrel-explode', {
+                        roomId: roomId,
+                        barrelIndex: index
+                    });
+                }
             }
-        });
+        })
 
         currentMap.tiles.forEach((tile: Tile) => {
             if (['left', 'right'].some(side => currentPhysics[side](this, tile))) {

@@ -1,5 +1,5 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, cameraState, gunConfigurations, roomId } from "./general";
+import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, gunConfigurations, _sound } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
@@ -7,6 +7,7 @@ import { Item } from "./item";
 import { Camera } from "./camera";
 import { ISpriteData } from "./sprite";
 import { GunType, ItemType } from "./data.enum";
+import { Sound } from "./sound";
 
 
 export class Player {
@@ -38,6 +39,8 @@ export class Player {
     public hp: number = 50;
     public armorHp: number = 50;
     public grenadeAmount = 6;
+
+    public sound = new Sound();
 
     public healthBarWidth: number = 60;
     public isPlayer: boolean = true;
@@ -146,7 +149,8 @@ export class Player {
         isSlide: false,
         isActive: false,
         isThrowing: false,
-        isThrown: false
+        isThrown: false,
+        isDead: false
     }
     public currentSprite: ISpriteData = this.sprites.idleRight;
     public lastPos: any;
@@ -175,6 +179,7 @@ export class Player {
     }
 
     public switchGuns() {
+        _sound.playAudio(_sound.sound.reload2);
         let secondaryGun = this.secondaryGun;
         this.secondaryGun = this.currentGun;
         this.currentGun = secondaryGun;
@@ -202,6 +207,7 @@ export class Player {
         if (this.canPick) {
             this.canPick = false;
             if (this.viewedGun) {
+                _sound.playAudio(_sound.sound.reload2);
                 if (this.currentGun && !this.secondaryGun) {
                     this.viewedGun[0].isPicked = true;
                     this.viewedGun[0].player = this;
@@ -271,7 +277,7 @@ export class Player {
     public validateViewedGun() {
         // be 100% certain the player is within the gun's reach
         if (this.viewedGun) {
-            if (!(['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, this.viewedGun[0])))) { // if the guns aren't colliding
+            if (!currentPhysics.allSides(this, this.viewedGun[0])) { // if the guns aren't colliding
                 this.viewedGun = null;
             }
         }
@@ -312,18 +318,17 @@ export class Player {
     }
 
     private resetAfterSlide() {
-
         this.height = this.defHeight;
         this.state.isSlide = false;
         this.canSlide = true;
         this.shouldSlide = false;
 
         // only push the player up to increase back their height IF they're on a platform
-        if (this.currentPlatform) this.pos.y = this.pos.y - this.defHeight
-
+        if (this.currentPlatform) this.pos.y = this.pos.y - this.defHeight;
     }
 
     public slide(): void {
+
         this.state.isSlide = true;
         this.canSlide = false;
         this.height = this.defHeight / 2;
@@ -346,24 +351,28 @@ export class Player {
                 currentPhysics.add(this, item);
             }
             if (item.itemType === ItemType.HEALTH && this.hp < 100) {
-                if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, item))) {
+                if (currentPhysics.allSides(this, item)) {
+                    this.sound.playAudio(this.sound.sound.healthUp);
                     this.hp = 100;
                     currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
                 }
             } else if (item.itemType === ItemType.AMMO && this.currentGun) {
                 const maxAmmo = gunConfigurations[this.currentGun.gunType].mag;
-                if (this.currentGun.ammo < maxAmmo && ['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, item))) {
+                if (this.currentGun.ammo < maxAmmo && currentPhysics.allSides(this, item)) {
+                    this.sound.playAudio(this.sound.sound.reload);
                     this.currentGun.ammo = maxAmmo;
                     currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
                 }
             } else if (item.itemType === ItemType.ARMOR && this.armorHp < 100) {
-                if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, item))) {
+                if (currentPhysics.allSides(this, item)) {
+                    this.sound.playAudio(this.sound.sound.healthUp);
                     this.armorHp = 100;
                     currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
                 }
             } else if (item.itemType === ItemType.GRENADE && !item.isThrowable) {
                 if (this.grenadeAmount < 6) {
-                    if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](this, item))) {
+                    if (currentPhysics.allSides(this, item)) {
+                        this.sound.playAudio(this.sound.sound.reload2);
                         this.grenadeAmount++;
                         currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
                     }
@@ -372,7 +381,6 @@ export class Player {
         })
     }
 
-    // Helper function for setting the sprite
     private setSprite(sprite: any, reverse: boolean = false): void {
         this.currentSprite = sprite;
         this.reverseAnimation = reverse;

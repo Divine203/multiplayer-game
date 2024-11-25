@@ -1,10 +1,11 @@
 import { ItemType } from "./data.enum";
-import { arena, ctx, cameraState, sprites, currentMap, currentPhysics } from "./general";
+import { arena, ctx, cameraState, sprites, currentMap, currentPhysics, _sound } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { gravity } from "./physics";
 import { v4 as uuidv4 } from 'uuid';
 import { ISpriteData } from "./sprite";
 import { Player } from "./player";
+import { server } from "./main";
 
 export class Item {
     public _id: string | any = uuidv4();
@@ -36,6 +37,8 @@ export class Item {
 
     public explosionPosX: number;
     public explosionPosY: number;
+
+    public soundTheExplosion: boolean = true;
 
     public grenadeSprite: any = {
         explosionAnimation: {
@@ -98,6 +101,10 @@ export class Item {
     }
 
     explode() {
+        if(this.soundTheExplosion) {
+            _sound.playAudio(_sound.sound.explosion);
+            this.soundTheExplosion = false;
+        }
         this.isExploding = true;
         const { animate, animation, sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = this.grenadeSprite.explosionAnimation;
         const offsetX = animate ? (animation as any).frameCut * (animation as any).frameX : 0;
@@ -116,8 +123,6 @@ export class Item {
             this.height
         );
         sprites.animate(this.grenadeSprite.explosionAnimation, false, false);
-        ctx.strokeStyle = 'red';
-        ctx.strokeRect(this.pos.x, this.pos.y, this.width, this.height);
         this.detecExplosionHit();
         setTimeout(() => {
             currentMap.items = currentMap.items.filter((i: Item) => (i !== this));

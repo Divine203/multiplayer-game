@@ -1,5 +1,5 @@
 import { Player } from "./player";
-import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics, sprites } from "./general";
+import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics } from "./general";
 import { IKeys } from "./interfaces.interface";
 import { Tile } from "./tile";
 import { Item } from "./item";
@@ -47,7 +47,7 @@ export class Game {
                         currentPhysics.add(gun, tile);
                     });
                     if (!gun.isPicked) {
-                        if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](currentPlayer, gun))) {
+                        if (currentPhysics.allSides(currentPlayer, gun)) {
                             currentPlayer.viewedGun = [gun, index];
                         }
                     }

@@ -6,6 +6,7 @@ import { Game } from "./main";
 import { Map1 } from "./map1";
 import { Physics } from "./physics";
 import { Player } from "./player";
+import { Sound } from "./sound";
 import { Sprites } from "./sprite";
 import { Tile } from "./tile";
 import { UI } from "./ui";
@@ -43,6 +44,7 @@ export let currentGame: any;
 export let currentPlayer: any;
 export let currentMap: any;
 export let _ui: any;
+export let _sound: Sound = new Sound();
 
 export const setSprites = (sp: Sprites): void => {
     sprites = sp;
@@ -80,45 +82,53 @@ export const setUI = (ui: UI): void => {
     _ui = ui;
 }
 
+export const setSound = (sound: any): void => {
+    _sound = sound;
+}
+
 export const MAP_BASE: number = 700;
-
-
-
 export const gunConfigurations: any = {
     [GunType.PISTOL]: {
         bulletSpeed: 35,
         fireRate: 4, // shots per second
         damage: 5,
-        mag: 100
+        mag: 100,
+        sound: _sound.sound.pistol
     },
     [GunType.AK47]: {
         bulletSpeed: 40,
-        fireRate: 8,
+        fireRate: 18,
         damage: 5,
         mag: 400,
+        sound: _sound.sound.ak471
     },
     [GunType.M14]: {
         bulletSpeed: 40,
         fireRate: 8,
         damage: 5,
         mag: 400,
+        sound: _sound.sound.m142
+        
     },
     [GunType.SMG]: {
         bulletSpeed: 45,
         fireRate: 12,
         damage: 4,
         mag: 500,
+        sound: _sound.sound.smg1
     },
     [GunType.SHOTGUN]: {
         bulletSpeed: 65,
         fireRate: 2,
         damage: 20,
         mag: 50,
+        sound: _sound.sound.shotGun1
     },
     [GunType.BAZUKA]: {
         bulletSpeed: 20,
         fireRate: 1,
         damage: 30,
-        mag: 10
+        mag: 10,
+        sound: _sound.sound.bazooka
     }
 };

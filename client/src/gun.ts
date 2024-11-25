@@ -1,10 +1,11 @@
 import { Bullet } from "./bullet";
 import { GunType } from "./data.enum";
-import { _ui, arena, cameraState, ctx, cvs, gunConfigurations, sprites } from "./general";
+import { _sound, _ui, arena, cameraState, ctx, cvs, gunConfigurations, sprites } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { server } from "./main";
 import { gravity } from "./physics";
 import { Player } from "./player";
+import { AudioObj } from "./sound";
 import { ISpriteData } from "./sprite";
 
 export class Gun {
@@ -18,6 +19,7 @@ export class Gun {
     public isPicked: boolean = false;
     public gunSprite: ISpriteData;
     public fireRate: number = 0;
+    public sound: AudioObj;
     public damage: number = 0;
     public xCorrection: number = 0;
     public yCorrection: number = 0;
@@ -44,6 +46,7 @@ export class Gun {
         this.fireRate = gunConfigurations[gunType].fireRate;
         this.damage = gunConfigurations[gunType].damage;
         this.ammo = gunConfigurations[gunType].mag;
+        this.sound = gunConfigurations[gunType].sound;
     }
 
     draw() {
@@ -174,30 +177,37 @@ export class Gun {
         const timeBetweenShots = 1000 / this.fireRate;
 
         if (now - this.lastShotTime >= timeBetweenShots && this.ammo > 0) {
-            this.ammo--;
-            this.shot = true;
-            this.lastShotTime = now;
-            this.player.state.isActive = true;
+           this.shootUtil();
+           this.lastShotTime = now;
+        }
+    }
 
-            const bullet = new Bullet({
-                x: this.player.state.isRight ? (this.posX + this.xCorrection) + this.width : this.player.pos.x - this.width,
-                absX: (this.posX + this.xCorrection) + this.width,
-                y: (this.pos.y + this.yCorrection) + 5,
-                bulletType: `${this.gunType}_bullet`,
-                gunType: this.gunType,
-                isRight: this.player.state.isRight
+    shootUtil() {
+        this.ammo--;
+        this.shot = true;
+        
+        this.player.state.isActive = true;
+
+        this.player.sound.playAudio(this.sound);
+
+        const bullet = new Bullet({
+            x: this.player.state.isRight ? (this.posX + this.xCorrection) + this.width : this.player.pos.x - this.width,
+            absX: (this.posX + this.xCorrection) + this.width,
+            y: (this.pos.y + this.yCorrection) + 5,
+            bulletType: `${this.gunType}_bullet`,
+            gunType: this.gunType,
+            isRight: this.player.state.isRight
+        });
+        bullet.player = this.player;
+        bullet.absVel.x = bullet.speed;
+        bullet.vel.x = this.player.state.isRight ? bullet.speed : -bullet.speed;
+        this.bulletsShot.push(bullet);
+        setTimeout(() => { this.shot = false }, 100);
+
+        if (this.player.isYou) {
+            server.host.emit('player-shoot', {
+                roomId: this.player.currentRoom
             });
-            bullet.player = this.player;
-            bullet.absVel.x = bullet.speed;
-            bullet.vel.x = this.player.state.isRight ? bullet.speed : -bullet.speed;
-            this.bulletsShot.push(bullet);
-            setTimeout(() => { this.shot = false }, 100);
-
-            if (this.player.isYou) {
-                server.host.emit('player-shoot', {
-                    roomId: this.player.currentRoom
-                });
-            }
         }
     }
 
