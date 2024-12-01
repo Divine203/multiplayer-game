@@ -54,7 +54,7 @@ export const setPhysics = (physics: Physics): void => {
     currentPhysics = physics;
 }
 
-export const setControls = (controls: Controls): void => {
+export const setControls = (controls: Controls | any): void => {
     currentControls = controls;
 }
 

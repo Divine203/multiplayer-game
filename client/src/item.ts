@@ -5,7 +5,6 @@ import { gravity } from "./physics";
 import { v4 as uuidv4 } from 'uuid';
 import { ISpriteData } from "./sprite";
 import { Player } from "./player";
-import { server } from "./main";
 
 export class Item {
     public _id: string | any = uuidv4();

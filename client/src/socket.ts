@@ -184,7 +184,7 @@ class Socket {
         this.host.off('barrel-explode').on('barrel-explode', ({ barrelIndex }: { barrelIndex: number }) => {
             currentMap.items.forEach((item: Item, index: number) => {
                 if(index == barrelIndex && item.itemType == ItemType.BARREL) {
-                    currentMap.items = currentMap.items.filter((i: Item) => (i !== item));
+                    item.explodeCounter = 0;
                 }
             });
         });

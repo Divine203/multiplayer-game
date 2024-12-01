@@ -1,5 +1,5 @@
 import { IKeys, Vec2 } from "./interfaces.interface";
-import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, gunConfigurations, _sound } from "./general";
+import { ctx, currentGame, currentMap, arena, sprites, currentPhysics, gunConfigurations, _sound, setControls, _ui, cvs } from "./general";
 import { gravity, Physics } from "./physics";
 import { server } from "./main";
 import { Tile } from "./tile";
@@ -134,7 +134,17 @@ export class Player {
             ...sprites.createSprite(1580, 590, 120, 140),
             recommendedWidth: 95,
             recommendedHeight: 100
-        }
+        },
+        dieRight: {
+            ...sprites.createSprite(2710, 120, 150, 40),
+            recommendedWidth: 110,
+            recommendedHeight: 30
+        },
+        dieLeft: {
+            ...sprites.createSprite(10, 500, 150, 40),
+            recommendedWidth: 110,
+            recommendedHeight: 30
+        },
     }
 
     public reverseAnimation: boolean = false;
@@ -398,6 +408,14 @@ export class Player {
             return;
         }
 
+        if (this.state.isDead) {
+            this.setSprite(this.state.isRight ? this.sprites.dieRight : this.sprites.dieLeft);
+            this.height = this.sprites.dieLeft.recommendedHeight;
+            this.slideSpeed *= 1 - this.friction;
+            this.vel.x = this.state.isRight ? this.slideSpeed : -this.slideSpeed;
+            return
+        }
+
         if (this.state.isDoubleJump) {
             this.setSprite(
                 this.state.isRight ? this.sprites.doubleJumpRight : this.sprites.doubleJumpLeft,
@@ -582,6 +600,31 @@ export class Player {
         }
     }
 
+    showDeathAlert() {
+        ctx.fillStyle = _ui.bgColor;
+        ctx.fillRect(cvs.width / 2.2, 100, 110, 40);
+
+        ctx.fillStyle = 'red';
+        ctx.font = `18px consolas`
+        ctx.fillText('You Died', (cvs.width / 2.2) + 16, 125);
+    }
+
+    showWinAlert() {
+        ctx.fillStyle = _ui.bgColor;
+        ctx.fillRect(cvs.width / 2.2, 100, 100, 40);
+
+        ctx.fillStyle = 'green';
+        ctx.font = `18px consolas`
+        ctx.fillText('You Won', (cvs.width / 2.2) + 16, 125);
+    }
+
+    checkWin() {
+        const playersThatAreAlive = currentMap.players.filter((p: Player) => (!p.state.isDead));
+        if(playersThatAreAlive.length == 1 && playersThatAreAlive[0] == this) {
+            this.showWinAlert();
+        } 
+    }
+
 
     public udpate() {
         this.updateCurrentSprite();
@@ -639,7 +682,7 @@ export class Player {
             }
 
             this.validateViewedGun();
-
+            this.checkWin();
 
         } else if (!this.isYou && this.isEnemy) {
             this.pos.x += arena.pos.x;
@@ -651,6 +694,15 @@ export class Player {
 
         if (this.shouldSlide) {
             this.slide();
+        }
+
+        if (this.hp <= 0) {
+            this.state.isDead = true;
+
+            if(this.isYou) {
+                this.showDeathAlert();
+                setControls(null);  
+            }
         }
 
         if (this.secondaryGun) {
