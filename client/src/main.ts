@@ -1,5 +1,5 @@
 import { Player } from "./player";
-import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics, sprites } from "./general";
+import { cvs, ctx, arena, currentMap, currentPlayer, _ui, currentPhysics } from "./general";
 import { IKeys } from "./interfaces.interface";
 import { Tile } from "./tile";
 import { Item } from "./item";
@@ -38,9 +38,7 @@ export class Game {
 
                     currentMap.items.forEach((item: Item) => {
                         currentPhysics.add(item, tile);
-                        if (!item.isThrowable) {
-                            currentPhysics.add(currentPlayer, item);
-                        }
+
                     });
                 });
                 currentMap.guns.forEach((gun: Gun, index: number) => {
@@ -48,16 +46,21 @@ export class Game {
                     currentMap.tiles.forEach((tile: Tile) => {
                         currentPhysics.add(gun, tile);
                     });
-
-                    if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](currentPlayer, gun))) {
-                        currentPlayer.viewedGun = [gun, index];
+                    if (!gun.isPicked) {
+                        if (currentPhysics.allSides(currentPlayer, gun)) {
+                            currentPlayer.viewedGun = [gun, index];
+                        }
                     }
 
-                    gun.update();
+                    if (gun) {
+                        gun.update();
+                    }
                 });
                 currentMap.items.forEach((item: Item) => {
                     currentMap.items.forEach((item2: Item) => {
-                        currentPhysics.add(item, item2);
+                        if (item.hasPhysics && item2.hasPhysics) {
+                            currentPhysics.add(item, item2);
+                        }
                     });
                     item.update();
                 });
@@ -67,12 +70,9 @@ export class Game {
                     }
                 });
             }
-            //
 
-            // if (currentPlayer) {
-            //     sprites.testDraw(sprites.explosionAnimation);
-            //     sprites.animate(sprites.explosionAnimation, false, false);
-            // }
+
+
 
             this.moveGame();
             currentPlayer.udpate();

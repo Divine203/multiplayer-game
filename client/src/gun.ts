@@ -1,10 +1,11 @@
 import { Bullet } from "./bullet";
 import { GunType } from "./data.enum";
-import { arena, cameraState, ctx, cvs, gunConfigurations, sprites } from "./general";
+import { _sound, _ui, arena, cameraState, ctx, cvs, gunConfigurations, sprites } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { server } from "./main";
 import { gravity } from "./physics";
 import { Player } from "./player";
+import { AudioObj } from "./sound";
 import { ISpriteData } from "./sprite";
 
 export class Gun {
@@ -18,83 +19,22 @@ export class Gun {
     public isPicked: boolean = false;
     public gunSprite: ISpriteData;
     public fireRate: number = 0;
+    public sound: AudioObj;
     public damage: number = 0;
     public xCorrection: number = 0;
     public yCorrection: number = 0;
     public noGravity: boolean = false;
     public friction: number = 0.05;
+    public ammo: number;
     public posX: number = 0;
     public currentFrameOffsetX: number = 0;
     private lastShotTime: number = 0;
-    public gunSprites: any = {
-        pistol: {
-            ...sprites.createSprite(30, 1300, 90, 60),
-            recommendedWidth: 40,
-            recommendedHeight: 25
-        },
-        ak47: {
-            ...sprites.createSprite(160, 1300, 160, 70),
-            recommendedWidth: 75,
-            recommendedHeight: 25
-        },
-        smg: {
-            ...sprites.createSprite(340, 1290, 150, 90),
-            recommendedWidth: 55,
-            recommendedHeight: 35
-        },
-        m14: {
-            ...sprites.createSprite(500, 1290, 160, 80),
-            recommendedWidth: 75,
-            recommendedHeight: 30
-        },
-        shotgun: {
-            ...sprites.createSprite(680, 1310, 150, 50),
-            recommendedWidth: 75,
-            recommendedHeight: 25
-        },
-        bazuka: {
-            ...sprites.createSprite(840, 1290, 240, 80),
-            recommendedWidth: 115,
-            recommendedHeight: 35
-        }
-    };
-
-    public gunFireSprites: any = {
-        machinGunFire1: {
-            ...sprites.createSprite(2510, 1150, 180, 260),
-            recommendedWidth: 55,
-            recommendedHeight: 75
-        },
-        machinGunFire2: {
-            ...sprites.createSprite(2450, 1500, 240, 130),
-            recommendedWidth: 95,
-            recommendedHeight: 45
-        },
-
-        pistolFire: {
-            ...sprites.createSprite(2850, 1240, 60, 70),
-            recommendedWidth: 25,
-            recommendedHeight: 30
-        },
-
-        shotGunFire: {
-            ...sprites.createSprite(2460, 1750, 240, 110),
-            recommendedWidth: 95,
-            recommendedHeight: 35
-        },
-
-        smallExplosion: {
-            ...sprites.createSprite(2830, 1500, 100, 100),
-            recommendedWidth: 50,
-            recommendedHeight: 50,
-        }
-    };
     public bulletsShot: any[] = [];
 
-    constructor({ x, y, gunType, player }: IGun) {
+    constructor({ x, y, gunType, player = null }: IGun) {
         this.player = player;
         this.gunType = gunType;
-        this.gunSprite = this.gunSprites[this.gunType];
+        this.gunSprite = sprites.gunSprites[this.gunType];
         this.pos = {
             x,
             y,
@@ -105,6 +45,8 @@ export class Gun {
 
         this.fireRate = gunConfigurations[gunType].fireRate;
         this.damage = gunConfigurations[gunType].damage;
+        this.ammo = gunConfigurations[gunType].mag;
+        this.sound = gunConfigurations[gunType].sound;
     }
 
     draw() {
@@ -169,19 +111,22 @@ export class Gun {
 
         const correction = corrections[this.gunType] || { x: 0, y: 0 };
         this.xCorrection = correction.x;
-        this.yCorrection = correction.y;
+        this.yCorrection = correction.y; 
+        if(!this.player.isYou && isSlide) {
+            this.yCorrection = correction.y - 30;
+        }
     }
 
     // Helper function to determine if the gun should be hidden
     private shouldHideGun(): boolean {
-        const { isDoubleJump, isActive } = this.player.state;
+        const { isDoubleJump, isActive, isThrowing, isThrown } = this.player.state;
         return (
             (isDoubleJump && (this.gunType === GunType.PISTOL || this.gunType === GunType.SMG)) ||
-            !isActive
+            !isActive || isThrowing || isThrown
         );
     }
     drawGunFire() {
-        let { machinGunFire1, machinGunFire2, pistolFire, shotGunFire, smallExplosion } = this.gunFireSprites;
+        let { machinGunFire1, machinGunFire2, pistolFire, shotGunFire, smallExplosion } = sprites.gunFireSprites;
         let sprite: ISpriteData = machinGunFire1;
         let xAdd = 75;
         let yAdd = -33;
@@ -217,33 +162,52 @@ export class Gun {
         );
     }
 
+    showNoAmmoAlert() {
+        ctx.fillStyle = _ui.bgColor;
+        ctx.fillRect(cvs.width / 2.2, 100, 100, 40);
+
+        ctx.fillStyle = 'red';
+        ctx.font = `18px consolas`
+        ctx.fillText('No ammo', (cvs.width / 2.2) + 16, 125);
+    }
+
 
     shoot() {
         const now = Date.now();
         const timeBetweenShots = 1000 / this.fireRate;
 
-        if (now - this.lastShotTime >= timeBetweenShots) {
-            this.shot = true;
-            this.lastShotTime = now;
-            this.player.state.isActive = true;
+        if (now - this.lastShotTime >= timeBetweenShots && this.ammo > 0) {
+           this.shootUtil();
+           this.lastShotTime = now;
+        }
+    }
 
-            const bullet = new Bullet({
-                x: (this.posX + this.xCorrection) + this.width,
-                y: (this.pos.y + this.yCorrection) + 5,
-                bulletType: `${this.gunType}_bullet`,
-                gunType: this.gunType,
-                isRight: this.player.state.isRight
+    shootUtil() {
+        this.ammo--;
+        this.shot = true;
+        
+        this.player.state.isActive = true;
+
+        this.player.sound.playAudio(this.sound);
+
+        const bullet = new Bullet({
+            x: this.player.state.isRight ? (this.posX + this.xCorrection) + this.width : this.player.pos.x - this.width,
+            absX: (this.posX + this.xCorrection) + this.width,
+            y: (this.pos.y + this.yCorrection) + 5,
+            bulletType: `${this.gunType}_bullet`,
+            gunType: this.gunType,
+            isRight: this.player.state.isRight
+        });
+        bullet.player = this.player;
+        bullet.absVel.x = bullet.speed;
+        bullet.vel.x = this.player.state.isRight ? bullet.speed : -bullet.speed;
+        this.bulletsShot.push(bullet);
+        setTimeout(() => { this.shot = false }, 100);
+
+        if (this.player.isYou) {
+            server.host.emit('player-shoot', {
+                roomId: this.player.currentRoom
             });
-            bullet.vel.x = bullet.speed;
-            this.bulletsShot.push(bullet);
-
-            setTimeout(() => { this.shot = false }, 100);
-
-            if (this.player.isYou) {
-                server.host.emit('player-shoot', {
-                    roomId: this.player.currentRoom
-                });
-            }
         }
     }
 
@@ -282,6 +246,11 @@ export class Gun {
                 this.noGravity = false;
             }
         } else {
+            if (this.player.isYou) {
+                if (this.ammo <= 0) {
+                    this.showNoAmmoAlert();
+                }
+            }
             this.pos.x = this.player.pos.x + this.width / 4;
             this.pos.y = this.player.pos.y + (this.player.height / 2);
 

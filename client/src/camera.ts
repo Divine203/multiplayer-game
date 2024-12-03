@@ -65,9 +65,9 @@ export class Camera {
         // up down movement
         if (this.isCamTop() && !this.isCamBottom() && !this.player.isJumping) {
             setCameraState('up');
-            if (this.player.currentPlatform) {
-                this.player.pos.y = (this.player.currentPlatform.pos.y - this.player.height) - 10;
-            }
+            // if (this.player.currentPlatform) {
+            //     this.player.pos.y = (this.player.currentPlatform.pos.y - this.player.height) - 10;
+            // }
             arena.vel.y = arena.speed;
 
         } else if (!this.isCamTop() && this.isCamBottom() && !this.player.isJumping) {

@@ -1,61 +1,41 @@
-import { GunType } from "./data.enum";
+import { GunType, ItemType } from "./data.enum";
 import { arena, cameraState, ctx, currentMap, currentPhysics, currentPlayer, gunConfigurations, roomId, sprites } from "./general";
 import { Vec2 } from "./interfaces.interface";
+import { Item } from "./item";
+import { server } from "./main";
 import { Player } from "./player";
 import { ISpriteData } from "./sprite";
+import { Tile } from "./tile";
 
 export class Bullet {
     public bulletSprite: ISpriteData;
     public currentFrameOffsetX: number = 0;
     public isRight: boolean;
-    public bulletSprites: any = {
-        pistol_bullet: {
-            ...sprites.createSprite(90, 1450, 30, 10),
-            recommendedWidth: 15,
-            recommendedHeight: 5
-        },
-        ak47_bullet: {
-            ...sprites.createSprite(260, 1450, 50, 10),
-            recommendedWidth: 25,
-            recommendedHeight: 5
-        },
-        smg_bullet: {
-            ...sprites.createSprite(430, 1450, 40, 10),
-            recommendedWidth: 20,
-            recommendedHeight: 5
-        },
-        m14_bullet: {
-            ...sprites.createSprite(610, 1450, 50, 10),
-            recommendedWidth: 25,
-            recommendedHeight: 5
-        },
-        shotgun_bullet: {
-            ...sprites.createSprite(780, 1450, 40, 10),
-            recommendedWidth: 20,
-            recommendedHeight: 5
-        },
-        bazuka_bullet: {
-            ...sprites.createSprite(970, 1440, 110, 30),
-            recommendedWidth: 50,
-            recommendedHeight: 15
-        }
-    }
+    public player: any;
 
     public pos: Vec2;
+    public absPos: Vec2;   
+    public absVel: Vec2;
     public vel: Vec2;
     public width: number;
     public height: number;
     public speed: number;
     public initYPos: number;
-    public hasHitObject: boolean = false
+    public hasHitObject: boolean = false;
+    public gunType: GunType;
 
-    constructor({x, y, bulletType, gunType, isRight}: IBullet) {
+    constructor({ x, absX, y, bulletType, gunType, isRight }: IBullet) {
         this.pos = {
             x,
             y
         };
+        this.absPos = {
+            x,
+            y
+        };
+        this.absPos.x = absX;
         this.isRight = isRight;
-        this.bulletSprite = this.bulletSprites[bulletType];
+        this.bulletSprite = sprites.bulletSprites[bulletType];
         this.width = (this.bulletSprite.recommendedWidth as number);
         this.height = (this.bulletSprite.recommendedHeight as number);
 
@@ -63,9 +43,13 @@ export class Bullet {
             x: 0,
             y: 0
         };
+        this.absVel = {
+            x: 0,
+            y: 0
+        };
 
         this.initYPos = y;
-    
+        this.gunType = gunType;
         this.speed = gunConfigurations[gunType].bulletSpeed;
     }
 
@@ -73,41 +57,73 @@ export class Bullet {
     draw() {
         this.currentFrameOffsetX = this.bulletSprite.animate ? (this.bulletSprite.animation as any).frameCut * (this.bulletSprite.animation as any).frameX : 0;
         ctx.save();
-        ctx.translate(this.width, 0); 
+        ctx.translate(this.width, 0);
         ctx.scale(this.isRight ? 1 : -1, 1);
         ctx.drawImage(sprites.sheet,
             this.bulletSprite.sX + this.currentFrameOffsetX,
             this.bulletSprite.sY,
             this.bulletSprite.cropWidth,
             this.bulletSprite.cropHeight,
-            this.pos.x,
-            this.pos.y,
+            this.absPos.x,
+            this.absPos.y,  
             this.width,
             this.height
         );
-
         ctx.restore();
     }
 
     detectHits() {
         currentMap.players.forEach((player: Player) => {
-            if (['left', 'right', 'top', 'bottom'].some(side => currentPhysics[side](player, this))) {
-                if(player.hp > 0) {
-                    player.hp = player.hp - 4;
+            if (player !== this.player) { // if the bullet didnt hit the player that shot it
+                if (currentPhysics.allSides(this, player)) {
+                    this.player.sound.playAudio(this.player.sound.sound.bulletHitPlayer);
+                    if (player.armorHp > 0) {
+                        player.armorHp = Math.max(player.armorHp - gunConfigurations[this.gunType].damage, 0);
+                    } else {
+                        if(player.hp > 0) {
+                            player.hp = Math.max(player.hp - gunConfigurations[this.gunType].damage, 0);
+                        }
+                    }
+                    this.hasHitObject = true;
                 }
-                this.hasHitObject = true;
             }
         });
+
+        currentMap.items.forEach((item: Item, index: number) => {
+            if(item.itemType === ItemType.BARREL) {
+                if (currentPhysics.allSides(this, item)) {
+                    this.hasHitObject = true;   
+                    item.explodeCounter = 0;
+                    server.host.emit('barrel-explode', {
+                        roomId: roomId,
+                        barrelIndex: index
+                    });
+                }
+            }
+        })
+
+        currentMap.tiles.forEach((tile: Tile) => {
+            if (['left', 'right'].some(side => currentPhysics[side](this, tile))) {
+                this.hasHitObject = true;
+            }
+        })
     }
 
     update() {
         this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
 
+        this.absPos.x += this.absVel.x;
+        this.absPos.y += this.vel.y;
+
         // fix falling/rising effect when camera moves up/down
-        if(cameraState == 'up' || cameraState == 'down') this.pos.y = currentPlayer.pos.y;
+        if (cameraState == 'up' || cameraState == 'down') {
+            this.pos.y = currentPlayer.pos.y;
+            this.absPos.y = currentPlayer.pos.y;
+        }
 
         this.pos.x += arena.pos.x;
+        this.absPos.x += arena.pos.x;
 
         this.draw();
         this.detectHits();
@@ -116,6 +132,7 @@ export class Bullet {
 
 export interface IBullet {
     x: number;
+    absX: number,
     y: number;
     bulletType: string;
     gunType: GunType;
