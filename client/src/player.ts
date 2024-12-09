@@ -682,7 +682,7 @@ export class Player {
             }
 
             this.validateViewedGun();
-            this.checkWin();
+            // this.checkWin();
 
         } else if (!this.isYou && this.isEnemy) {
             this.pos.x += arena.pos.x;

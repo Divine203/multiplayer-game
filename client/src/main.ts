@@ -5,6 +5,7 @@ import { Tile } from "./tile";
 import { Item } from "./item";
 import Socket from "./socket";
 import { Gun } from "./gun";
+import { ItemType } from "./data.enum";
 export class Game {
     public cvsMinHeight = 840;
 
@@ -22,12 +23,20 @@ export class Game {
         window.addEventListener("resize", () => {
             this.resize();
         });
+        window.addEventListener('mousedown', (e) => {
+            let mouseX = e.clientX - cvs.getBoundingClientRect().left;
+            let mouseY = e.clientY - cvs.getBoundingClientRect().top;
+
+            currentMap.items.push(new Item({ x: mouseX, y: mouseY, width: 100, height: 100, itemType: ItemType.HEALTH, hasPhysics : true, isBox: true }));
+    
+        });
     }
 
     private render(): void {
         if (!_ui.isMainMenuActive && !_ui.inRoom) {
             ctx.clearRect(0, 0, cvs.width, cvs.height);
             ctx.fillStyle = "#495250";
+            // ctx.fillStyle = "#";
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
             // Physics relationship
@@ -78,7 +87,7 @@ export class Game {
             currentPlayer.udpate();
         }
 
-        _ui.update();
+        // _ui.update();
     }
 
     private resize(): void {
@@ -109,3 +118,67 @@ const animate = () => {
 }
 
 animate();
+
+
+
+
+
+
+
+
+
+
+const sheet: any = {};
+
+
+const sprites = {
+    runRight: {
+        ...sheet.createSprite(1970, 0, 50, 160),
+        recommendedWidth: 140,
+        recommendedHeight: 120
+    },
+    runLeft: {
+        ...sheet.createSprite(1900, 50, 250, 160),
+        recommendedWidth: 140,
+        recommendedHeight: 120
+    },
+    jumpRight: {
+        ...sheet.createSprite(4532, 0, 50, 120),
+        recommendedWidth: 60,
+        recommendedHeight: 100
+    },
+    jumpLeft: {
+        ...sheet.createSprite(4732, 230, 50, 320),
+        recommendedWidth: 60,
+        recommendedHeight: 100
+    },
+    dieRight: {
+        sprite: 'dieRight.png',
+        recommendedWidth: 75,
+        recommendedHeight: 120,
+    },
+    dieLeft: {
+        sprite: 'dieLeft.png',
+        recommendedWidth: 75,
+        recommendedHeight: 120
+    },
+};
+
+
+const sprite: any = {};
+const width = 100;
+const height = 100;
+
+
+
+ctx.drawImage(sheet,
+    sprite.sX,
+    sprite.sY,
+    sprite.cropWidth,
+    sprite.cropHeight,
+    75,
+    75,
+    width,
+    height
+);
+

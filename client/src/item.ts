@@ -38,6 +38,7 @@ export class Item {
     public explosionPosY: number;
 
     public soundTheExplosion: boolean = true;
+    public isBox: boolean = false;
 
     public grenadeSprite: any = {
         explosionAnimation: {
@@ -47,7 +48,7 @@ export class Item {
         }
     };
 
-    constructor({ x, y, width, height, itemType, hasPhysics = false, isThrowable = false, throwRight = false }: IItem) {
+    constructor({ x, y, width, height, itemType, hasPhysics = false, isThrowable = false, throwRight = false, isBox = false }: IItem) {
         this.pos = { x, y } as Vec2;
         this.vel = { x: 0, y: 0 } as Vec2;
         this.width = width;
@@ -61,26 +62,31 @@ export class Item {
         if (this.isThrowable) {
             this.throwRight = throwRight;
         };
-
+        this.isBox = isBox;
     }
 
     draw() {
-        let sprite: ISpriteData = sprites.itemSprites[this.itemType];
-        if (!this.isExploding && this.explodeCounter > 0)  {
-            let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = sprite;
-            this.width = recommendedWidth as number;
-            this.height = recommendedHeight as number;
-            ctx.drawImage(
-                sprites.sheet,
-                sX,
-                sY,
-                cropWidth,
-                cropHeight,
-                this.pos.x,
-                this.isThrowable || this.itemType == ItemType.BARREL ? this.pos.y + 10 : this.pos.y + 10,
-                this.width,
-                this.height
-            );
+        if (!this.isBox) {
+            let sprite: ISpriteData = sprites.itemSprites[this.itemType];
+            if (!this.isExploding && this.explodeCounter > 0) {
+                let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = sprite;
+                this.width = recommendedWidth as number;
+                this.height = recommendedHeight as number;
+                ctx.drawImage(
+                    sprites.sheet,
+                    sX,
+                    sY,
+                    cropWidth,
+                    cropHeight,
+                    this.pos.x,
+                    this.isThrowable || this.itemType == ItemType.BARREL ? this.pos.y + 10 : this.pos.y + 10,
+                    this.width,
+                    this.height
+                );
+            }
+        } else {
+            ctx.fillStyle = 'orange';
+            ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
         }
     }
 
@@ -90,7 +96,7 @@ export class Item {
                 if (p.armorHp > 0) {
                     p.armorHp = Math.max(p.armorHp - this.explostionDamage, 0);
                 } else {
-                    if(p.hp > 0) {
+                    if (p.hp > 0) {
                         p.hp = Math.max(p.hp - this.explostionDamage, 0);
                     }
                 }
@@ -100,7 +106,7 @@ export class Item {
     }
 
     explode() {
-        if(this.soundTheExplosion) {
+        if (this.soundTheExplosion) {
             _sound.playAudio(_sound.sound.explosion);
             this.soundTheExplosion = false;
         }
@@ -110,7 +116,7 @@ export class Item {
         this.pos.x = this.explosionPosX - 50;
         this.pos.y = (this.explosionPosY - recommendedHeight) + 40;  // add slight corrections (10 is for physics displacement)
         this.width = recommendedWidth,
-        this.height = recommendedHeight;
+            this.height = recommendedHeight;
         ctx.drawImage(sprites.sheet,
             sX + offsetX,
             sY,
@@ -205,4 +211,5 @@ export interface IItem {
     hasPhysics?: boolean;
     isThrowable?: boolean;
     throwRight?: boolean;
+    isBox?: boolean;
 }

@@ -85,15 +85,15 @@ class Socket {
                 p.pos.x = spawnX;
                 if(p.isYou) {
 
-                    gunSpawnLocations.forEach((g: any) => {
-                        const gun = new Gun({ x: g.x, y: MAP_BASE - 1130, gunType: g.type });
-                        currentMap.guns.push(gun);
-                    });
+                    // gunSpawnLocations.forEach((g: any) => {
+                    //     const gun = new Gun({ x: g.x, y: MAP_BASE - 1130, gunType: g.type });
+                    //     currentMap.guns.push(gun);
+                    // });
 
-                    itemSpawnLocations.forEach((i: any) => {
-                        const item = new Item({ x: i.x, y: MAP_BASE - 1130, width: 100, height: 100, itemType: i.type });
-                        currentMap.items.push(item);
-                    });
+                    // itemSpawnLocations.forEach((i: any) => {
+                    //     const item = new Item({ x: i.x, y: MAP_BASE - 1130, width: 100, height: 100, itemType: i.type });
+                    //     currentMap.items.push(item);
+                    // });
 
                     spawn(-d);
                     
