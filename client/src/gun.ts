@@ -210,6 +210,8 @@ export class Gun {
             });
         }
     }
+    
+    
 
     updateBullets() {
         this.player.state.isActive = !(this.player.idleCount <= 0);

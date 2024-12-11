@@ -1,10 +1,11 @@
-import { ItemType } from "./data.enum";
-import { arena, ctx, cameraState, sprites, currentMap, currentPhysics, _sound } from "./general";
+import { GunType, ItemType } from "./data.enum";
+import { arena, ctx, cameraState, sprites, currentMap, currentPhysics, _sound, gunConfigurations } from "./general";
 import { Vec2 } from "./interfaces.interface";
 import { gravity } from "./physics";
 import { v4 as uuidv4 } from 'uuid';
 import { ISpriteData } from "./sprite";
 import { Player } from "./player";
+import { IBullet } from "./bullet";
 
 export class Item {
     public _id: string | any = uuidv4();
@@ -212,4 +213,51 @@ export interface IItem {
     isThrowable?: boolean;
     throwRight?: boolean;
     isBox?: boolean;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export class Bullet {
+    public player: any;
+    public gunType: GunType;
+    public hasHitObject: boolean = false;
+
+    constructor({ x, absX, y, bulletType, gunType, isRight }: IBullet) {
+        this.gunType = gunType;
+    }
+
+    detectHits() {
+        currentMap.players.forEach((player: Player) => {
+            if (player !== this.player) { // if the bullet didnt hit the player that shot it
+                if (currentPhysics.allSides(this, player)) {
+                    this.player.sound.playAudio(this.player.sound.sound.bulletHitPlayer);
+                    if (player.armorHp > 0) {
+                        player.armorHp = Math.max(player.armorHp - gunConfigurations[this.gunType].damage, 0);
+                    } else {
+                        if (player.hp > 0) {
+                            player.hp = Math.max(player.hp - gunConfigurations[this.gunType].damage, 0);
+                        }
+                    }
+                    this.hasHitObject = true;
+                }
+            }
+        });
+    }
 }

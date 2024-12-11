@@ -11,11 +11,9 @@ export class Camera {
 
     public mapBase: number = MAP_BASE;
 
-    public showCameraTimer = 0;
-
     constructor(player: Player) {
         this.player = player;
-        this.width = cvs.width - (cvs.width / 5);
+        this.width = cvs.width - (cvs.width/5);
         this.height = 100;
         this.pos = {
             x: 0,
@@ -48,12 +46,8 @@ export class Camera {
     }
 
     public showCamera() {
-        this.showCameraTimer++;
-
-        if (this.showCameraTimer > 320) {
-            ctx.fillStyle = 'rgba(255, 0, 0 , 0.2)';
-            ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
-        }
+        ctx.fillStyle = 'rgba(0, 0, 255 , 0.3)';
+        ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
     }
 
     public followPlayer() {
@@ -65,15 +59,15 @@ export class Camera {
             x: 0,
             y: 0
         };
-        this.width = cvs.width - (cvs.width / 5);
+        this.width = cvs.width - (cvs.width/5);
         this.height = 700;
 
         // up down movement
         if (this.isCamTop() && !this.isCamBottom() && !this.player.isJumping) {
             setCameraState('up');
-            if (this.player.currentPlatform) {
-                this.player.pos.y = (this.player.currentPlatform.pos.y - this.player.height) - 10;
-            }
+            // if (this.player.currentPlatform) {
+            //     this.player.pos.y = (this.player.currentPlatform.pos.y - this.player.height) - 10;
+            // }
             arena.vel.y = arena.speed;
 
         } else if (!this.isCamTop() && this.isCamBottom() && !this.player.isJumping) {
@@ -105,15 +99,15 @@ export class Camera {
             this.player.vel.x = 0;
         }
 
-        if (this.player.shouldSlide) {
-            if (this.player.camera.isCamLeft()) {
+        if(this.player.shouldSlide) {
+            if(this.player.camera.isCamLeft()) {
                 if (this.player.camera.pos.x + this.player.camera.width < arena.width) {
                     this.player.camera.vel.x = -(this.player.speed);
                 }
             }
             else if (this.player.camera.isCamRight()) {
                 this.player.camera.vel.x = (this.player.speed);
-            }
+            } 
         }
 
         // calculate player's absolute position
