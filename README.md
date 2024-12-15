@@ -22,7 +22,7 @@
 
 ---
 
-## 🎥 Demo Video
+## 🎥 How i made it
 
 [Watch on YouTube](https://www.youtube.com/watch?v=wnlLsXZaD88&t=30s)
 
