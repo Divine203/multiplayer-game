@@ -113,6 +113,15 @@ export class UI {
     }
 
     public listeners() {
+        this.getEl('copy-id--btn').addEventListener('click', () => {
+            const input = this.getEl('input_displayRoomId');
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(input.value)
+                .then(() => alert('Copied to clipboard!'))
+                .catch(err => alert('Failed to copy text'));
+        });
+
         document.addEventListener('keydown', (e) => {
             if (this.isMainMenuActive || this.inRoom) {
                 switch (e.key) {
@@ -251,11 +260,11 @@ export class UI {
     }
 
     public drawPlayerGrenades() {
-        if(currentPlayer.grenadeAmount > 0) {
+        if (currentPlayer.grenadeAmount > 0) {
             ctx.fillStyle = this.bgColor;
             ctx.fillRect(0, 315, 350, 80);
 
-            for(let i = 0; i < currentPlayer.grenadeAmount; i++) {
+            for (let i = 0; i < currentPlayer.grenadeAmount; i++) {
                 let { sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = sprites.itemSprites[ItemType.GRENADE];
                 ctx.drawImage(this.sprites.sheet,
                     sX,
@@ -266,7 +275,7 @@ export class UI {
                     recommendedWidth as number,
                     recommendedHeight as number
                 );
-    
+
             }
         }
     }
@@ -430,7 +439,9 @@ export class UI {
             const markup = `
             <div class="player">
                 <p style="color: ${color}">${player.name}</p>
-                <span class="profile"></span>
+                <div class="profile">
+                    <img src="../assets/player.png"/>
+                </div>
             </div>      
         `;
             this.views.player_list.insertAdjacentHTML('afterbegin', markup);

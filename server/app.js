@@ -40,8 +40,6 @@ const itemConfigs = {
 app.use(express.static(path.join(__dirname, '../client/public')));
 
 io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-
     socket.on('ping', (startTime) => {
         socket.emit('pong', startTime);
     });
@@ -87,21 +85,31 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('player-throwing', { playerId: socket.id });
     });
 
+    socket.on('player-death', ({ roomId, playerId }) => {
+        io.in(roomId).emit('player-death', { playerId: playerId });
+    });
+
     socket.on('barrel-explode', ({ roomId, barrelIndex }) => {
         socket.to(roomId).emit('barrel-explode', { barrelIndex: barrelIndex });
     });
 
     socket.on('check-and-join-room', ({ playerName, roomId }) => {
         if (roomId in rooms) {
-            rooms[roomId].players.push({
-                id: socket.id,
-                name: playerName,
-                isHost: false,
-                roomId: roomId
-            });
-            socket.join(roomId);
-            io.in(roomId).emit('player-joined', { roomId: roomId });
-            io.in(roomId).emit('initialize-players', rooms[roomId]);
+            if (rooms[roomId].players.length < 10) {
+                rooms[roomId].players.push({
+                    id: socket.id,
+                    name: playerName,
+                    isHost: false,
+                    roomId: roomId
+                });
+                socket.join(roomId);
+                io.in(roomId).emit('player-joined', { roomId: roomId });
+                io.in(roomId).emit('initialize-players', rooms[roomId]);
+            } else {
+                socket.emit('player-cant-join', { roomId: roomId, playerId: socket.id });
+            }
+        } else {
+            socket.emit('room-doesnt-exist', { roomId: roomId, playerId: socket.id });
         }
     });
 
@@ -110,11 +118,11 @@ io.on('connection', (socket) => {
         const playersSpawnLocations = generatePlayersSpawn(rooms[roomId].players);
         const gunSpawnLocations = generateGunSpawns(mapStart, mapEnd, 30, gunConfigs);
         const itemSpawnLocations = generateItemSpawns(mapStart, mapEnd, 20, itemConfigs);
-        io.in(roomId).emit('start-game', { 
-            playersSpawnLocations: playersSpawnLocations, 
+        io.in(roomId).emit('start-game', {
+            playersSpawnLocations: playersSpawnLocations,
             gunSpawnLocations: gunSpawnLocations,
             itemSpawnLocations: itemSpawnLocations
-         });
+        });
     });
 
     socket.on('player-move', ({ position, roomId, playerState, jumpCount, idleCount }) => {
@@ -122,7 +130,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('A user disconnected:', socket.id);
 
         for (const roomId in rooms) {
             const room = rooms[roomId];
