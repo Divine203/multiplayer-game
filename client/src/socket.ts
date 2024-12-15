@@ -1,7 +1,7 @@
 import { io } from "../node_modules/socket.io-client/build/esm/index";
 import { Game } from "./main";
 import { Player } from "./player";
-import { currentGame, setGame, currentMap, setPlayer, setMap, setUI, _ui, setRoomId, setSprites, spawn, cvs, MAP_BASE, setSound } from "./general";
+import { currentGame, setGame, currentMap, setPlayer, setMap, setUI, _ui, setRoomId, setSprites, spawn, cvs, MAP_BASE, setSound, setControls } from "./general";
 import { Map1 } from "./map1";
 import { Tile } from "./tile";
 import { UI } from "./ui";
@@ -27,7 +27,8 @@ class Socket {
         }
 
         this.host.on('connect', () => {
-            console.log('Connected to server with ID:', this.host.id);
+            alert('press h for help :)');
+        
             const ui = new UI();
             setUI(ui);
 
@@ -73,7 +74,6 @@ class Socket {
             });
             _ui.displayPlayersInRoom();
             _ui.listenUIEvent(UIEvent.INITIALIZED_PLAYERS);
-            console.log(currentMap.players);
         });
 
 
@@ -181,6 +181,29 @@ class Socket {
             }
         });
 
+        this.host.off('player-cant-join').on('player-cant-join', () => {
+            alert('room already has 10 players');
+            return;
+        });
+
+        this.host.off('room-doesnt-exist').on('room-doesnt-exist', () => {
+            alert('room doesnt exist');
+            return;
+        });
+
+        this.host.off('player-death').on('player-death', ({ playerId }: { playerId: string | any }) => {
+            const player: Player = currentMap.players.find((p: Player) => p.id === playerId);
+            if(player) {
+                player.state.isDead = true;
+
+                if (player.isYou) {
+                    player.showDeathAlert();
+                    setControls(null);
+                }
+            }
+
+        });
+
         this.host.off('barrel-explode').on('barrel-explode', ({ barrelIndex }: { barrelIndex: number }) => {
             currentMap.items.forEach((item: Item, index: number) => {
                 if(index == barrelIndex && item.itemType == ItemType.BARREL) {
@@ -191,8 +214,6 @@ class Socket {
 
 
         this.host.on('player-leave', ({ playerId, name }: { playerId: string | any, name: string }) => {
-            console.log(`Player ${name} left`);
-
             const updatedPlayers = currentMap.players.filter((p: Player) => p.id !== playerId);
             currentMap.players = updatedPlayers;
             _ui.displayPlayersInRoom();

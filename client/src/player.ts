@@ -699,6 +699,11 @@ export class Player {
         if (this.hp <= 0) {
             this.state.isDead = true;
 
+            server.host.emit('player-death', {
+                roomId: this.currentRoom,
+                playerId: this.id
+            });
+
             if(this.isYou) {
                 this.showDeathAlert();
                 setControls(null);  

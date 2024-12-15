@@ -1,9 +1,14 @@
 body{
-    background-color: rgb(26, 26, 26);
+    background-color: rgb(37, 37, 37);
     color: #fff;
     height: 100vh;
     position: relative;
     font-family: consolas !important;
+}
+
+:root {
+    --button-bg: rgb(236, 236, 236);
+    --button-border: rgb(132, 132, 132);
 }
 
 * {
@@ -19,9 +24,32 @@ body{
 
 #canvas--cont {
     height: 100%;
+    font-weight: bolder;
     width: 100%;
     overflow: hidden;
     align-self: center;
+}
+
+h2.title {
+    font-size: 2.6rem;
+    padding: .5em;
+    letter-spacing: 10px;
+    text-shadow: 0 5px 0px rgb(126, 126, 126);
+    animation: float 1s infinite 0s;
+    position: relative;
+}
+
+@keyframes float {
+    0% { top: 0 }
+    50% { top: -10px }
+    100% { top: 0px }
+}
+
+.roomId--cont {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
 }
 
 .page--cont {
@@ -65,13 +93,33 @@ body{
 .room--cont .player {
     margin: 1em;
 }
-.room--cont .player span.profile {
-    background: red;
-    width: 50px;
-    height: 50px;
+
+
+.profile img {
+    margin-top: 8px;
+    width: 4em;
+    height: auto;
+}
+
+#player_list{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .6em;
 }
 
 button {
     cursor: pointer !important;
-    /* color: #161616; */
+    border: none;
+    border-bottom: 4px solid var(--button-border);
+    border-radius: 6px;
+    background-color: var(--button-bg);
+    padding: .7em 1.5em;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+input {
+    padding: .7em 1.5em;
+    border-radius: 6px;
 }

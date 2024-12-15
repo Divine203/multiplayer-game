@@ -13,7 +13,7 @@
     <section class="ui--cont">
         <div id="home" class="page--cont home--cont">
             <div>
-                <h2>Welcome</h2>
+                <h2 class="title">GUN SC0TCH 0NLINE</h2>
 
                 <button id="btn_createRoom">Create Room</button>
                 <button id="btn_joinRoom">Join Room</button>
@@ -39,7 +39,10 @@
 
         <div id="room" class="page--cont room--cont">
             <div>
-                <input id="input_displayRoomId" type="text" placeholder="roomId" disabled />
+                <div class="roomId--cont">
+                    <input style="color: white;" id="input_displayRoomId" type="text" placeholder="roomId" disabled />
+                    <button id="copy-id--btn">copy Id</button>
+                </div>
                 
                 <div id="player_list">
 
@@ -54,17 +57,38 @@
         </div>
 
         <div id="helper" class="helper--cont">
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Placeat dolorem voluptatem obcaecati,
-                exercitationem dolorum repellendus necessitatibus earum, totam optio facilis soluta fugiat possimus
-                debitis eligendi nobis consectetur! Excepturi, aspernatur corporis?</p>
+            <h3>Hello ✋...</h3>
+            <p>The game is very straightforward to play. </p>
+            <br />
+            <p>You can either create a room or join one.</p>
+            <p>When you create one, you send the ID to your friends to come join you and play.</p>
 
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Placeat dolorem voluptatem obcaecati,
-                exercitationem dolorum repellendus necessitatibus earum, totam optio facilis soluta fugiat possimus
-                debitis eligendi nobis consectetur! Excepturi, aspernatur corporis?</p>
+            <br />
+            <h3>Controls</h3>
+            <br />
 
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Placeat dolorem voluptatem obcaecati,
-                exercitationem dolorum repellendus necessitatibus earum, totam optio facilis soluta fugiat possimus
-                debitis eligendi nobis consectetur! Excepturi, aspernatur corporis?</p>
+            <p>'x' => shoot</p>
+            <p>'t' => pick up guns</p>
+            <p>'v' => switch guns</p>
+            <p>'Up Arrow' => jump / double jump</p>
+            <p>'Down Arrow' => slide</p>
+            <p>'Left Arrow' => move left</p>
+            <p>'Right Arrow' => move right</p>
+            <p>'a / z' => to throw grenades</p>
+            <p>'h' => for help</p>
+
+            <br />
+            <h3>MAKE SURE CAPS LOCK IS OFF!!</h3>
+            <br />
+
+            <br />
+            <h3>Also avoid pressing 'tab' while playing lol</h3>
+            <br />
+
+            <a style="color: blue; text-decoration: none; cursor: pointer;" href="https://www.youtube.com/watch?v=wnlLsXZaD88&t=30s" target="_blank" 
+            rel="noopener noreferrer">🎬 HOW I MADE IT</a> 
+            
+
         </div>
     </section>
 

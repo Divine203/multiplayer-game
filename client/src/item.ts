@@ -108,7 +108,7 @@ export class Item {
         const { animate, animation, sX, sY, cropWidth, cropHeight, recommendedWidth, recommendedHeight } = this.grenadeSprite.explosionAnimation;
         const offsetX = animate ? (animation as any).frameCut * (animation as any).frameX : 0;
         this.pos.x = this.explosionPosX - 50;
-        this.pos.y = (this.explosionPosY - recommendedHeight) + 40;  // add slight corrections (10 is for physics displacement)
+        this.pos.y = (this.explosionPosY - recommendedHeight) + 40;
         this.width = recommendedWidth,
         this.height = recommendedHeight;
         ctx.drawImage(sprites.sheet,
