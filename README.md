@@ -1,4 +1,4 @@
-## Gun Scotch Online🎮
+## Gun Scotch Online
 
 > **A 2D multiplayer shooting game built with TypeScript and Node.js**  
 
